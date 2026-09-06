@@ -1,0 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { SiteLayout } from "@/components/auria/SiteShell";
+import { ContactSection } from "@/components/auria/AuriaHome";
+export const Route=createFileRoute("/contact")({head:()=>({meta:[{title:"Contact AURIA — Start a Partnership"},{name:"description",content:"Tell AURIA what you need sourced, manufactured or shipped from China."},{property:"og:title",content:"Contact AURIA — Start a Partnership"},{property:"og:description",content:"Start a sourcing and trading conversation with AURIA."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:()=> <SiteLayout><div className="bg-ink pt-24"><ContactSection/></div></SiteLayout>});
