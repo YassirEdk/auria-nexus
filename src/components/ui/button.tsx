@@ -17,7 +17,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         auria: "bg-primary text-primary-foreground shadow-auria hover:-translate-y-0.5 hover:bg-primary/90",
-        auriaOutline: "border border-border-strong bg-transparent text-foreground hover:border-brand hover:text-brand",
+        auriaOutline: "border border-border-strong bg-transparent text-current hover:border-brand hover:text-brand",
         auriaGhost: "border border-brand/40 bg-brand/5 text-brand hover:bg-brand hover:text-brand-foreground",
         iconGhost: "border border-border bg-background/10 text-foreground hover:border-brand hover:text-brand",
       },
