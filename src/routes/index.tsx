@@ -1,24 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AuriaHome } from "@/components/auria/AuriaHome";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({ meta: [
+    { title: "AURIA — Global Sourcing & Trading from China" },
+    { name: "description", content: "AURIA connects global businesses with trusted Chinese manufacturers, sourcing, quality control and international logistics." },
+    { property: "og:title", content: "AURIA — Your Global Gateway to China" },
+    { property: "og:description", content: "End-to-end sourcing, manufacturing and logistics from China to the world." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ]}),
+  component: AuriaHome,
 });
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
