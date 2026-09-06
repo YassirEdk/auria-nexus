@@ -1,4 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Globe2, Handshake, ShieldCheck } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
-export const Route = createFileRoute("/about")({ head:()=>({meta:[{title:"About AURIA — China Sourcing Partner"},{name:"description",content:"Meet AURIA, your China-based partner for global sourcing, production and logistics."},{property:"og:title",content:"About AURIA — China Sourcing Partner"},{property:"og:description",content:"A reliable operating bridge between Chinese manufacturing and global markets."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}), component:()=> <InteriorPage code="01" eyebrow="Company" title="Your operating partner in China." intro="We work as an extension of your business — coordinating the relationships, detail and execution needed to move confidently from product brief to global delivery." items={[[Building2,"Based in China","Local context and direct access to the manufacturing ecosystem."],[Globe2,"Built for global business","Procurement decisions made with destination markets and delivery in mind."],[Handshake,"One accountable partner","Clear communication throughout sourcing, production and shipment."],[ShieldCheck,"Quality-led execution","Verification and control are embedded throughout the process."]]}/> });
+
+export const Route = createFileRoute("/about")({
+  head: () => ({
+    meta: [
+      { title: "Studio — AURIA" },
+      { name: "description", content: "AURIA is your China-based operating partner for global sourcing, production and logistics." },
+    ],
+  }),
+  component: () => (
+    <InteriorPage
+      code="01"
+      eyebrow="Studio"
+      title="Operating"
+      italicTitle="from China."
+      intro="AURIA works as an extension of your business — coordinating relationships, detail and execution needed to move confidently from product brief to global delivery."
+    />
+  ),
+});

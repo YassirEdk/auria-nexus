@@ -1,95 +1,70 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowUpRight, type LucideIcon } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { motion } from "motion/react";
 import { SiteLayout } from "./SiteShell";
-import { Reveal } from "./AuriaHome";
-
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } } };
-const item = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const } } };
 
 export function InteriorPage({
+  code = "00",
   eyebrow,
   title,
+  italicTitle,
   intro,
-  items,
-  cta = "Start a project",
-  code = "00",
 }: {
+  code?: string;
   eyebrow: string;
   title: string;
+  italicTitle?: string;
   intro: string;
-  items: readonly (readonly [LucideIcon, string, string])[];
-  cta?: string;
-  code?: string;
 }) {
   return (
     <SiteLayout>
-      <section className="relative overflow-hidden pt-28 pb-16 lg:pt-40 lg:pb-24">
-        <div className="grid-bg absolute inset-0 opacity-60" aria-hidden />
+      <section className="relative flex min-h-[80vh] items-center overflow-hidden bg-black px-6 pt-40 pb-24">
+        <div className="noir-vignette absolute inset-0 opacity-70" aria-hidden />
         <div className="site-container relative">
-          <motion.div initial="hidden" animate="show" variants={stagger}>
-            <motion.p variants={item} className="readout">
-              <span className="dot" /> {eyebrow} · Ref /{code}
-            </motion.p>
-            <motion.h1 variants={item} className="display-title mt-8 max-w-5xl">
-              {title}
-            </motion.h1>
-            <motion.p variants={item} className="mt-8 max-w-2xl text-base leading-7 text-muted-foreground">
-              {intro}
-            </motion.p>
-            <motion.div variants={item} className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <Link
-                to="/contact"
-                className="mono group inline-flex items-center justify-between gap-4 border border-accent bg-accent px-6 py-4 text-xs font-medium uppercase tracking-widest text-accent-foreground transition-colors duration-300 hover:bg-transparent hover:text-accent"
-              >
-                {cta} <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </Link>
-              <Link
-                to="/services"
-                className="mono group inline-flex items-center justify-between gap-4 border border-border-strong px-6 py-4 text-xs font-medium uppercase tracking-widest text-foreground transition-colors duration-300 hover:border-accent hover:text-accent"
-              >
-                Explore services <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="border-t border-border py-16 lg:py-24">
-        <div className="site-container">
-          {items.map(([Icon, name, copy], i) => (
-            <Reveal key={name} delay={(i % 2) * 0.05}>
-              <div className="service-row">
-                <span className="mono text-[11px] uppercase tracking-widest text-muted-foreground">/ {String(i + 1).padStart(2, "0")}</span>
-                <div className="flex items-center gap-4">
-                  <Icon className="size-4 text-accent" />
-                  <h3 className="text-lg font-medium tracking-tight md:text-xl">{name}</h3>
-                </div>
-                <p className="hidden text-sm leading-6 text-muted-foreground md:block">{copy}</p>
-                <ArrowRight className="service-row-arrow size-4" />
-              </div>
-            </Reveal>
-          ))}
-          <div className="border-t border-border" />
-        </div>
-      </section>
-
-      <section className="border-t border-border py-20">
-        <div className="site-container flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
-          <Reveal>
-            <p className="tag">/ Begin</p>
-            <h2 className="display-title mt-6 max-w-2xl" style={{ fontSize: "clamp(1.75rem, 4vw, 3rem)" }}>
-              Ready when you are.
-            </h2>
-          </Reveal>
-          <Reveal delay={0.1} className="w-full sm:w-auto">
-            <Link
-              to="/contact"
-              className="mono group inline-flex w-full items-center justify-between gap-4 border border-accent bg-accent px-6 py-4 text-xs font-medium uppercase tracking-widest text-accent-foreground transition-colors duration-300 hover:bg-transparent hover:text-accent sm:w-auto"
-            >
-              {cta} <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="eyebrow"
+          >
+            <span>/ {code}</span> <span className="opacity-40">{eyebrow}</span>
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="display mt-10 max-w-6xl font-black uppercase leading-[0.88] tracking-[-0.03em]"
+            style={{ fontSize: "clamp(2.75rem, 9vw, 10rem)" }}
+          >
+            {title}
+            {italicTitle && (
+              <>
+                <br />
+                <span className="italic font-thin text-white/60">{italicTitle}</span>
+              </>
+            )}
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-12 max-w-2xl text-lg leading-8 text-white/70 md:text-xl"
+          >
+            {intro}
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-14 flex items-center gap-4"
+          >
+            <Link to="/contact" className="slab-btn text-white">
+              Start a project <ArrowUpRight className="size-4" />
             </Link>
-          </Reveal>
+            <Link to="/" className="circle-btn text-white">
+              <ArrowUpRight className="size-4 -rotate-90" />
+            </Link>
+          </motion.div>
         </div>
       </section>
     </SiteLayout>

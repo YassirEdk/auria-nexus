@@ -1,4 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Boxes, Car, CircuitBoard, Construction, Factory, Hotel, Package, Shirt, ShoppingBag, Sparkles } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
-export const Route=createFileRoute("/industries")({head:()=>({meta:[{title:"Industries We Source — AURIA"},{name:"description",content:"China sourcing solutions for automotive, electronics, fashion, furniture, beauty, industry and retail."},{property:"og:title",content:"Industries We Source — AURIA"},{property:"og:description",content:"Cross-sector product sourcing and manufacturing coordination."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:()=> <InteriorPage code="03" eyebrow="Sectors" title="Cross-sector sourcing expertise." intro="Our model adapts to different product specifications, production requirements and commercial realities across a broad range of industries." items={[[Car,"Automotive","Components, accessories and manufacturing coordination."],[CircuitBoard,"Consumer Electronics","Product sourcing and supplier evaluation for connected categories."],[Shirt,"Fashion & Textiles","Apparel, textiles, materials and private-label execution."],[Boxes,"Home & Furniture","Products and production partners for residential and commercial use."],[Sparkles,"Beauty & Cosmetics","Packaging, product development and private-label coordination."],[Factory,"Industrial Equipment","Supplier discovery and production oversight for industrial needs."],[Construction,"Construction","Materials, fixtures and project-based procurement."],[Package,"Packaging","Custom packaging, print and product presentation."],[ShoppingBag,"Retail & E-commerce","Product sourcing designed for modern retail channels."],[Hotel,"Hospitality","Furniture, operating supplies and custom procurement."]]}/>});
+
+export const Route = createFileRoute("/industries")({
+  head: () => ({
+    meta: [
+      { title: "Sectors — AURIA" },
+      { name: "description", content: "Cross-sector sourcing expertise: automotive, electronics, fashion, furniture, beauty, industry and retail." },
+    ],
+  }),
+  component: () => (
+    <InteriorPage
+      code="03"
+      eyebrow="Sectors"
+      title="Cross-sector"
+      italicTitle="sourcing expertise."
+      intro="Our model adapts to different product specifications, production requirements and commercial realities across a broad range of industries."
+    />
+  ),
+});

@@ -1,4 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InteriorPage } from "@/components/auria/InteriorPage";
-import { services } from "@/components/auria/AuriaHome";
-export const Route = createFileRoute("/services")({head:()=>({meta:[{title:"China Sourcing Services — AURIA"},{name:"description",content:"End-to-end sourcing, supplier verification, quality control, private label and logistics from China."},{property:"og:title",content:"China Sourcing Services — AURIA"},{property:"og:description",content:"From factory discovery to final destination with one trusted partner."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:()=> <InteriorPage code="02" eyebrow="Services" title="From factory to final destination." intro="A complete procurement operation designed around your product, quality standards, commercial objectives and destination market." items={services}/>});
+
+export const Route = createFileRoute("/services")({
+  head: () => ({
+    meta: [
+      { title: "Practice — AURIA" },
+      { name: "description", content: "End-to-end sourcing, verification, quality control, private label and logistics from China." },
+    ],
+  }),
+  component: () => (
+    <InteriorPage
+      code="02"
+      eyebrow="Practice"
+      title="Factory"
+      italicTitle="to final destination."
+      intro="A complete procurement operation designed around your product, quality standards, commercial objectives and destination market."
+    />
+  ),
+});
