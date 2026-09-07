@@ -7,10 +7,9 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -37,9 +36,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -88,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100;0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,100;1,9..144,300;1,9..144,500;1,9..144,900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap",
       },
       {
         rel: "stylesheet",
@@ -103,11 +99,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+const perfDetectScript = `(function(){try{
+var d=document.documentElement;
+var nav=navigator||{};
+var mem=nav.deviceMemory||8;
+var cores=nav.hardwareConcurrency||8;
+var conn=nav.connection||{};
+var save=!!conn.saveData;
+var slowNet=/(^|\\W)(2g|slow-2g|3g)/i.test(conn.effectiveType||'');
+var coarse=matchMedia&&matchMedia('(pointer:coarse)').matches;
+var small=innerWidth<900;
+var xsmall=innerWidth<480;
+var reduce=matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+// Broaden the low-end heuristic: any touch + small viewport, OR narrow phones, OR limited RAM/cores.
+var lite=save||slowNet||reduce||mem<=4||cores<=4||(coarse&&small)||xsmall;
+if(lite){d.classList.add('perf-lite');d.setAttribute('data-perf','lite');}
+if(coarse)d.classList.add('is-touch');
+if(small)d.classList.add('is-mobile');
+// Expose primitive values for React hooks without re-probing.
+d.setAttribute('data-viewport', small ? (xsmall ? 'xs' : 'sm') : 'lg');
+}catch(e){}})();`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: perfDetectScript }} />
       </head>
       <body>
         {children}

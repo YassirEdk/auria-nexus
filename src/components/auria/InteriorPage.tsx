@@ -1,72 +1,75 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { SiteLayout } from "./SiteShell";
+import { openRequestAccess } from "./RequestAccessModal";
 
 export function InteriorPage({
   code = "00",
   eyebrow,
   title,
-  italicTitle,
+  subtitle,
   intro,
+  children,
 }: {
   code?: string;
   eyebrow: string;
   title: string;
-  italicTitle?: string;
+  subtitle?: string;
   intro: string;
+  children?: React.ReactNode;
 }) {
   return (
     <SiteLayout>
-      <section className="relative flex min-h-[80vh] items-center overflow-hidden bg-black px-6 pt-40 pb-24">
-        <div className="noir-vignette absolute inset-0 opacity-70" aria-hidden />
-        <div className="site-container relative">
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
+      <section className="scan-line-container relative border-b border-line pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32">
+        <div className="site-container">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="eyebrow"
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="status-badge tone-blue"
           >
-            <span>/ {code}</span> <span className="opacity-40">{eyebrow}</span>
-          </motion.p>
+            <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
+            {code ? `/ ${code} · ${eyebrow}` : eyebrow}
+          </motion.span>
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="display mt-10 max-w-6xl font-black uppercase leading-[0.88] tracking-[-0.03em]"
-            style={{ fontSize: "clamp(2.75rem, 9vw, 10rem)" }}
+            transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 max-w-5xl text-[30px] font-bold leading-[1.08] tracking-tight text-heading sm:text-4xl sm:leading-[1.05] md:text-6xl"
           >
             {title}
-            {italicTitle && (
+            {subtitle && (
               <>
                 <br />
-                <span className="italic font-thin text-white/60">{italicTitle}</span>
+                <span className="text-muted-foreground">{subtitle}</span>
               </>
             )}
           </motion.h1>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-12 max-w-2xl text-lg leading-8 text-white/70 md:text-xl"
+            transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-5 max-w-2xl text-[15px] leading-6 text-muted-foreground sm:mt-6 sm:text-base sm:leading-7 md:text-lg"
           >
             {intro}
           </motion.p>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-14 flex items-center gap-4"
+            transition={{ duration: 0.75, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-8 flex flex-wrap items-center gap-3 sm:mt-10"
           >
-            <Link to="/contact" className="slab-btn text-white">
-              Start a project <ArrowUpRight className="size-4" />
-            </Link>
-            <Link to="/" className="circle-btn text-white">
-              <ArrowUpRight className="size-4 -rotate-90" />
+            <button type="button" onClick={openRequestAccess} className="btn-primary">
+              Apply Now <ArrowUpRight className="size-3.5" />
+            </button>
+            <Link to="/" className="btn-ghost-line">
+              Back to Home <ArrowRight className="size-3.5" />
             </Link>
           </motion.div>
         </div>
       </section>
+      {children}
     </SiteLayout>
   );
 }
