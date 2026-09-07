@@ -20,7 +20,7 @@ const links: readonly NavLink[] = [
   { label: "Contact",     to: "/contact" },
 ];
 
-export function AuriaLogo({ className = "size-7" }: { className?: string }) {
+export function AuriaLogo({ className = "size-7", animate = true }: { className?: string; animate?: boolean }) {
   const draw: Variants = {
     hidden: { pathLength: 0, opacity: 0 },
     visible: (i: number) => ({
@@ -37,7 +37,7 @@ export function AuriaLogo({ className = "size-7" }: { className?: string }) {
       viewBox="0 0 64 64"
       className={`auria-logo ${className}`}
       aria-hidden
-      initial="hidden"
+      initial={animate ? "hidden" : "visible"}
       animate="visible"
       whileHover={{ rotate: [0, -3, 3, 0], transition: { duration: 0.6 } }}
     >
@@ -54,7 +54,7 @@ export function AuriaLogo({ className = "size-7" }: { className?: string }) {
         stroke="url(#auriaGold)"
         strokeOpacity="0.35"
         strokeWidth="1"
-        initial={{ opacity: 0 }}
+        initial={animate ? { opacity: 0 } : { opacity: 1 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       />
@@ -92,11 +92,11 @@ export function AuriaLogo({ className = "size-7" }: { className?: string }) {
   );
 }
 
-export function AuriaMark() {
+export function AuriaMark({ animate = true }: { animate?: boolean }) {
   const letters = ["A", "U", "R", "I", "A"];
   return (
     <Link to="/" className="group flex items-center gap-3" aria-label="AURIA home">
-      <AuriaLogo className="size-7" />
+      <AuriaLogo className="size-7" animate={animate} />
       <span
         className="auria-wordmark text-[13px] font-semibold tracking-widest uppercase text-foreground"
         aria-label="AURIA"
@@ -105,7 +105,7 @@ export function AuriaMark() {
           <motion.span
             key={i}
             className="auria-letter inline-block"
-            initial={{ opacity: 0, y: 6 }}
+            initial={animate ? { opacity: 0, y: 6 } : false}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ y: -3 }}
             transition={{ delay: 0.08 * i, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
@@ -166,11 +166,25 @@ function useHideOnScroll(threshold = 12) {
   return hidden;
 }
 
+// Session-scoped flag: true once the SiteHeader has mounted in this browser
+// tab. Persists across component remounts triggered by client-side navigation,
+// resets on a full page reload. Used to make the entrance animation a
+// one-time-per-session intro that only fires if the first page the user lands
+// on is home.
+let headerIntroPlayed = false;
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const hidden = useHideOnScroll();
+  // Play the entrance animation on the very first SiteHeader mount of this
+  // session — no matter which route the user lands on. Every subsequent
+  // client-side navigation skips it.
+  const shouldAnimate = !headerIntroPlayed;
+  useEffect(() => {
+    headerIntroPlayed = true;
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -199,7 +213,7 @@ export function SiteHeader() {
   return (
     <motion.header
       className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 pointer-events-none"
-      initial={{ y: -100, opacity: 0, filter: "blur(6px)" }}
+      initial={shouldAnimate ? { y: -100, opacity: 0, filter: "blur(6px)" } : false}
       animate={{
         y: hidden && !open ? -120 : 0,
         opacity: hidden && !open ? 0 : 1,
@@ -208,8 +222,8 @@ export function SiteHeader() {
       transition={{ type: "spring", stiffness: 240, damping: 26, mass: 0.8, delay: 0.05 }}
     >
       <motion.div
-        className="island pointer-events-auto flex items-center gap-3 lg:gap-4"
-        initial="hidden"
+        className="island pointer-events-auto flex items-center gap-2 sm:gap-3 lg:gap-4"
+        initial={shouldAnimate ? "hidden" : false}
         animate="show"
         variants={{
           hidden: {},
@@ -222,7 +236,7 @@ export function SiteHeader() {
             show: { opacity: 1, x: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
           }}
         >
-          <AuriaMark />
+          <AuriaMark animate={shouldAnimate} />
         </motion.div>
         <motion.span
           aria-hidden
@@ -268,7 +282,7 @@ export function SiteHeader() {
           }}
         />
         <motion.div
-          className="hidden lg:inline-flex"
+          className="inline-flex"
           variants={{
             hidden: { opacity: 0, scale: 0.9 },
             show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
@@ -277,10 +291,11 @@ export function SiteHeader() {
           <button
             type="button"
             onClick={openRequestAccess}
-            className="island-cta"
+            className="island-cta island-cta--compact"
             aria-label="Apply now"
           >
-            <span>Apply Now</span>
+            <span>Apply</span>
+            <span className="hidden sm:inline">&nbsp;Now</span>
             <ArrowUpRight className="size-3.5" />
           </button>
         </motion.div>

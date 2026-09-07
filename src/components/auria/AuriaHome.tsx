@@ -307,6 +307,21 @@ function VideoTile({
 function IntelMap() {
   const hub = mapNodes[0];
   return (
+    <div className="space-y-4 lg:space-y-0">
+      <IntelMapCanvas hub={hub} />
+      {/* Mobile-only: surface the Incident + Telemetry side panels as stacked
+          cards under the map, since they would otherwise overlap the smaller
+          canvas. Hidden on lg+ where the overlay versions inside the map fit. */}
+      <div className="grid gap-3 lg:hidden">
+        <IncidentCard />
+        <TelemetryCard />
+      </div>
+    </div>
+  );
+}
+
+function IntelMapCanvas({ hub }: { hub: typeof mapNodes[number] }) {
+  return (
     <div className="scan-line-container relative aspect-[4/3] w-full overflow-hidden panel sm:aspect-[16/9] lg:aspect-[21/9]">
       {/* radial glow + green wash */}
       <div
@@ -358,7 +373,7 @@ function IntelMap() {
       <span className="pointer-events-none absolute right-3 bottom-3 size-4 border-r border-b border-blue/50" />
 
       {/* coordinate ticks along top edge */}
-      <div className="pointer-events-none absolute inset-x-0 top-8 hidden justify-between px-14 md:flex">
+      <div className="pointer-events-none absolute inset-x-0 top-8 flex justify-between px-14">
         {["-120°", "-60°", "0°", "60°", "120°"].map((t) => (
           <span key={t} className="mono text-[8px] tracking-widest text-sub-muted/70">{t}</span>
         ))}
@@ -372,12 +387,14 @@ function IntelMap() {
           const d = `M ${hub.x} ${hub.y} Q ${mx} ${my} ${n.x} ${n.y}`;
           return (
             <g key={`arc-${n.id}`}>
-              {/* base faint rail */}
+              {/* base rail — solid line connecting hub → node; bumped from 0.25
+                  to 0.45 opacity so the connection is legible even when the
+                  flowing dash is in a gap phase */}
               <path
                 d={d}
                 fill="none"
                 stroke={toneColor[n.tone]}
-                strokeOpacity="0.25"
+                strokeOpacity="0.45"
                 strokeWidth="1"
                 vectorEffect="non-scaling-stroke"
               />
@@ -421,6 +438,10 @@ function IntelMap() {
         const bearing = Math.round(Math.atan2(n.y - hub.y, n.x - hub.x) * (180 / Math.PI));
         const distance = Math.round(Math.hypot(n.y - hub.y, n.x - hub.x) * 120);
         const signalBars = n.tone === "red" ? 2 : n.tone === "amber" ? 3 : 5;
+        // Mobile: for horizontally-close nodes, alternate the label position
+        // (above vs below the dot) so labels don't collide. Hub goes above so
+        // it clears the 96px crosshair.
+        const labelAboveOnMobile = n.hub || n.id === "dubai" || n.id === "capetown" || n.id === "rotterdam";
         return (
           <div key={n.id} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${n.x}%`, top: `${n.y}%` }}>
             {/* soft blur halo */}
@@ -457,14 +478,41 @@ function IntelMap() {
                 boxShadow: `0 0 0 3px ${toneColor[n.tone]}22, 0 0 12px ${toneColor[n.tone]}88`,
               }}
             />
-            {/* label + telemetry */}
-            <div className={`absolute top-1/2 -translate-y-1/2 whitespace-nowrap ${rightSide ? "right-5 text-right" : "left-5"}`}>
-              <div className={`flex items-center gap-2 ${rightSide ? "justify-end" : ""}`}>
-                <span className="mono text-[9px] font-semibold uppercase tracking-widest" style={{ color: toneColor[n.tone] }}>
+            {/* label + telemetry.
+                Mobile (<lg): centered above OR below the dot, no signal bars /
+                bearing, so labels don't crowd on a narrow map. Hub gets extra
+                offset to clear its 96px crosshair.
+                lg+: original side-of-dot layout with bars + bearing subline. */}
+            <div
+              className={[
+                "absolute whitespace-nowrap",
+                // Mobile positioning
+                "left-1/2 -translate-x-1/2",
+                labelAboveOnMobile
+                  ? n.hub ? "bottom-full mb-14" : "bottom-full mb-1.5"
+                  : n.hub ? "top-full mt-14" : "top-full mt-1.5",
+                // lg+: beside the dot, vertically centered
+                "lg:top-1/2 lg:bottom-auto lg:mt-0 lg:mb-0 lg:-translate-y-1/2 lg:translate-x-0",
+                rightSide ? "lg:left-auto lg:right-5 lg:text-right" : "lg:left-5 lg:right-auto lg:text-left",
+              ].join(" ")}
+            >
+              <div
+                className={[
+                  "flex items-center gap-2 justify-center",
+                  rightSide ? "lg:justify-end" : "lg:justify-start",
+                ].join(" ")}
+              >
+                <span
+                  className="mono text-[8px] font-semibold uppercase tracking-widest lg:text-[9px]"
+                  style={{
+                    color: toneColor[n.tone],
+                    textShadow: "0 0 6px rgba(8,10,13,0.9), 0 1px 2px rgba(8,10,13,0.9)",
+                  }}
+                >
                   {n.label}
                 </span>
-                {/* signal-strength bars */}
-                <span className="flex items-end gap-[1.5px]">
+                {/* signal-strength bars — lg+ only, they eat horizontal space */}
+                <span className="hidden items-end gap-[1.5px] lg:flex">
                   {[1, 2, 3, 4, 5].map((b) => (
                     <span
                       key={b}
@@ -478,7 +526,12 @@ function IntelMap() {
                 </span>
               </div>
               {!n.hub && (
-                <span className={`mono mt-0.5 flex gap-2 text-[8px] uppercase tracking-widest text-sub-muted/80 ${rightSide ? "justify-end" : ""}`}>
+                <span
+                  className={[
+                    "mono mt-0.5 hidden gap-2 text-[8px] uppercase tracking-widest text-sub-muted/80 lg:flex",
+                    rightSide ? "justify-end" : "",
+                  ].join(" ")}
+                >
                   <span>brg {String(((bearing + 360) % 360)).padStart(3, "0")}°</span>
                   <span className="opacity-50">·</span>
                   <span>{distance}nm</span>
@@ -489,69 +542,105 @@ function IntelMap() {
         );
       })}
 
-      {/* Incident card top-left — hidden on very small phones to keep map readable */}
-      <div className="glass-panel absolute left-3 top-10 hidden w-[220px] p-4 shadow-2xl sm:block md:left-6 md:top-14" style={{ boxShadow: "0 20px 40px -10px rgba(239,68,68,0.15), 0 0 0 1px rgba(239,68,68,0.15) inset" }}>
-        <div className="mb-3 flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <span className="status-dot" style={{ background: "#EF4444", color: "#EF4444" }} />
-            <span className="label-mono text-red">Live Incident</span>
-          </div>
-          <span className="mono text-[8px] text-sub-muted">INC-4482</span>
-        </div>
-        <p className="mb-3 text-[12px] leading-5 text-heading">
-          Lane disruption · Red Sea corridor
-        </p>
-        <div className="mb-1 flex items-center justify-between">
-          <span className="mono text-[9px] uppercase tracking-widest text-sub-muted">Confidence</span>
-          <span className="mono text-[10px] font-semibold text-red">91%</span>
-        </div>
-        <div className="h-1 w-full overflow-hidden bg-white/10">
-          <div className="h-full" style={{ width: "91%", background: "linear-gradient(90deg, #EF4444, #f87171)" }} />
-        </div>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          <span className="status-badge tone-red"><AlertTriangle className="size-2.5" /> Critical</span>
-          <span className="status-badge tone-muted">3 lanes</span>
-        </div>
+      {/* Incident card overlay — lg+ only. On mobile it renders as a stacked
+          card BELOW the map, wired up by IntelMap. */}
+      <div className="glass-panel absolute left-3 top-10 hidden w-[220px] p-4 shadow-2xl md:left-6 md:top-14 lg:block" style={{ boxShadow: "0 20px 40px -10px rgba(239,68,68,0.15), 0 0 0 1px rgba(239,68,68,0.15) inset" }}>
+        <IncidentCardBody />
       </div>
 
-      {/* Telemetry feed top-right (no longer covering Sydney) */}
-      <div className="glass-panel absolute right-3 top-10 hidden w-[240px] p-4 shadow-2xl md:right-6 md:top-14 md:block" style={{ boxShadow: "0 20px 40px -10px rgba(59,130,246,0.15), 0 0 0 1px rgba(59,130,246,0.15) inset" }}>
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
-            <span className="label-mono text-blue">Telemetry Feed</span>
-          </div>
-          <span className="mono text-[8px] text-sub-muted">FEED-01</span>
-        </div>
-        <ul className="space-y-1.5">
-          {[
-            ["T-00:00", "SHA hub · load ok", "green"],
-            ["T-00:03", "QC · batch 118A pass", "green"],
-            ["T-00:11", "GZ plant · output -8%", "amber"],
-            ["T-00:29", "Customs · HS accepted", "green"],
-          ].map(([t, msg, tone]) => (
-            <li key={t} className="mono flex items-baseline gap-2 text-[10px] leading-4">
-              <span className="text-sub-muted">{t}</span>
-              <span className="size-1 rounded-full" style={{ background: toneColor[tone], display: "inline-block" }} />
-              <span className="text-muted-foreground">{msg}</span>
-            </li>
-          ))}
-        </ul>
+      {/* Telemetry feed overlay — lg+ only, same as above */}
+      <div className="glass-panel absolute right-3 top-10 hidden w-[240px] p-4 shadow-2xl md:right-6 md:top-14 lg:block" style={{ boxShadow: "0 20px 40px -10px rgba(59,130,246,0.15), 0 0 0 1px rgba(59,130,246,0.15) inset" }}>
+        <TelemetryCardBody />
       </div>
 
-      {/* Bottom status bar */}
-      <div className="absolute inset-x-0 bottom-0 border-t border-line bg-background/85 px-4 py-2 backdrop-blur-sm md:px-6">
-        <div className="mono flex flex-wrap items-center justify-between gap-2 text-[9px] uppercase tracking-widest text-sub-muted">
-          <span className="inline-flex items-center gap-2">
+      {/* Bottom status bar — mobile hides secondary items (lat/lng, "active",
+          "advisory" long forms) so the row fits one line at 320-400px widths. */}
+      <div className="absolute inset-x-0 bottom-0 border-t border-line bg-background/85 px-3 py-2 backdrop-blur-sm md:px-6">
+        <div className="mono flex items-center justify-between gap-2 whitespace-nowrap text-[8px] uppercase tracking-widest text-sub-muted sm:text-[9px]">
+          <span className="inline-flex items-center gap-1.5 sm:gap-2">
             <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
             net.map · sync
           </span>
           <span>07 nodes</span>
-          <span>04 lanes active</span>
-          <span>01 advisory</span>
-          <span className="text-blue">lat 31.23 · lng 121.47</span>
+          <span>04 lanes<span className="hidden sm:inline"> active</span></span>
+          <span>01 adv<span className="hidden sm:inline">isory</span></span>
+          <span className="hidden text-blue md:inline">lat 31.23 · lng 121.47</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ————— Incident + Telemetry card bodies (shared by overlay + mobile card) ————— */
+function IncidentCardBody() {
+  return (
+    <>
+      <div className="mb-3 flex items-start justify-between">
+        <div className="flex items-center gap-2">
+          <span className="status-dot" style={{ background: "#EF4444", color: "#EF4444" }} />
+          <span className="label-mono text-red">Live Incident</span>
+        </div>
+        <span className="mono text-[8px] text-sub-muted">INC-4482</span>
+      </div>
+      <p className="mb-3 text-[12px] leading-5 text-heading">
+        Lane disruption · Red Sea corridor
+      </p>
+      <div className="mb-1 flex items-center justify-between">
+        <span className="mono text-[9px] uppercase tracking-widest text-sub-muted">Confidence</span>
+        <span className="mono text-[10px] font-semibold text-red">91%</span>
+      </div>
+      <div className="h-1 w-full overflow-hidden bg-white/10">
+        <div className="h-full" style={{ width: "91%", background: "linear-gradient(90deg, #EF4444, #f87171)" }} />
+      </div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        <span className="status-badge tone-red"><AlertTriangle className="size-2.5" /> Critical</span>
+        <span className="status-badge tone-muted">3 lanes</span>
+      </div>
+    </>
+  );
+}
+
+function TelemetryCardBody() {
+  return (
+    <>
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
+          <span className="label-mono text-blue">Telemetry Feed</span>
+        </div>
+        <span className="mono text-[8px] text-sub-muted">FEED-01</span>
+      </div>
+      <ul className="space-y-1.5">
+        {[
+          ["T-00:00", "SHA hub · load ok", "green"],
+          ["T-00:03", "QC · batch 118A pass", "green"],
+          ["T-00:11", "GZ plant · output -8%", "amber"],
+          ["T-00:29", "Customs · HS accepted", "green"],
+        ].map(([t, msg, tone]) => (
+          <li key={t} className="mono flex items-baseline gap-2 text-[10px] leading-4">
+            <span className="text-sub-muted">{t}</span>
+            <span className="size-1 rounded-full" style={{ background: toneColor[tone], display: "inline-block" }} />
+            <span className="text-muted-foreground">{msg}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+/* Wrappers rendered as stacked cards below the map on mobile (< lg). */
+function IncidentCard() {
+  return (
+    <div className="panel p-4" style={{ boxShadow: "0 12px 30px -14px rgba(239,68,68,0.20), 0 0 0 1px rgba(239,68,68,0.14) inset" }}>
+      <IncidentCardBody />
+    </div>
+  );
+}
+
+function TelemetryCard() {
+  return (
+    <div className="panel p-4" style={{ boxShadow: "0 12px 30px -14px rgba(59,130,246,0.20), 0 0 0 1px rgba(59,130,246,0.14) inset" }}>
+      <TelemetryCardBody />
     </div>
   );
 }
@@ -833,7 +922,7 @@ function Hero() {
           </Reveal>
         </div>
 
-        <Reveal delay={0.2} className="mt-16">
+        <Reveal delay={0.2} className="mt-16 hidden md:block">
           <IntelMap />
         </Reveal>
       </div>

@@ -108,7 +108,10 @@ export function RequestAccessModal() {
             </div>
 
             {/* Body */}
-            <div className="relative flex-1 overflow-hidden p-6 md:p-8">
+            <div
+              className="has-scrollbar relative flex-1 overflow-y-auto overscroll-contain p-6 md:p-8"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
               <p className="text-[13px] leading-6 text-muted-foreground">
                 We take on a limited number of new mandates each quarter. Submit your brief to be reviewed by an operator — response within one working day.
               </p>
