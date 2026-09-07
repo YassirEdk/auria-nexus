@@ -3,10 +3,10 @@ import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   resolve: {
+    tsconfigPaths: true,
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
@@ -18,7 +18,6 @@ export default defineConfig({
     ],
   },
   plugins: [
-    tsConfigPaths(),
     tanstackStart({
       server: { entry: "server" },
     }),
@@ -28,7 +27,6 @@ export default defineConfig({
   build: {
     target: "es2020",
     cssTarget: "chrome90",
-    minify: "esbuild",
     cssMinify: "lightningcss",
     reportCompressedSize: false,
     chunkSizeWarningLimit: 900,
@@ -49,9 +47,5 @@ export default defineConfig({
         },
       },
     },
-  },
-  esbuild: {
-    legalComments: "none",
-    drop: process.env.NODE_ENV === "production" ? ["console", "debugger"] : [],
   },
 });
