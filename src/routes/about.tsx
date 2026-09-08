@@ -37,7 +37,7 @@ function AboutContent() {
         <div className="site-container">
           <div className="grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-16">
             <Reveal>
-              <span className="label-mono">/ 01·A Studio</span>
+              <span className="section-eyebrow">Studio</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
                 Your China-based operator, not a broker.
               </h2>
@@ -88,7 +88,7 @@ function AboutContent() {
           <Reveal>
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
-                <span className="label-mono">/ 01·B Presence</span>
+                <span className="section-eyebrow">Presence</span>
                 <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight text-heading md:text-5xl">
                   Four offices across the Chinese manufacturing belts.
                 </h2>
@@ -120,7 +120,7 @@ function AboutContent() {
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
-              <span className="label-mono">/ 01·C Principles</span>
+              <span className="section-eyebrow">Principles</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
                 How we operate, differently.
               </h2>
@@ -150,7 +150,7 @@ function AboutContent() {
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
-              <span className="label-mono">/ 01·D Team</span>
+              <span className="section-eyebrow">Team</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
                 Sourcing engineers, not sales reps.
               </h2>

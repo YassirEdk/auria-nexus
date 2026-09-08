@@ -71,7 +71,7 @@ function HowWeWorkContent() {
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
-              <span className="label-mono">/ 04·A Workflow</span>
+              <span className="section-eyebrow">Workflow</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
                 Five verified steps, from brief to warehouse.
               </h2>
@@ -129,7 +129,7 @@ function HowWeWorkContent() {
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
-              <span className="label-mono">/ 04·B Guarantees</span>
+              <span className="section-eyebrow">Guarantees</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
                 What we commit to, in writing.
               </h2>

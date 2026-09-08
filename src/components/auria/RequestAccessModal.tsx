@@ -30,25 +30,17 @@ export function RequestAccessModal() {
     if (!open) return;
     const body = document.body;
     const html = document.documentElement;
-    const prevBody = body.style.overflow;
-    const prevHtml = html.style.overflow;
-    const scrollY = window.scrollY;
+    const prevBodyOverflow = body.style.overflow;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyPadRight = body.style.paddingRight;
+    const scrollbarW = window.innerWidth - html.clientWidth;
     body.style.overflow = "hidden";
     html.style.overflow = "hidden";
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-    body.style.width = "100%";
+    if (scrollbarW > 0) body.style.paddingRight = `${scrollbarW}px`;
     return () => {
-      body.style.overflow = prevBody;
-      html.style.overflow = prevHtml;
-      body.style.position = "";
-      body.style.top = "";
-      body.style.left = "";
-      body.style.right = "";
-      body.style.width = "";
-      window.scrollTo(0, scrollY);
+      body.style.overflow = prevBodyOverflow;
+      html.style.overflow = prevHtmlOverflow;
+      body.style.paddingRight = prevBodyPadRight;
     };
   }, [open]);
 

@@ -626,6 +626,40 @@
   color: var(--text-muted);
 }
 
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #F5C36B;
+  background: linear-gradient(90deg, #F5C36B 0%, #D9A24B 55%, #8C5E1F 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.section-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #D9A24B 50%, #F5C36B 100%);
+  -webkit-text-fill-color: initial;
+}
+.section-eyebrow::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #D9A24B;
+  box-shadow: 0 0 8px rgba(217,162,75,0.6);
+  -webkit-text-fill-color: initial;
+}
+
 @utility status-badge {
   display: inline-flex;
   align-items: center;
@@ -850,4 +884,110 @@ html.is-touch .tilt-card { transform: none !important; }
 /* Guardrails: prevent any element from causing horizontal scroll on mobile */
 @media (max-width: 640px) {
   img, video, svg, canvas { max-width: 100%; height: auto; }
+}
+
+/* Freeze all decorative animations inside the LIVE OPERATIONS panel. */
+.live-panel--static,
+.live-panel--static *,
+.live-panel--static *::before,
+.live-panel--static *::after {
+  animation: none !important;
+}
+
+/* ————— Ambient background FX (aurora blobs + drifting grid) —————
+   Fixed, non-interactive, sits behind all content. Auto-off on perf-lite
+   and reduced-motion. Additive/screen blending keeps it subtle over dark. */
+html:has(.site-bg-fx) { background: var(--base); }
+html:has(.site-bg-fx) body { background: transparent; }
+
+.site-bg-fx {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% -10%, rgba(59,130,246,0.05), transparent 60%);
+}
+
+.site-bg-fx__grid {
+  position: absolute;
+  inset: -2px;
+  background-image:
+    linear-gradient(to right, rgba(148,163,184,0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148,163,184,0.055) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at 50% 40%, #000 40%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 40%, transparent 85%);
+  animation: bgGridDrift 32s linear infinite;
+  opacity: 0.55;
+}
+
+.site-bg-fx__blob {
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+.site-bg-fx__blob--a {
+  left: -14vmax;
+  top: -16vmax;
+  background: radial-gradient(circle at 35% 35%, rgba(59,130,246,0.55), rgba(59,130,246,0) 65%);
+  animation: bgBlobA 24s ease-in-out infinite alternate;
+}
+
+.site-bg-fx__blob--b {
+  right: -16vmax;
+  bottom: -14vmax;
+  background: radial-gradient(circle at 55% 45%, rgba(217,162,75,0.45), rgba(217,162,75,0) 65%);
+  animation: bgBlobB 28s ease-in-out infinite alternate;
+}
+
+.site-bg-fx__noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.25 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+@keyframes bgGridDrift {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(56px, 56px, 0); }
+}
+
+@keyframes bgBlobA {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(6vmax, 4vmax, 0) scale(1.08); }
+  100% { transform: translate3d(-3vmax, 8vmax, 0) scale(0.95); }
+}
+
+@keyframes bgBlobB {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-8vmax, 6vmax, 0) scale(1.05); }
+  100% { transform: translate3d(-2vmax, -6vmax, 0) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-bg-fx__grid,
+  .site-bg-fx__blob { animation: none !important; }
+}
+
+html.perf-lite .site-bg-fx__grid,
+html.perf-lite .site-bg-fx__noise { display: none !important; }
+html.perf-lite .site-bg-fx__blob {
+  filter: blur(60px);
+  opacity: 0.35;
+  animation: none !important;
+}
+
+@media (max-width: 768px) {
+  .site-bg-fx__grid { background-size: 44px 44px; opacity: 0.35; }
+  .site-bg-fx__blob { filter: blur(60px); opacity: 0.4; }
 }

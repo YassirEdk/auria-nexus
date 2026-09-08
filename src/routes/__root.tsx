@@ -111,8 +111,10 @@ var coarse=matchMedia&&matchMedia('(pointer:coarse)').matches;
 var small=innerWidth<900;
 var xsmall=innerWidth<480;
 var reduce=matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
-// Broaden the low-end heuristic: any touch + small viewport, OR narrow phones, OR limited RAM/cores.
-var lite=save||slowNet||reduce||mem<=4||cores<=4||(coarse&&small)||xsmall;
+// Explicit signals always trigger lite. For CPU/RAM heuristics, require BOTH
+// weak (mem<=4 AND cores<=4) so browsers like Brave that spoof one value for
+// fingerprint protection don't get falsely downgraded.
+var lite=save||slowNet||reduce||(mem<=4&&cores<=4)||(coarse&&small)||xsmall;
 if(lite){d.classList.add('perf-lite');d.setAttribute('data-perf','lite');}
 if(coarse)d.classList.add('is-touch');
 if(small)d.classList.add('is-mobile');

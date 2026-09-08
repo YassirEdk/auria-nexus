@@ -434,9 +434,22 @@ function PageTransition({ children }: { children: ReactNode }) {
   );
 }
 
+function SiteBackgroundFX() {
+  return (
+    <div aria-hidden className="site-bg-fx">
+      <span className="site-bg-fx__grid" />
+      <span className="site-bg-fx__blob site-bg-fx__blob--a" />
+      <span className="site-bg-fx__blob site-bg-fx__blob--b" />
+      <span className="site-bg-fx__noise" />
+    </div>
+  );
+}
+
+
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <>
+      <SiteBackgroundFX />
       <ScrollProgress />
       <SiteHeader />
       <PageTransition>{children}</PageTransition>

@@ -100,7 +100,7 @@ function ServicesContent() {
           <Reveal>
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
-                <span className="label-mono">/ 02·A Capabilities</span>
+                <span className="section-eyebrow">Capabilities</span>
                 <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight text-heading md:text-5xl">
                   Ten services. One operator on the ground in China.
                 </h2>

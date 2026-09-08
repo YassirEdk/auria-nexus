@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import {
   ArrowUpRight, ArrowRight, Radar, ShieldCheck, Factory, Ship, Warehouse, Search,
   BadgeCheck, Handshake, Circle, AlertTriangle, Radio, FileText, Satellite, Cctv,
-  ClipboardCheck, MapPin, Camera, Signal, Waves, Activity,
+  ClipboardCheck, MapPin, Camera, Signal,
 } from "lucide-react";
 import { SiteLayout } from "./SiteShell";
 import { openRequestAccess } from "./RequestAccessModal";
@@ -52,6 +52,7 @@ const toneColor: Record<string, string> = {
  * render at ~360px on mobile and up to ~600px in a 3-col grid on desktop.
  */
 function unsplashSrcSet(src: string, opts?: { widths?: number[]; quality?: number }) {
+  if (!/images\.unsplash\.com/.test(src)) return undefined;
   const widths = opts?.widths ?? [400, 640, 900];
   const q = opts?.quality ?? 60;
   const base = src.replace(/([?&])(w|q|auto|fit)=[^&]*/g, "").replace(/([?&])&+/g, "$1");
@@ -192,15 +193,18 @@ function TiltCard({
 function CursorSpotlight({ tone = "#3B82F6", size = 480, opacity = 0.16 }: { tone?: string; size?: number; opacity?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (isLowPerfEnv()) return;
+    if (typeof window === "undefined") return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     const el = ref.current;
     if (!el) return;
     const parent = el.parentElement;
     if (!parent) return;
+
     let ticking = false;
     let lx = 0, ly = 0;
-    const onMove = (e: MouseEvent) => {
-      lx = e.clientX; ly = e.clientY;
+
+    const update = (clientX: number, clientY: number) => {
+      lx = clientX; ly = clientY;
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
@@ -211,21 +215,46 @@ function CursorSpotlight({ tone = "#3B82F6", size = 480, opacity = 0.16 }: { ton
         el.style.opacity = "1";
       });
     };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return;
+      update(e.clientX, e.clientY);
+    };
+    const onMouseMove = (e: MouseEvent) => update(e.clientX, e.clientY);
     const onLeave = () => { el.style.opacity = "0"; };
-    parent.addEventListener("mousemove", onMove, { passive: true });
-    parent.addEventListener("mouseleave", onLeave);
+
+    const supportsPointer = "PointerEvent" in window;
+    if (supportsPointer) {
+      parent.addEventListener("pointermove", onPointerMove, { passive: true });
+      parent.addEventListener("pointerleave", onLeave);
+    } else {
+      parent.addEventListener("mousemove", onMouseMove, { passive: true });
+      parent.addEventListener("mouseleave", onLeave);
+    }
     return () => {
-      parent.removeEventListener("mousemove", onMove);
-      parent.removeEventListener("mouseleave", onLeave);
+      if (supportsPointer) {
+        parent.removeEventListener("pointermove", onPointerMove);
+        parent.removeEventListener("pointerleave", onLeave);
+      } else {
+        parent.removeEventListener("mousemove", onMouseMove);
+        parent.removeEventListener("mouseleave", onLeave);
+      }
     };
   }, []);
+
+  const hex = (o: number) => Math.round(o * 255).toString(16).padStart(2, "0");
+  const c1 = `${tone}${hex(opacity)}`;
+  const c2 = `${tone}${hex(opacity * 0.55)}`;
+  const c3 = `${tone}00`;
+
   return (
     <div
       ref={ref}
       aria-hidden
       className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300"
       style={{
-        background: `radial-gradient(${size}px circle at var(--sx, 50%) var(--sy, 50%), ${tone}${Math.round(opacity * 255).toString(16).padStart(2, "0")}, transparent 60%)`,
+        background: `radial-gradient(circle ${size}px at var(--sx, 50%) var(--sy, 50%), ${c1} 0%, ${c2} 30%, ${c3} 65%)`,
+        WebkitMaskImage: "linear-gradient(#000, #000)",
       }}
     />
   );
@@ -645,9 +674,10 @@ function TelemetryCard() {
   );
 }
 
-function Sparkbars() {
+function Sparkbars({ animated = true }: { animated?: boolean }) {
   const lite = usePerfLite();
   const bars = [0.4, 0.65, 0.55, 0.8, 0.7, 0.9, 0.5, 0.75, 0.85, 0.65, 0.95, 0.7, 0.6, 0.85, 0.9, 0.5];
+  const play = animated && !lite;
   return (
     <div className="flex h-14 items-end gap-1">
       {bars.map((v, i) => (
@@ -656,8 +686,8 @@ function Sparkbars() {
           className="flex-1 origin-bottom bg-blue/60"
           style={{
             height: `${v * 100}%`,
-            animation: lite ? undefined : `bar-pulse 1.6s ease-in-out infinite`,
-            animationDelay: lite ? undefined : `${i * 0.08}s`,
+            animation: play ? `bar-pulse 1.6s ease-in-out infinite` : undefined,
+            animationDelay: play ? `${i * 0.08}s` : undefined,
           }}
         />
       ))}
@@ -665,35 +695,6 @@ function Sparkbars() {
   );
 }
 
-/**
- * Right-column ambient waveform. 44 bars with a staggered infinite loop is
- * expensive on low-end phones — cap at 22 on mobile and freeze on perf-lite.
- */
-function WaveBars() {
-  const lite = usePerfLite();
-  const mobile = useIsMobileViewport();
-  const count = mobile ? 22 : 44;
-  return (
-    <div className="mt-4 flex h-16 items-center gap-[3px]">
-      {Array.from({ length: count }).map((_, i) => {
-        const idx = mobile ? i * 2 : i;
-        return (
-          <span
-            key={i}
-            className="w-[3px] rounded-sm"
-            style={{
-              height: `${20 + Math.abs(Math.sin(idx * 0.42) * 60)}%`,
-              background: "linear-gradient(180deg, #10B981, #3B82F6)",
-              animation: lite ? undefined : `wave-bar 1.3s ease-in-out infinite`,
-              animationDelay: lite ? undefined : `${idx * 0.04}s`,
-              opacity: 0.75,
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
 
 /**
  * Two rows of animated bandwidth ticks along the bottom of the broadcast
@@ -724,7 +725,7 @@ function BandwidthBars() {
 
 function LivePanel() {
   return (
-    <div className="scan-line-container panel relative overflow-hidden p-5 lg:p-6">
+    <div className="panel live-panel--static relative overflow-hidden p-5 lg:p-6">
       <div className="flex items-center justify-between border-b border-line pb-3">
         <div className="flex items-center gap-2">
           <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
@@ -745,7 +746,7 @@ function LivePanel() {
         <div>
           <p className="label-mono">Signals · 1h</p>
           <p className="mono mt-2 text-3xl font-semibold text-blue">12,482</p>
-          <Sparkbars />
+          <Sparkbars animated={false} />
         </div>
       </div>
 
@@ -798,8 +799,8 @@ function Hero() {
           fetchPriority="high"
           className="h-full w-full object-cover opacity-[0.28] saturate-[0.55]"
           style={{
-            filter: lite ? "none" : "contrast(1.05) brightness(0.75) hue-rotate(190deg)",
-            animation: lite ? undefined : "ken-burns 32s ease-in-out infinite",
+            filter: "contrast(1.05) brightness(0.75) hue-rotate(190deg)",
+            animation: "ken-burns 32s ease-in-out infinite",
           }}
         />
         {/* Deep vignette so the backdrop reads as ambient texture, not content */}
@@ -813,32 +814,12 @@ function Hero() {
       </div>
 
       {/* Cursor-follow spotlight over the whole hero — desktop only */}
-      {!lite && !isMobile && <CursorSpotlight tone="#3B82F6" size={620} opacity={0.14} />}
+      {!isMobile && <CursorSpotlight tone="#3B82F6" size={420} opacity={0.1} />}
 
       {/* Animated glow layers — desktop / non-lite only. On mobile these cause big
           per-frame blur repaints that torch the scroll fps. */}
       {!lite && !isMobile && (
         <>
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -left-32 -top-24 size-[720px] rounded-full"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(59,130,246,0.18), transparent 70%)",
-              animation: "hero-glow-a 14s ease-in-out infinite",
-              filter: "blur(20px)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-32 top-20 size-[640px] rounded-full"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(16,185,129,0.13), transparent 70%)",
-              animation: "hero-glow-b 18s ease-in-out infinite",
-              filter: "blur(20px)",
-            }}
-          />
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-40"
@@ -884,8 +865,8 @@ function Hero() {
               <button type="button" onClick={openRequestAccess} className="btn-primary">
                 Apply Now <ArrowUpRight className="size-3.5" />
               </button>
-              <Link to="/" hash="modules" className="btn-ghost-line">
-                Explore Platform <ArrowRight className="size-3.5" />
+              <Link to="/about" className="btn-ghost-line">
+                Explore Us <ArrowRight className="size-3.5" />
               </Link>
               <span className="mono ml-1 hidden items-center gap-2 text-[11px] uppercase tracking-widest text-sub-muted sm:inline-flex">
                 <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
@@ -1144,7 +1125,7 @@ const opsPhotos = [
   },
   {
     src: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=900&q=70&auto=format&fit=crop",
-    node: "BR · Casablanca Container",
+    node: "MA · Casablanca Container",
     tag: "Departure · Vsl AURIA-08",
     tone: "green" as const,
     confidence: "88%",
@@ -1159,11 +1140,11 @@ function OperationsGallery() {
           <div>
             <span className="label-mono">/ 03·B Field Ops</span>
             <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight text-heading md:text-5xl">
-              Live from the network.
+              From the field.
             </h2>
           </div>
           <p className="max-w-md text-sm leading-6 text-muted-foreground md:text-base">
-            Ground-truth imagery streamed from partner terminals and factories. Every frame is timestamped and signed against its telemetry event.
+            Every shipment gets an inspection dossier: photographs of the goods, the packaging, the container seal and the load-out — timestamped, geo-tagged and signed against the shipment record. You see what shipped, before it ships.
           </p>
         </Reveal>
 
@@ -1231,7 +1212,7 @@ function OperationsGallery() {
 
 const broadcastThumbs = [
   {
-    src: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1000&q=70&auto=format&fit=crop",
+    src: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1000&q=70&auto=format&fit=crop",
     node: "SHA · Yangshan",  tag: "Bay 4 · gantry sync",     tone: "green" as const,  timecode: "T-00:04:12",
   },
   {
@@ -1250,27 +1231,27 @@ function CommandBroadcast() {
       <div className="site-container">
         <Reveal className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="label-mono">/ 03·A Broadcast</span>
+            <span className="label-mono">/ 03·A Evidence</span>
             <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight text-heading md:text-5xl">
-              Command <span className="italic serif-display">broadcast.</span>
+              Eyes <span className="italic serif-display">on the ground.</span>
             </h2>
           </div>
           <p className="max-w-md text-sm leading-6 text-muted-foreground md:text-base">
-            Cinematic pipes into the AURIA control room. Feeds from partner terminals, factory floors and lane cameras, cross-signed and time-anchored.
+            Every shipment is photographed on site by our inspectors — at the factory floor, at load-out, at customs. Each image is timestamped, geo-tagged and cross-signed with the shipment record so what you see is what you get.
           </p>
         </Reveal>
 
         <Reveal delay={0.1} className="mt-10 sm:mt-14">
-          <div className="grid gap-6 lg:grid-cols-[1.65fr_1fr]">
+          <div className="grid gap-6">
             {/* Feature panel — Yangshan container terminal, ken-burns motion */}
             <figure className="scan-line-container relative aspect-video overflow-hidden panel">
               <img
-                src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=1200&q=70&auto=format&fit=crop"
-                srcSet="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=480&q=55&auto=format&fit=crop 480w, https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=800&q=60&auto=format&fit=crop 800w, https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=1200&q=70&auto=format&fit=crop 1200w, https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=1800&q=75&auto=format&fit=crop 1800w"
+                src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=1200&q=70&auto=format&fit=crop"
+                srcSet="https://images.unsplash.com/photo-1553413077-190dd305871c?w=480&q=55&auto=format&fit=crop 480w, https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=60&auto=format&fit=crop 800w, https://images.unsplash.com/photo-1553413077-190dd305871c?w=1200&q=70&auto=format&fit=crop 1200w, https://images.unsplash.com/photo-1553413077-190dd305871c?w=1800&q=75&auto=format&fit=crop 1800w"
                 sizes="(max-width:640px) 100vw, (max-width:1024px) 100vw, 66vw"
                 loading="lazy"
                 decoding="async"
-                alt="Yangshan deep-water container terminal — gantry operations"
+                alt="Factory floor — on-site inspection in progress"
                 className="absolute inset-0 h-full w-full object-cover opacity-85 saturate-[0.85]"
                 style={{
                   filter: "contrast(1.05) brightness(0.9)",
@@ -1307,33 +1288,31 @@ function CommandBroadcast() {
               {/* HUD top */}
               <div className="absolute inset-x-4 top-4 flex items-start justify-between">
                 <div className="glass-panel flex items-center gap-2 px-3 py-1.5">
-                  <span className="status-dot" style={{ background: "#EF4444", color: "#EF4444" }} />
+                  <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
                   <span className="mono text-[10px] font-semibold uppercase tracking-widest text-heading">
-                    REC · MAIN FEED
+                    Verified · On-site
                   </span>
                 </div>
                 <div className="glass-panel mono flex items-center gap-3 px-3 py-1.5 text-[10px] uppercase tracking-widest text-blue">
-                  <span>ch-01</span>
+                  <span>insp-4482</span>
                   <span className="text-sub-muted">·</span>
-                  <span>1080p</span>
-                  <span className="text-sub-muted">·</span>
-                  <span>30fps</span>
+                  <span>14 mar 26</span>
                 </div>
               </div>
 
               {/* HUD bottom */}
               <figcaption className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-4">
                 <div>
-                  <p className="mono text-[10px] uppercase tracking-widest text-blue">CN · Shanghai · Yangshan Deep Water Terminal</p>
-                  <p className="mt-2 text-lg font-semibold text-heading md:text-2xl">Bay 4 · gantry ballet in progress.</p>
+                  <p className="mono text-[10px] uppercase tracking-widest text-blue">CN · Shenzhen · Partner Factory · Line 07</p>
+                  <p className="mt-2 text-lg font-semibold text-heading md:text-2xl">Pre-shipment inspection complete.</p>
                   <p className="mono mt-1 text-[10px] uppercase tracking-widest text-sub-muted">
-                    lat 30.6234 · lng 122.0592 · corroborated by 3 signals
+                    lat 30.6234 · lng 122.0592 · signed by inspector + carrier
                   </p>
                 </div>
                 <div className="hidden md:flex items-center gap-2">
                   <span className="glass-panel mono inline-flex items-center gap-2 px-3 py-2 text-[10px] uppercase tracking-widest text-blue">
                     <Signal className="size-3.5" />
-                    uplink · stable
+                    seal · intact
                   </span>
                 </div>
               </figcaption>
@@ -1342,68 +1321,6 @@ function CommandBroadcast() {
               <BandwidthBars />
             </figure>
 
-            {/* Right column: telemetry + thumbs */}
-            <div className="flex flex-col gap-6">
-              <div className="panel p-5 lg:p-6">
-                <div className="flex items-center justify-between border-b border-line pb-3">
-                  <div className="flex items-center gap-2">
-                    <Waves className="size-4 text-blue" />
-                    <span className="label-mono text-heading">Signal Health</span>
-                  </div>
-                  <span className="mono text-[9px] text-sub-muted">CH-01 · UPLINK</span>
-                </div>
-                <ul className="mt-4 space-y-3">
-                  {[
-                    { name: "Video", val: 96, tone: "green" },
-                    { name: "Audio", val: 82, tone: "blue" },
-                    { name: "Telemetry", val: 74, tone: "blue" },
-                    { name: "Custody chain", val: 91, tone: "green" },
-                  ].map((s) => (
-                    <li key={s.name}>
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="mono uppercase tracking-widest text-muted-foreground">{s.name}</span>
-                        <span className="mono font-semibold" style={{ color: toneColor[s.tone] }}>
-                          <CountUp end={s.val} decimals={0} suffix="%" />
-                        </span>
-                      </div>
-                      <div className="mt-1.5 h-1 w-full overflow-hidden bg-white/5">
-                        <div
-                          className="h-full"
-                          style={{
-                            width: `${s.val}%`,
-                            background: `linear-gradient(90deg, ${toneColor[s.tone]}55, ${toneColor[s.tone]})`,
-                            boxShadow: `0 0 12px ${toneColor[s.tone]}66`,
-                          }}
-                        />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mono mt-5 flex items-center justify-between border-t border-line pt-3 text-[9px] uppercase tracking-widest text-sub-muted">
-                  <span className="inline-flex items-center gap-2">
-                    <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
-                    channel · encrypted
-                  </span>
-                  <span>bitrate · 8.4 Mb/s</span>
-                </div>
-              </div>
-
-              {/* Waveform tile */}
-              <div className="panel scan-line-container relative overflow-hidden p-5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Activity className="size-4 text-green" />
-                    <span className="label-mono text-heading">Ambient Waveform</span>
-                  </div>
-                  <span className="mono text-[9px] text-sub-muted">−12 dB</span>
-                </div>
-                <WaveBars />
-                <p className="mono mt-3 text-[9px] uppercase tracking-widest text-sub-muted">
-                  gantry hum · wind 8kn · human voice (op-04)
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Sub-thumbs row */}
@@ -1428,18 +1345,23 @@ function CommandBroadcast() {
   );
 }
 
-const fieldTransmissions = [
-  { src: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=800&q=80&auto=format&fit=crop",  label: "SHA · gantry", tone: "green" as const },
-  { src: "https://images.unsplash.com/photo-1586528116493-a029325540fa?w=800&q=80&auto=format&fit=crop",  label: "AE · transship", tone: "amber" as const },
-  { src: "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&q=80&auto=format&fit=crop",  label: "NL · discharge", tone: "green" as const },
-  { src: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&q=80&auto=format&fit=crop",  label: "GZ · bonded", tone: "blue" as const },
-  { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80&auto=format&fit=crop",  label: "CN · line 07", tone: "blue" as const },
-  { src: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80&auto=format&fit=crop",     label: "MX · staging", tone: "amber" as const },
-  { src: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=800&q=80&auto=format&fit=crop", label: "SG · lane 12", tone: "green" as const },
-  { src: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=80&auto=format&fit=crop", label: "CB · casablanca", tone: "green" as const },
-  { src: "https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?w=800&q=80&auto=format&fit=crop", label: "IN · nhava", tone: "amber" as const },
-  { src: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80&auto=format&fit=crop", label: "US · long beach", tone: "green" as const },
+const fieldTransmissionsRowA = [
+  { src: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=800&q=80&auto=format&fit=crop", label: "SHA · gantry", tone: "green" as const },
+  { src: "https://images.unsplash.com/photo-1586528116493-a029325540fa?w=800&q=80&auto=format&fit=crop", label: "AE · transship", tone: "amber" as const },
+  { src: "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&q=80&auto=format&fit=crop", label: "NL · discharge", tone: "green" as const },
+  { src: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&q=80&auto=format&fit=crop", label: "GZ · bonded", tone: "blue" as const },
+  { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80&auto=format&fit=crop", label: "CN · line 07", tone: "blue" as const },
 ];
+
+const fieldTransmissionsRowB = [
+  { src: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80&auto=format&fit=crop", label: "MX · staging", tone: "amber" as const },
+  { src: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=800&q=80&auto=format&fit=crop", label: "SG · lane 12", tone: "green" as const },
+  { src: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=80&auto=format&fit=crop", label: "MA · casablanca", tone: "green" as const },
+  { src: "https://www.searates.com/vessels-photos/id-9153850.jpeg", label: "IN · nhava", tone: "amber" as const },
+  { src: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&q=80&auto=format&fit=crop", label: "US · long beach", tone: "green" as const },
+];
+
+const fieldTransmissions = [...fieldTransmissionsRowA, ...fieldTransmissionsRowB];
 
 function FieldTransmissions() {
   const lite = usePerfLite();
@@ -1466,16 +1388,6 @@ function FieldTransmissions() {
       {/* Two-row opposite marquees for depth (desktop). Mobile / perf-lite:
           single horizontally-scrollable snap row — same visual language, no
           continuous animation cost. */}
-      {!(lite || mobile) && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-1/3 z-10 h-24 -translate-y-1/2"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(8,10,13,1) 0%, transparent 12%, transparent 88%, rgba(8,10,13,1) 100%)",
-          }}
-        />
-      )}
       {lite || mobile ? (
         <div
           className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2"
@@ -1490,12 +1402,12 @@ function FieldTransmissions() {
       ) : (
         <div className="relative flex flex-col gap-4 overflow-hidden">
           <div className="marquee-track gap-4">
-            {doubled.map((t, i) => (
+            {[...fieldTransmissionsRowA, ...fieldTransmissionsRowA, ...fieldTransmissionsRowA, ...fieldTransmissionsRowA].map((t, i) => (
               <TransmissionCard key={`a-${i}`} src={t.src} label={t.label} tone={t.tone} index={i} />
             ))}
           </div>
           <div className="marquee-track gap-4 [animation-direction:reverse] [animation-duration:56s]">
-            {doubled.map((t, i) => (
+            {[...fieldTransmissionsRowB, ...fieldTransmissionsRowB, ...fieldTransmissionsRowB, ...fieldTransmissionsRowB].map((t, i) => (
               <TransmissionCard key={`b-${i}`} src={t.src} label={t.label} tone={t.tone} index={i + 100} reverse />
             ))}
           </div>
@@ -1505,7 +1417,7 @@ function FieldTransmissions() {
   );
 }
 
-function TransmissionCard({ src, label, tone, index, reverse = false }: { src: string; label: string; tone: "green" | "blue" | "amber" | "red"; index: number; reverse?: boolean }) {
+function TransmissionCard({ src, label, tone }: { src: string; label: string; tone: "green" | "blue" | "amber" | "red"; index?: number; reverse?: boolean }) {
   return (
     <div className="scan-line-container relative aspect-[4/3] w-[200px] shrink-0 overflow-hidden border border-line bg-panel/40 sm:w-[220px] md:w-[280px]">
       <img
@@ -1530,9 +1442,6 @@ function TransmissionCard({ src, label, tone, index, reverse = false }: { src: s
       </div>
       <div className="absolute inset-x-0 bottom-0 p-3">
         <p className="mono text-[10px] uppercase tracking-widest" style={{ color: toneColor[tone] }}>{label}</p>
-        <p className="mono mt-1 text-[9px] uppercase tracking-widest text-sub-muted">
-          frm · IMG-{String(4000 + index).padStart(4, "0")}
-        </p>
       </div>
     </div>
   );
@@ -1556,9 +1465,9 @@ function FinalCTA() {
             Get an AURIA operator on your next PO within 48 hours.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link to="/contact" className="btn-primary">
+            <button type="button" onClick={openRequestAccess} className="btn-primary">
               Get Started <ArrowUpRight className="size-3.5" />
-            </Link>
+            </button>
             <Link to="/contact" className="btn-ghost-line">
               Talk to Expert <ArrowRight className="size-3.5" />
             </Link>
@@ -1574,7 +1483,7 @@ function ContactSection() {
     <section className="border-b border-line py-16 sm:py-24 lg:py-32" id="inquiry">
       <div className="site-container grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
         <Reveal>
-          <span className="label-mono">/ 06 Contact</span>
+          <span className="section-eyebrow">Contact</span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-4xl">
             Open a secure channel.
           </h2>
