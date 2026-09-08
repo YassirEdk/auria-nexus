@@ -9,6 +9,17 @@ import {
 import { SiteLayout } from "./SiteShell";
 import { openRequestAccess } from "./RequestAccessModal";
 import { usePerfLite, useIsMobileViewport } from "@/hooks/use-perf";
+import heroPort from "@/assets/hero/1494412574643-ff11b0a5c1c3.jpg";
+import photoGz from "@/assets/hero/1578575437130-527eed3abbec.jpg";
+import photoNl from "@/assets/hero/1587293852726-70cdb56c2866.jpg";
+import photoAe from "@/assets/hero/1586528116493-a029325540fa.jpg";
+import photoSz from "@/assets/hero/1518770660439-4636190af475.jpg";
+import photoMa from "@/assets/hero/1601584115197-04ecc0da31d7.jpg";
+import photoSha from "@/assets/hero/1494412651409-8963ce7935a7.jpg";
+import photoHkg from "@/assets/hero/1436491865332-7a61a109cc05.jpg";
+import photoOverland from "@/assets/hero/1519003722824-194d4455a60c.jpg";
+import photoFactory from "@/assets/hero/1553413077-190dd305871c.jpg";
+import photoVessel from "@/assets/hero/vessel-9153850.jpg";
 
 const modules = [
   { icon: Search,        title: "Sourcing Signals",     copy: "Live supplier intake from verified Chinese manufacturing hubs, ranked by capability match." },
@@ -786,32 +797,41 @@ function Hero() {
   const lite = usePerfLite();
   const isMobile = useIsMobileViewport();
   return (
-    <section className="relative overflow-hidden border-b border-line pt-24 pb-16 sm:pt-28 sm:pb-24 lg:pt-36 lg:pb-32">
-      {/* Cinematic backdrop — container port aerial, ken-burns motion */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <img
-          src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=1200&q=70&auto=format&fit=crop"
-          srcSet="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=480&q=55&auto=format&fit=crop 480w, https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=800&q=60&auto=format&fit=crop 800w, https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=1200&q=70&auto=format&fit=crop 1200w, https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=1800&q=75&auto=format&fit=crop 1800w"
-          sizes="100vw"
-          alt=""
-          loading="eager"
-          decoding="async"
-          fetchPriority="high"
-          className="h-full w-full object-cover opacity-[0.28] saturate-[0.55]"
-          style={{
-            filter: "contrast(1.05) brightness(0.75) hue-rotate(190deg)",
-            animation: "ken-burns 32s ease-in-out infinite",
-          }}
-        />
-        {/* Deep vignette so the backdrop reads as ambient texture, not content */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse at 50% 40%, rgba(8,10,13,0.25) 0%, rgba(8,10,13,0.75) 55%, rgba(8,10,13,0.98) 100%)",
-          }}
-        />
-      </div>
+    <section className="relative overflow-hidden border-b border-line bg-background pt-24 pb-16 sm:pt-28 sm:pb-24 lg:pt-36 lg:pb-32">
+      {/* Cinematic backdrop — sm+ ONLY. Phone gets the plain dark background
+          from the section itself (no image request, no clipping quirks).
+          The dark base + soft radial pre-tint fills the section instantly so
+          nothing looks blank while the Unsplash image streams in. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 hidden sm:block"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 40%, rgba(15,20,28,1) 0%, rgba(8,10,13,1) 60%, rgba(6,8,11,1) 100%)",
+        }}
+      />
+      <img
+        src={heroPort}
+        alt=""
+        aria-hidden
+        loading="eager"
+        decoding="async"
+        fetchPriority="high"
+        className="pointer-events-none absolute inset-0 hidden h-full w-full object-cover opacity-[0.28] saturate-[0.55] sm:block"
+        style={{
+          filter: "contrast(1.05) brightness(0.75) hue-rotate(190deg)",
+          animation: "ken-burns 32s ease-in-out infinite",
+        }}
+      />
+      {/* sm+ vignette — deep so backdrop reads as ambient texture, not content */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 hidden sm:block"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 40%, rgba(8,10,13,0.25) 0%, rgba(8,10,13,0.75) 55%, rgba(8,10,13,0.98) 100%)",
+        }}
+      />
 
       {/* Cursor-follow spotlight over the whole hero — desktop only */}
       {!isMobile && <CursorSpotlight tone="#3B82F6" size={420} opacity={0.1} />}
@@ -1088,48 +1108,12 @@ function Modules() {
 }
 
 const opsPhotos = [
-  {
-    src: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=900&q=70&auto=format&fit=crop",
-    node: "SHA · Yangshan Terminal",
-    tag: "Loading · TEU 4,482",
-    tone: "green" as const,
-    confidence: "97%",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=900&q=70&auto=format&fit=crop",
-    node: "GZ · Nansha Bonded",
-    tag: "Consolidation · 12 SKUs",
-    tone: "blue" as const,
-    confidence: "89%",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=900&q=70&auto=format&fit=crop",
-    node: "NL · Rotterdam Port",
-    tag: "Discharge · ETA 03:14",
-    tone: "green" as const,
-    confidence: "94%",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1586528116493-a029325540fa?w=900&q=70&auto=format&fit=crop",
-    node: "AE · Jebel Ali",
-    tag: "Transshipment · lane 4",
-    tone: "amber" as const,
-    confidence: "76%",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=70&auto=format&fit=crop",
-    node: "CN · Shenzhen · Line 07",
-    tag: "SMT · rev C tooling live",
-    tone: "blue" as const,
-    confidence: "92%",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=900&q=70&auto=format&fit=crop",
-    node: "MA · Casablanca Container",
-    tag: "Departure · Vsl AURIA-08",
-    tone: "green" as const,
-    confidence: "88%",
-  },
+  { src: heroPort,      node: "SHA · Yangshan Terminal",     tag: "Loading · TEU 4,482",        tone: "green" as const, confidence: "97%" },
+  { src: photoGz,       node: "GZ · Nansha Bonded",          tag: "Consolidation · 12 SKUs",    tone: "blue" as const,  confidence: "89%" },
+  { src: photoNl,       node: "NL · Rotterdam Port",         tag: "Discharge · ETA 03:14",      tone: "green" as const, confidence: "94%" },
+  { src: photoAe,       node: "AE · Jebel Ali",              tag: "Transshipment · lane 4",     tone: "amber" as const, confidence: "76%" },
+  { src: photoSz,       node: "CN · Shenzhen · Line 07",     tag: "SMT · rev C tooling live",   tone: "blue" as const,  confidence: "92%" },
+  { src: photoMa,       node: "MA · Casablanca Container",   tag: "Departure · Vsl AURIA-08",   tone: "green" as const, confidence: "88%" },
 ];
 
 function OperationsGallery() {
@@ -1211,18 +1195,9 @@ function OperationsGallery() {
 }
 
 const broadcastThumbs = [
-  {
-    src: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1000&q=70&auto=format&fit=crop",
-    node: "SHA · Yangshan",  tag: "Bay 4 · gantry sync",     tone: "green" as const,  timecode: "T-00:04:12",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1000&q=70&auto=format&fit=crop",
-    node: "HKG · Air Cargo",  tag: "Freighter · gate C7",    tone: "blue" as const,   timecode: "T-00:09:48",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=1000&q=70&auto=format&fit=crop",
-    node: "CN · Overland",    tag: "Convoy · 12 trailers",   tone: "amber" as const,  timecode: "T-00:21:03",
-  },
+  { src: photoSha,      node: "SHA · Yangshan",  tag: "Bay 4 · gantry sync",   tone: "green" as const, timecode: "T-00:04:12" },
+  { src: photoHkg,      node: "HKG · Air Cargo", tag: "Freighter · gate C7",   tone: "blue" as const,  timecode: "T-00:09:48" },
+  { src: photoOverland, node: "CN · Overland",   tag: "Convoy · 12 trailers",  tone: "amber" as const, timecode: "T-00:21:03" },
 ];
 
 function CommandBroadcast() {
@@ -1246,9 +1221,7 @@ function CommandBroadcast() {
             {/* Feature panel — Yangshan container terminal, ken-burns motion */}
             <figure className="scan-line-container relative aspect-video overflow-hidden panel">
               <img
-                src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=1200&q=70&auto=format&fit=crop"
-                srcSet="https://images.unsplash.com/photo-1553413077-190dd305871c?w=480&q=55&auto=format&fit=crop 480w, https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=60&auto=format&fit=crop 800w, https://images.unsplash.com/photo-1553413077-190dd305871c?w=1200&q=70&auto=format&fit=crop 1200w, https://images.unsplash.com/photo-1553413077-190dd305871c?w=1800&q=75&auto=format&fit=crop 1800w"
-                sizes="(max-width:640px) 100vw, (max-width:1024px) 100vw, 66vw"
+                src={photoFactory}
                 loading="lazy"
                 decoding="async"
                 alt="Factory floor — on-site inspection in progress"
@@ -1346,19 +1319,19 @@ function CommandBroadcast() {
 }
 
 const fieldTransmissionsRowA = [
-  { src: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=800&q=80&auto=format&fit=crop", label: "SHA · gantry", tone: "green" as const },
-  { src: "https://images.unsplash.com/photo-1586528116493-a029325540fa?w=800&q=80&auto=format&fit=crop", label: "AE · transship", tone: "amber" as const },
-  { src: "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&q=80&auto=format&fit=crop", label: "NL · discharge", tone: "green" as const },
-  { src: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&q=80&auto=format&fit=crop", label: "GZ · bonded", tone: "blue" as const },
-  { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80&auto=format&fit=crop", label: "CN · line 07", tone: "blue" as const },
+  { src: heroPort, label: "SHA · gantry",   tone: "green" as const },
+  { src: photoAe,  label: "AE · transship", tone: "amber" as const },
+  { src: photoNl,  label: "NL · discharge", tone: "green" as const },
+  { src: photoGz,  label: "GZ · bonded",    tone: "blue" as const },
+  { src: photoSz,  label: "CN · line 07",   tone: "blue" as const },
 ];
 
 const fieldTransmissionsRowB = [
-  { src: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80&auto=format&fit=crop", label: "MX · staging", tone: "amber" as const },
-  { src: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=800&q=80&auto=format&fit=crop", label: "SG · lane 12", tone: "green" as const },
-  { src: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=80&auto=format&fit=crop", label: "MA · casablanca", tone: "green" as const },
-  { src: "https://www.searates.com/vessels-photos/id-9153850.jpeg", label: "IN · nhava", tone: "amber" as const },
-  { src: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&q=80&auto=format&fit=crop", label: "US · long beach", tone: "green" as const },
+  { src: photoFactory,  label: "MX · staging",    tone: "amber" as const },
+  { src: photoSha,      label: "SG · lane 12",    tone: "green" as const },
+  { src: photoMa,       label: "MA · casablanca", tone: "green" as const },
+  { src: photoVessel,   label: "IN · nhava",      tone: "amber" as const },
+  { src: photoOverland, label: "US · long beach", tone: "green" as const },
 ];
 
 const fieldTransmissions = [...fieldTransmissionsRowA, ...fieldTransmissionsRowB];

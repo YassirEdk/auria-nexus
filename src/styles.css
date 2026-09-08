@@ -844,8 +844,11 @@ html.perf-lite [aria-hidden][style*="linear-gradient"] {
 html.perf-lite .marquee-track { animation: none !important; transform: none !important; }
 
 /* Skip painting off-screen sections until they scroll close to the viewport.
-   Huge win for long pages with heavy animated sections. */
-main > section {
+   Huge win for long pages with heavy animated sections.
+   Excludes the first section (the hero) — its full-section background photo
+   needs to paint unclipped, and Safari can be finicky about relaxing the
+   size-containment estimate for an above-the-fold element. */
+main > section:not(:first-of-type) {
   content-visibility: auto;
   contain-intrinsic-size: 1px 900px;
 }
