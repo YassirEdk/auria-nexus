@@ -149,7 +149,7 @@ function IndustriesContent() {
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
-              <span className="label-mono">/ 03·B Manufacturing map</span>
+              <span className="section-eyebrow">Manufacturing map</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
                 The Chinese belts we cover.
               </h2>
@@ -180,9 +180,6 @@ function IndustriesContent() {
             <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
               <Link to="/contact" className="btn-primary">
                 Discuss your sector <ArrowUpRight className="size-3.5" />
-              </Link>
-              <Link to="/services" className="btn-ghost-line">
-                See services
               </Link>
             </div>
           </Reveal>
