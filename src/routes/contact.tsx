@@ -24,7 +24,7 @@ function QrCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="panel scan-line-container relative overflow-hidden p-6 md:p-8"
+      className="panel scan-line-container relative overflow-hidden p-5 sm:p-6 md:p-8"
     >
       <div className="flex items-center justify-between border-b border-line pb-3">
         <div className="flex items-center gap-2">
@@ -82,7 +82,7 @@ function QrCard({
 
 function QrSection() {
   return (
-    <section className="border-b border-line py-24 lg:py-32">
+    <section className="border-b border-line py-14 sm:py-20 lg:py-32">
       <div className="site-container">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -100,7 +100,7 @@ function QrSection() {
           </p>
         </motion.div>
 
-        <div className="mx-auto mt-14 grid max-w-4xl gap-6 sm:grid-cols-2">
+        <div className="mx-auto mt-10 grid max-w-4xl gap-6 sm:mt-14 sm:grid-cols-2">
           <QrCard
             src={qrWechat}
             label="WeChat · 微信"
@@ -122,7 +122,7 @@ function QrSection() {
 function ContactPage() {
   return (
     <SiteLayout>
-      <section className="scan-line-container relative border-b border-line pt-32 pb-24 lg:pt-40 lg:pb-32">
+      <section className="scan-line-container relative border-b border-line pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32">
         <div className="site-container">
           <motion.span
             initial={{ opacity: 0, y: 10 }}
@@ -137,7 +137,7 @@ function ContactPage() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 max-w-5xl text-4xl font-bold leading-[1.05] tracking-tight text-heading md:text-6xl"
+            className="mt-6 max-w-5xl text-[30px] font-bold leading-[1.08] tracking-tight text-heading sm:text-4xl sm:leading-[1.05] md:text-6xl"
           >
             Open a secure channel<br />
             <span className="text-muted-foreground">with an AURIA operator.</span>
@@ -146,7 +146,7 @@ function ContactPage() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg"
+            className="mt-5 max-w-2xl text-[15px] leading-6 text-muted-foreground sm:mt-6 sm:text-base sm:leading-7 md:text-lg"
           >
             Share your product, quantity and destination. Confirmation and a first response within one working day.
           </motion.p>

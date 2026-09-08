@@ -95,7 +95,7 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 function ServicesContent() {
   return (
     <>
-      <section className="border-b border-line py-24 lg:py-32">
+      <section className="border-b border-line py-14 sm:py-20 lg:py-32">
         <div className="site-container">
           <Reveal>
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -111,7 +111,7 @@ function ServicesContent() {
             </div>
           </Reveal>
 
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+          <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-2">
             {services.map(({ icon: Icon, code, title, fr, copy }, i) => (
               <Reveal key={code} delay={(i % 2) * 0.06}>
                 <div className="panel h-full p-6 md:p-7">
@@ -131,7 +131,7 @@ function ServicesContent() {
         </div>
       </section>
 
-      <section className="border-b border-line py-24 lg:py-32">
+      <section className="border-b border-line py-14 sm:py-20 lg:py-32">
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
@@ -145,7 +145,7 @@ function ServicesContent() {
             </div>
           </Reveal>
 
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-6 sm:mt-14 md:grid-cols-3">
             {[
               {
                 tag: "Project",
@@ -194,7 +194,7 @@ function ServicesContent() {
           </div>
 
           <Reveal delay={0.2}>
-            <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3 sm:mt-14">
               <Link to="/contact" className="btn-primary">
                 Scope a project <ArrowUpRight className="size-3.5" />
               </Link>

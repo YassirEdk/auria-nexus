@@ -875,7 +875,7 @@ function Hero() {
             </div>
 
             {/* Micro KPI row — animated count-ups */}
-            <div className="mt-10 grid max-w-2xl grid-cols-2 gap-5 border-t border-line pt-6 sm:mt-14 sm:gap-6 sm:pt-8 sm:grid-cols-4">
+            <div className="mt-8 grid max-w-2xl grid-cols-2 gap-4 border-t border-line pt-6 sm:mt-14 sm:gap-6 sm:pt-8 sm:grid-cols-4">
               {[
                 { l: "Uptime", n: 99.98, suffix: "%", decimals: 2, tone: "green" },
                 { l: "Latency", n: 1.4, suffix: "s", decimals: 1, tone: "blue" },
@@ -884,7 +884,7 @@ function Hero() {
               ].map((k) => (
                 <div key={k.l}>
                   <p className="label-mono">{k.l}</p>
-                  <p className="mono mt-2 text-2xl font-semibold" style={{ color: toneColor[k.tone] }}>
+                  <p className="mono mt-2 text-xl font-semibold sm:text-2xl" style={{ color: toneColor[k.tone] }}>
                     <CountUp
                       end={k.n}
                       suffix={k.suffix}
@@ -1286,14 +1286,14 @@ function CommandBroadcast() {
               <span className="pointer-events-none absolute right-4 bottom-4 size-4 border-r border-b border-blue/70" />
 
               {/* HUD top */}
-              <div className="absolute inset-x-4 top-4 flex items-start justify-between">
-                <div className="glass-panel flex items-center gap-2 px-3 py-1.5">
+              <div className="absolute inset-x-3 top-3 flex flex-wrap items-start justify-between gap-2 sm:inset-x-4 sm:top-4">
+                <div className="glass-panel flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-1.5">
                   <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
-                  <span className="mono text-[10px] font-semibold uppercase tracking-widest text-heading">
+                  <span className="mono text-[9px] font-semibold uppercase tracking-widest text-heading sm:text-[10px]">
                     Verified · On-site
                   </span>
                 </div>
-                <div className="glass-panel mono flex items-center gap-3 px-3 py-1.5 text-[10px] uppercase tracking-widest text-blue">
+                <div className="glass-panel mono hidden items-center gap-3 px-3 py-1.5 text-[10px] uppercase tracking-widest text-blue sm:flex">
                   <span>insp-4482</span>
                   <span className="text-sub-muted">·</span>
                   <span>14 mar 26</span>
@@ -1301,11 +1301,11 @@ function CommandBroadcast() {
               </div>
 
               {/* HUD bottom */}
-              <figcaption className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-4">
-                <div>
-                  <p className="mono text-[10px] uppercase tracking-widest text-blue">CN · Shenzhen · Partner Factory · Line 07</p>
-                  <p className="mt-2 text-lg font-semibold text-heading md:text-2xl">Pre-shipment inspection complete.</p>
-                  <p className="mono mt-1 text-[10px] uppercase tracking-widest text-sub-muted">
+              <figcaption className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-3 sm:inset-x-4 sm:bottom-4 sm:gap-4">
+                <div className="min-w-0 flex-1">
+                  <p className="mono truncate text-[9px] uppercase tracking-widest text-blue sm:text-[10px]">CN · Shenzhen · Partner Factory · Line 07</p>
+                  <p className="mt-1.5 text-sm font-semibold text-heading sm:mt-2 sm:text-lg md:text-2xl">Pre-shipment inspection complete.</p>
+                  <p className="mono mt-1 hidden text-[10px] uppercase tracking-widest text-sub-muted sm:block">
                     lat 30.6234 · lng 122.0592 · signed by inspector + carrier
                   </p>
                 </div>
@@ -1480,8 +1480,8 @@ function FinalCTA() {
 
 function ContactSection() {
   return (
-    <section className="border-b border-line py-16 sm:py-24 lg:py-32" id="inquiry">
-      <div className="site-container grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
+    <section className="border-b border-line py-14 sm:py-20 lg:py-32" id="inquiry">
+      <div className="site-container grid gap-8 sm:gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-12">
         <Reveal>
           <span className="section-eyebrow">Contact</span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-4xl">
@@ -1497,7 +1497,7 @@ function ContactSection() {
           </div>
         </Reveal>
         <Reveal delay={0.1}>
-          <form className="panel grid gap-5 p-6 sm:grid-cols-2 md:p-8" onSubmit={(e) => e.preventDefault()}>
+          <form className="panel grid gap-4 p-5 sm:grid-cols-2 sm:gap-5 sm:p-6 md:p-8" onSubmit={(e) => e.preventDefault()}>
             {[
               ["Full Name", "text", "Your name", false],
               ["Company", "text", "Company name", false],
@@ -1515,7 +1515,7 @@ function ContactSection() {
               <span className="label-mono">Message</span>
               <textarea rows={4} placeholder="Specifications, timeline and destination" className="field-input resize-none" />
             </label>
-            <div className="flex items-center justify-between gap-4 sm:col-span-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
               <span className="status-badge tone-green">
                 <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} /> Channel encrypted
               </span>
@@ -1541,7 +1541,7 @@ function KpiStrip() {
     <section className="border-b border-line bg-panel/40">
       <div className="site-container grid grid-cols-2 divide-x divide-line md:grid-cols-4">
         {kpis.map((k, i) => (
-          <div key={k.label} className={`relative overflow-hidden px-6 py-6 md:px-8 md:py-8 ${i === 0 ? "border-l border-line" : ""}`}>
+          <div key={k.label} className={`relative overflow-hidden px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8 ${i === 0 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line md:border-t-0" : ""}`}>
             {/* soft breathing tint per KPI */}
             <span
               aria-hidden
@@ -1552,7 +1552,7 @@ function KpiStrip() {
               }}
             />
             <p className="label-mono relative">{k.label}</p>
-            <p className="mono relative mt-3 text-2xl font-semibold md:text-3xl" style={{ color: toneColor[k.tone] }}>
+            <p className="mono relative mt-3 text-xl font-semibold sm:text-2xl md:text-3xl" style={{ color: toneColor[k.tone] }}>
               <CountUp end={k.n} decimals={k.decimals} prefix={k.prefix} suffix={k.suffix} duration={1800} />
             </p>
             {/* mini sparkline */}

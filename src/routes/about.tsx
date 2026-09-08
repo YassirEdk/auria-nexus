@@ -33,9 +33,9 @@ const values = [
 function AboutContent() {
   return (
     <>
-      <section className="border-b border-line py-24 lg:py-32">
+      <section className="border-b border-line py-14 sm:py-20 lg:py-32">
         <div className="site-container">
-          <div className="grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-16">
+          <div className="grid gap-8 sm:gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
             <Reveal>
               <span className="section-eyebrow">Studio</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
@@ -55,7 +55,7 @@ function AboutContent() {
                   <span className="label-mono text-heading">AURIA · at a glance</span>
                   <span className="mono text-[10px] text-sub-muted">ORG-01</span>
                 </div>
-                <div className="mt-6 grid grid-cols-2 gap-6">
+                <div className="mt-6 grid grid-cols-2 gap-5 sm:gap-6">
                   {[
                     { l: "Founded", v: "2019" },
                     { l: "Team", v: "24 ops" },
@@ -66,7 +66,7 @@ function AboutContent() {
                   ].map((k) => (
                     <div key={k.l}>
                       <p className="label-mono">{k.l}</p>
-                      <p className="mono mt-2 text-2xl font-semibold text-blue">{k.v}</p>
+                      <p className="mono mt-2 text-xl font-semibold text-blue sm:text-2xl">{k.v}</p>
                     </div>
                   ))}
                 </div>
@@ -83,7 +83,7 @@ function AboutContent() {
         </div>
       </section>
 
-      <section className="border-b border-line py-24 lg:py-32">
+      <section className="border-b border-line py-14 sm:py-20 lg:py-32">
         <div className="site-container">
           <Reveal>
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -99,7 +99,7 @@ function AboutContent() {
             </div>
           </Reveal>
 
-          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4">
             {offices.map((o) => (
               <Reveal key={o.city}>
                 <div className="panel h-full p-6">
@@ -116,7 +116,7 @@ function AboutContent() {
         </div>
       </section>
 
-      <section className="border-b border-line py-24 lg:py-32">
+      <section className="border-b border-line py-14 sm:py-20 lg:py-32">
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
@@ -130,7 +130,7 @@ function AboutContent() {
             </div>
           </Reveal>
 
-          <div className="mt-14 grid gap-4 sm:grid-cols-2">
+          <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2">
             {values.map(({ icon: Icon, title, copy }) => (
               <Reveal key={title}>
                 <div className="panel h-full p-6 md:p-7">
@@ -146,7 +146,7 @@ function AboutContent() {
         </div>
       </section>
 
-      <section className="border-b border-line py-24 lg:py-32">
+      <section className="border-b border-line py-14 sm:py-20 lg:py-32">
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
@@ -160,7 +160,7 @@ function AboutContent() {
             </div>
           </Reveal>
 
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-6 sm:mt-14 md:grid-cols-3">
             {[
               { role: "Sourcing engineers", detail: "Product-first, category specialists. They read technical drawings and BOMs before they read RFQs." },
               { role: "Quality inspectors", detail: "Trained on AQL, IPC-A-610, EN and ASTM standards. In-house team + partnerships with SGS and Bureau Veritas." },
@@ -177,7 +177,7 @@ function AboutContent() {
           </div>
 
           <Reveal delay={0.2}>
-            <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3 sm:mt-14">
               <Link to="/contact" className="btn-primary">
                 Talk to the team <ArrowUpRight className="size-3.5" />
               </Link>

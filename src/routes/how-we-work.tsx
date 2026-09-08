@@ -67,7 +67,7 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 function HowWeWorkContent() {
   return (
     <>
-      <section className="border-b border-line py-24 lg:py-32">
+      <section className="border-b border-line py-14 sm:py-20 lg:py-32">
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
@@ -81,24 +81,24 @@ function HowWeWorkContent() {
             </div>
           </Reveal>
 
-          <div className="mx-auto mt-14 max-w-5xl">
+          <div className="mx-auto mt-10 max-w-5xl sm:mt-14">
             <ol className="relative border-l border-line">
               {steps.map(({ icon: Icon, step, title, fr, sla, body, signals }, i) => (
                 <Reveal key={step} delay={i * 0.06}>
-                  <li className="relative py-8 pl-10">
+                  <li className="relative py-6 pl-6 sm:py-8 sm:pl-10">
                     <span
-                      className="absolute -left-[7px] top-10 size-3.5 rounded-full ring-4 ring-background"
+                      className="absolute -left-[7px] top-8 size-3.5 rounded-full ring-4 ring-background sm:top-10"
                       style={{ background: "#3B82F6" }}
                     />
-                    <div className="panel p-6 md:p-8">
+                    <div className="panel p-5 sm:p-6 md:p-8">
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex items-center gap-4">
-                          <span className="grid size-10 place-items-center border border-line bg-black/40">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <span className="grid size-10 shrink-0 place-items-center border border-line bg-black/40">
                             <Icon className="size-5 text-blue" />
                           </span>
-                          <div>
+                          <div className="min-w-0">
                             <span className="mono text-[10px] uppercase tracking-widest text-sub-muted">STEP · {step}</span>
-                            <p className="text-lg font-semibold text-heading md:text-xl">{title}</p>
+                            <p className="text-base font-semibold text-heading sm:text-lg md:text-xl">{title}</p>
                             <p className="mono text-[10px] uppercase tracking-widest text-blue">{fr}</p>
                           </div>
                         </div>
@@ -107,8 +107,8 @@ function HowWeWorkContent() {
                           SLA · {sla}
                         </span>
                       </div>
-                      <p className="mt-6 text-[14px] leading-7 text-muted-foreground md:text-[15px]">{body}</p>
-                      <div className="mt-6 grid grid-cols-2 gap-2 border-t border-line pt-4 sm:grid-cols-4">
+                      <p className="mt-5 text-[14px] leading-7 text-muted-foreground sm:mt-6 md:text-[15px]">{body}</p>
+                      <div className="mt-5 grid grid-cols-1 gap-2 border-t border-line pt-4 sm:mt-6 sm:grid-cols-2 lg:grid-cols-4">
                         {signals.map((s) => (
                           <div key={s} className="mono flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground">
                             <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
@@ -125,7 +125,7 @@ function HowWeWorkContent() {
         </div>
       </section>
 
-      <section className="border-b border-line py-24 lg:py-32">
+      <section className="border-b border-line py-14 sm:py-20 lg:py-32">
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
@@ -136,7 +136,7 @@ function HowWeWorkContent() {
             </div>
           </Reveal>
 
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-6 sm:mt-14 sm:grid-cols-2 md:grid-cols-3">
             {[
               { k: "Response time", v: "≤ 48h", label: "RFQ acknowledged and scoped" },
               { k: "Factory visits", v: "100%", label: "On-site before first PO" },
@@ -156,7 +156,7 @@ function HowWeWorkContent() {
           </div>
 
           <Reveal delay={0.2}>
-            <div className="mt-14 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3 sm:mt-14">
               <Link to="/contact" className="btn-primary">
                 Start a brief <ArrowUpRight className="size-3.5" />
               </Link>

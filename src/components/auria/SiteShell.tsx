@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import { useEffect, useState, type ReactNode, type MouseEvent } from "react";
-import { motion, type Variants } from "motion/react";
+import { motion, AnimatePresence, type Variants } from "motion/react";
 import { RequestAccessModal, openRequestAccess } from "./RequestAccessModal";
 import { ScrollProgress } from "./ScrollProgress";
 
@@ -412,21 +412,27 @@ export function SiteFooter() {
 function PageTransition({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const hash = useRouterState({ select: (s) => s.location.hash });
+  const introReady = useIntroReady();
 
   useEffect(() => {
+    if (!introReady) return;
     if (!hash) return;
     const id = window.setTimeout(() => {
       document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 120);
     return () => window.clearTimeout(id);
-  }, [pathname, hash]);
+  }, [pathname, hash, introReady]);
+
+  if (!introReady) {
+    return <main className="pb-16 sm:pb-14" aria-hidden />;
+  }
 
   return (
     <motion.main
       key={pathname}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="pb-16 sm:pb-14"
     >
       {children}
@@ -446,9 +452,100 @@ function SiteBackgroundFX() {
 }
 
 
+function shouldShowIntro() {
+  if (typeof window === "undefined") return false;
+  try {
+    if (sessionStorage.getItem("auria:intro-played") === "1") return false;
+  } catch { /* ignore */ }
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
+  return true;
+}
+
+function useIntroReady() {
+  const [ready, setReady] = useState(() => !shouldShowIntro());
+  useEffect(() => {
+    if (ready) return;
+    const onDone = () => setReady(true);
+    window.addEventListener("auria:intro-done", onDone);
+    return () => window.removeEventListener("auria:intro-done", onDone);
+  }, [ready]);
+  return ready;
+}
+
+function IntroSplash() {
+  const [visible, setVisible] = useState(shouldShowIntro);
+
+  useEffect(() => {
+    if (!visible) return;
+    document.body.style.overflow = "hidden";
+    try { sessionStorage.setItem("auria:intro-played", "1"); } catch { /* ignore */ }
+    const t = window.setTimeout(() => {
+      setVisible(false);
+      window.dispatchEvent(new Event("auria:intro-done"));
+    }, 2200);
+    return () => {
+      window.clearTimeout(t);
+      document.body.style.overflow = "";
+    };
+  }, [visible]);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          key="auria-intro"
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          style={{
+            background:
+              "radial-gradient(ellipse at 50% 40%, rgba(217,162,75,0.12), transparent 60%), #06080B",
+          }}
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }}
+          aria-hidden
+        >
+          <motion.div
+            className="flex flex-col items-center gap-5"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <AuriaLogo className="size-16" animate />
+            <span
+              className="auria-wordmark text-[22px] font-semibold uppercase tracking-[0.4em] text-foreground"
+              aria-label="AURIA"
+            >
+              {["A", "U", "R", "I", "A"].map((ch, i) => (
+                <motion.span
+                  key={i}
+                  className="auria-letter inline-block"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 + i * 0.09, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {ch}
+                </motion.span>
+              ))}
+            </span>
+            <motion.span
+              className="mono text-[10px] uppercase tracking-[0.35em] text-sub-muted"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.0, duration: 0.5 }}
+            >
+              Intelligence · Trade · Assurance
+            </motion.span>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <>
+      <IntroSplash />
       <SiteBackgroundFX />
       <ScrollProgress />
       <SiteHeader />
