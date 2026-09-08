@@ -294,8 +294,9 @@ export function SiteHeader() {
             className="island-cta island-cta--compact"
             aria-label="Apply now"
           >
-            <span>Apply</span>
-            <span className="hidden sm:inline">&nbsp;Now</span>
+            <span>
+              Apply<span className="hidden sm:inline">&nbsp;Now</span>
+            </span>
             <ArrowUpRight className="size-3.5" />
           </button>
         </motion.div>
