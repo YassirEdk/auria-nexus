@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import {
   ArrowUpRight, ArrowRight, Radar, ShieldCheck, Factory, Ship, Warehouse, Search,
-  BadgeCheck, Handshake, Circle, AlertTriangle, Radio, FileText, Satellite, Cctv,
+  BadgeCheck, Handshake, Circle, AlertTriangle, FileText, Satellite, Cctv,
   ClipboardCheck, MapPin, Camera, Signal,
 } from "lucide-react";
 import { SiteLayout } from "./SiteShell";
@@ -968,7 +968,7 @@ function Comparison() {
                   [Satellite, "Sensors", "Line telemetry"],
                   [Cctv, "CCTV", "Warehouse camera"],
                   [ClipboardCheck, "Reports", "Inspector PDF"],
-                  [Radio, "Official", "Broker signal"],
+                  [BadgeCheck, "Official", "Broker signal"],
                 ].map(([Icon, name, sub]) => (
                   <div key={String(name)} className="border border-line bg-black/30 p-3">
                     <Icon className="size-4 text-blue" />

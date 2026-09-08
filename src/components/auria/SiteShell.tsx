@@ -14,9 +14,9 @@ type NavLink = {
 const links: readonly NavLink[] = [
   { label: "Home",        to: "/" },
   { label: "About",       to: "/about" },
+  { label: "How We Work", to: "/how-we-work" },
   { label: "Services",    to: "/services" },
   { label: "Industries",  to: "/industries" },
-  { label: "How We Work", to: "/how-we-work" },
   { label: "Contact",     to: "/contact" },
 ];
 

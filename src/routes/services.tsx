@@ -198,8 +198,8 @@ function ServicesContent() {
               <Link to="/contact" className="btn-primary">
                 Scope a project <ArrowUpRight className="size-3.5" />
               </Link>
-              <Link to="/how-we-work" className="btn-ghost-line">
-                See our 5-step process
+              <Link to="/industries" className="btn-ghost-line">
+                See industries
               </Link>
             </div>
           </Reveal>
