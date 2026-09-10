@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { ScanLine } from "lucide-react";
 import { SiteLayout } from "@/components/auria/SiteShell";
@@ -6,16 +7,83 @@ import { ContactSection } from "@/components/auria/AuriaHome";
 import qrWechat from "@/assets/WhatsApp Image 2026-09-05 at 20.40.35.jpeg";
 import qrWhatsapp from "@/assets/WhatsApp Image 2026-09-05 at 20.40.34.jpeg";
 
+/** Renders a QR image with its white background knocked out to transparent, so
+ *  the (coloured) modules sit directly on the dark card instead of a white box.
+ *  Done on a canvas at load time; the source JPEGs have no alpha channel. */
+function QrImage({
+  src,
+  alt,
+  recolorDark,
+}: {
+  src: string;
+  alt: string;
+  // If set, the (dark) QR modules are recoloured to this [r,g,b] so they stay
+  // visible on the dark card — used for black-on-white QRs. Omit to keep the
+  // source colours (e.g. the violet WeChat code).
+  recolorDark?: [number, number, number];
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    let cancelled = false;
+    const img = new Image();
+    img.decoding = "async";
+    img.onload = () => {
+      if (cancelled) return;
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0);
+      const image = ctx.getImageData(0, 0, w, h);
+      const px = image.data;
+      for (let i = 0; i < px.length; i += 4) {
+        const r = px[i] ?? 0;
+        const g = px[i + 1] ?? 0;
+        const b = px[i + 2] ?? 0;
+        // Near-white (incl. JPEG's slightly-off-white halo) → fully transparent.
+        if (r > 200 && g > 200 && b > 200) {
+          px[i + 3] = 0;
+        } else if (recolorDark) {
+          px[i] = recolorDark[0];
+          px[i + 1] = recolorDark[1];
+          px[i + 2] = recolorDark[2];
+        }
+      }
+      ctx.putImageData(image, 0, 0);
+    };
+    img.src = src;
+    return () => { cancelled = true; };
+  }, [src, recolorDark]);
+  return (
+    <canvas
+      ref={ref}
+      role="img"
+      aria-label={alt}
+      className="h-full w-full select-none"
+      style={{ imageRendering: "pixelated" }}
+    />
+  );
+}
+
+// Near-white light tone for recolouring dark (black) QR modules on the dark card.
+const QR_LIGHT: [number, number, number] = [232, 236, 244];
+
 function QrCard({
   src,
   label,
   handle,
   tone,
+  recolorDark,
 }: {
   src: string;
   label: string;
   handle: string;
   tone: "green" | "blue";
+  recolorDark?: [number, number, number];
 }) {
   const color = tone === "green" ? "#10B981" : "#3B82F6";
   return (
@@ -37,7 +105,7 @@ function QrCard({
         </span>
       </div>
 
-      <div className="relative mx-auto mt-6 grid aspect-square w-full max-w-[320px] place-items-center bg-white p-4">
+      <div className="relative mx-auto mt-6 grid aspect-square w-full max-w-[320px] place-items-center p-4">
         <span
           aria-hidden
           className="pointer-events-none absolute left-2 top-2 size-4 border-l-2 border-t-2"
@@ -58,15 +126,7 @@ function QrCard({
           className="pointer-events-none absolute right-2 bottom-2 size-4 border-r-2 border-b-2"
           style={{ borderColor: color }}
         />
-        <img
-          src={src}
-          alt={`${label} QR code`}
-          loading="lazy"
-          decoding="async"
-          className="h-full w-full select-none object-contain"
-          draggable={false}
-          style={{ imageRendering: "pixelated" }}
-        />
+        <QrImage src={src} alt={`${label} QR code`} {...(recolorDark ? { recolorDark } : {})} />
       </div>
 
       <div className="mono mt-6 flex items-center justify-between border-t border-line pt-3 text-[10px] uppercase tracking-widest text-sub-muted">
@@ -112,6 +172,7 @@ function QrSection() {
             label="WhatsApp"
             handle="AURIA · Global desk"
             tone="green"
+            recolorDark={QR_LIGHT}
           />
         </div>
       </div>

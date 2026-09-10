@@ -882,7 +882,6 @@ function Hero() {
                 <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
                 China → Global
               </span>
-              <span className="status-badge tone-muted">Bilingue FR · EN</span>
             </div>
 
             <h1 className="mt-5 select-none font-sans font-bold tracking-[-0.025em] text-heading text-[32px] leading-[1.05] sm:mt-6 sm:text-[46px] sm:leading-[1.06] md:text-[70px]">

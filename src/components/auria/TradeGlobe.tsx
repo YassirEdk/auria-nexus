@@ -172,9 +172,24 @@ export function TradeGlobe() {
   // Runs when the globe reports ready — the lazy component populates the ref
   // asynchronously, so a mount effect would fire too early.
   const handleReady = () => {
-    const g = globeRef.current;
-    if (!g) return;
+    // Reveal the globe unconditionally first. onGlobeReady can fire a tick
+    // before React attaches globeRef; gating the reveal on the ref meant an
+    // occasional null slipped through and the Earth never faded in (stayed
+    // blank). Camera/controls setup is retried below until the ref is present.
     setReady(true);
+    let attempts = 0;
+    const setup = () => {
+      const g = globeRef.current;
+      if (!g) {
+        if (attempts++ < 60) requestAnimationFrame(setup);
+        return;
+      }
+      setupControls(g);
+    };
+    setup();
+  };
+
+  const setupControls = (g: NonNullable<typeof globeRef.current>) => {
     // Gentle zoom-in: start a little further out, then ease to the resting
     // altitude over ~2.2s so the Earth glides into place rather than snapping.
     g.pointOfView({ lat: 22, lng: 114, altitude: 3.4 }, 0);
