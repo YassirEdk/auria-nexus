@@ -7,6 +7,7 @@ import {
   ClipboardCheck, MapPin, Camera, Signal,
 } from "lucide-react";
 import { SiteLayout } from "./SiteShell";
+import { TradeGlobe } from "./TradeGlobe";
 import { openRequestAccess } from "./RequestAccessModal";
 import { usePerfLite, useIsMobileViewport } from "@/hooks/use-perf";
 import heroPort from "@/assets/hero/1494412574643-ff11b0a5c1c3.jpg";
@@ -56,6 +57,20 @@ const toneColor: Record<string, string> = {
   amber: "#F59E0B",
   red: "#EF4444",
 };
+
+/* AURIA brand palette used by the home page sections (gold accent + signals). */
+const GOLD = "#F5C36B";
+const GOLD_DEEP = "#D9A24B";
+
+/** Gold, line-led section eyebrow shared across the home sections. */
+function SectionEyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mono inline-flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.22em]" style={{ color: GOLD }}>
+      <span className="h-px w-8" style={{ background: `linear-gradient(90deg,transparent,${GOLD_DEEP},${GOLD})` }} />
+      {children}
+    </div>
+  );
+}
 
 /**
  * Build a responsive srcSet for an Unsplash image URL. Strips any existing
@@ -797,14 +812,14 @@ function Hero() {
   const lite = usePerfLite();
   const isMobile = useIsMobileViewport();
   return (
-    <section className="relative overflow-hidden border-b border-line bg-background pt-24 pb-16 sm:pt-28 sm:pb-24 lg:pt-36 lg:pb-32">
-      {/* Cinematic backdrop — sm+ ONLY. Phone gets the plain dark background
-          from the section itself (no image request, no clipping quirks).
-          The dark base + soft radial pre-tint fills the section instantly so
-          nothing looks blank while the Unsplash image streams in. */}
+    <section className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden border-b border-line bg-background pt-20 pb-12 sm:pt-28 sm:pb-24 lg:pt-36 lg:pb-32">
+      {/* Cinematic backdrop — now on phones too. The dark base + soft radial
+          pre-tint fills the section instantly so nothing looks blank while the
+          image streams in. Ken-burns motion stays off on mobile to avoid the
+          per-frame repaint that hurts phone scroll fps. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 hidden sm:block"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
             "radial-gradient(ellipse at 50% 40%, rgba(15,20,28,1) 0%, rgba(8,10,13,1) 60%, rgba(6,8,11,1) 100%)",
@@ -817,16 +832,16 @@ function Hero() {
         loading="eager"
         decoding="async"
         fetchPriority="high"
-        className="pointer-events-none absolute inset-0 hidden h-full w-full object-cover opacity-[0.28] saturate-[0.55] sm:block"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.28] saturate-[0.55]"
         style={{
           filter: "contrast(1.05) brightness(0.75) hue-rotate(190deg)",
-          animation: "ken-burns 32s ease-in-out infinite",
+          animation: isMobile ? undefined : "ken-burns 32s ease-in-out infinite",
         }}
       />
-      {/* sm+ vignette — deep so backdrop reads as ambient texture, not content */}
+      {/* Vignette — deep so the backdrop reads as ambient texture, not content */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 hidden sm:block"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
             "radial-gradient(ellipse at 50% 40%, rgba(8,10,13,0.25) 0%, rgba(8,10,13,0.75) 55%, rgba(8,10,13,0.98) 100%)",
@@ -865,46 +880,48 @@ function Hero() {
               </span>
               <span className="status-badge tone-green">
                 <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
-                07 nodes
+                China → Global
               </span>
-              <span className="status-badge tone-amber">1 watch</span>
-              <span className="status-badge tone-muted">v1.0 · china → global</span>
+              <span className="status-badge tone-muted">Bilingue FR · EN</span>
             </div>
 
-            <h1 className="serif-display mt-6 select-none text-[34px] leading-[1.05] tracking-tight text-heading sm:text-[46px] sm:leading-[1.02] md:text-[76px]">
-              Global sourcing<br />
-              <span className="italic">intelligence,</span><br />
-              <span className="text-muted-foreground">corroborated at the source.</span>
+            <h1 className="mt-5 select-none font-sans font-bold tracking-[-0.025em] text-heading text-[32px] leading-[1.05] sm:mt-6 sm:text-[46px] sm:leading-[1.06] md:text-[70px]">
+              Your global gateway<br />
+              to China.<br />
+              <span className="font-semibold text-muted-foreground">Sourcing, corroborated.</span>
             </h1>
 
-            <p className="mt-6 max-w-xl select-none text-[15px] leading-6 text-muted-foreground sm:mt-8 sm:text-base sm:leading-7 md:text-lg">
-              AURIA is a tactical operations layer for global trade. One console for sourcing, verification, quality control and logistics from China — every decision backed by more than one signal.
+            <p className="mono mt-4 text-[12px] uppercase tracking-[0.14em]" style={{ color: GOLD }}>
+              Commerce des entreprises · Chine → International
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
+            <p className="mt-4 max-w-xl select-none text-[15px] leading-6 text-muted-foreground sm:mt-5 sm:text-base sm:leading-7 md:text-lg">
+              AURIA connects businesses worldwide with trusted Chinese manufacturers — one console for sourcing, verification, quality control and logistics, every decision backed by more than one signal.
+            </p>
+            <p className="mt-3 hidden max-w-xl select-none text-[14px] leading-6 text-sub-muted sm:block">
+              Nous sommes votre équipe opérationnelle sur le terrain en Chine : de l'appel d'offres à la livraison mondiale, sous un seul contrat.
+            </p>
+
+            <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-10">
               <button type="button" onClick={openRequestAccess} className="btn-primary">
-                Apply Now <ArrowUpRight className="size-3.5" />
+                Start a Partnership <ArrowUpRight className="size-3.5" />
               </button>
-              <Link to="/about" className="btn-ghost-line">
-                Explore Us <ArrowRight className="size-3.5" />
-              </Link>
-              <span className="mono ml-1 hidden items-center gap-2 text-[11px] uppercase tracking-widest text-sub-muted sm:inline-flex">
-                <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
-                deploys · 48h
-              </span>
+              <a href="#network" className="btn-ghost-line">
+                Explore the Network <ArrowRight className="size-3.5" />
+              </a>
             </div>
 
             {/* Micro KPI row — animated count-ups */}
-            <div className="mt-8 grid max-w-2xl grid-cols-2 gap-4 border-t border-line pt-6 sm:mt-14 sm:gap-6 sm:pt-8 sm:grid-cols-4">
+            <div className="mt-7 grid max-w-2xl grid-cols-2 gap-4 border-t border-line pt-6 sm:mt-14 sm:gap-6 sm:pt-8 sm:grid-cols-4">
               {[
-                { l: "Uptime", n: 99.98, suffix: "%", decimals: 2, tone: "green" },
-                { l: "Latency", n: 1.4, suffix: "s", decimals: 1, tone: "blue" },
-                { l: "Lanes", n: 42, suffix: "", decimals: 0, tone: "blue" },
-                { l: "Advisories", n: 3, suffix: "", decimals: 0, tone: "red", pad: true },
+                { l: "Uptime", n: 99.98, suffix: "%", decimals: 2, color: "#10B981" },
+                { l: "Lanes", n: 42, suffix: "", decimals: 0, color: "#3B82F6" },
+                { l: "Hub · CN", n: 1, suffix: "", decimals: 0, color: GOLD },
+                { l: "Advisories", n: 3, suffix: "", decimals: 0, color: "#EF4444", pad: true },
               ].map((k) => (
                 <div key={k.l}>
                   <p className="label-mono">{k.l}</p>
-                  <p className="mono mt-2 text-xl font-semibold sm:text-2xl" style={{ color: toneColor[k.tone] }}>
+                  <p className="mono mt-2 text-xl font-semibold sm:text-2xl" style={{ color: k.color }}>
                     <CountUp
                       end={k.n}
                       suffix={k.suffix}
@@ -917,16 +934,469 @@ function Hero() {
             </div>
           </Reveal>
 
-          {/* Right: live panel */}
-          <Reveal delay={0.15}>
-            <LivePanel />
+          {/* Right: live panel — desktop only; on phone/tablet it would double
+              the hero height, so the first screen stays the text column. */}
+          <Reveal delay={0.15} className="hidden lg:block">
+            <HeroLivePanel />
           </Reveal>
         </div>
+      </div>
+    </section>
+  );
+}
 
-        <Reveal delay={0.2} className="mt-16 hidden md:block">
-          <IntelMap />
+/** Hero-right "Live Operations" panel — node list mirrors the mockup. */
+function HeroLivePanel() {
+  const nodes: [string, string, string][] = [
+    ["Shanghai · SHA", "OK", "green"],
+    ["Rotterdam · NL", "OK", "green"],
+    ["Dubai · AE", "OK", "green"],
+    ["Sydney · AU", "WATCH", "amber"],
+    ["Red Sea lane", "ALERT", "red"],
+  ];
+  return (
+    <div className="panel relative overflow-hidden p-5 lg:p-6">
+      <div className="flex items-center justify-between border-b border-line pb-3">
+        <div className="flex items-center gap-2">
+          <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
+          <span className="label-mono text-heading">Live Operations</span>
+        </div>
+        <span className="mono text-[9px] text-sub-muted">OPS-01 · SYNC</span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-4">
+        <div>
+          <p className="label-mono">Uptime · 30d</p>
+          <p className="mono mt-2 text-3xl font-semibold text-green">99.98%</p>
+          <div className="mt-2 h-1 w-full overflow-hidden bg-white/10">
+            <div className="h-full bg-green" style={{ width: "99.98%" }} />
+          </div>
+        </div>
+        <div>
+          <p className="label-mono">Signals · 1h</p>
+          <p className="mono mt-2 text-3xl font-semibold text-blue">12,482</p>
+          <Sparkbars animated={false} />
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <p className="label-mono mb-3">Node status</p>
+        <ul className="divide-y divide-line">
+          {nodes.map(([label, status, tone]) => (
+            <li key={label} className="flex items-center justify-between py-2 text-[13px]">
+              <span className="mono uppercase tracking-widest text-muted-foreground">{label}</span>
+              <span className={`status-badge tone-${tone}`}>
+                <span className="status-dot" style={{ background: toneColor[tone], color: toneColor[tone] }} />
+                {status}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mono mt-6 flex items-center justify-between border-t border-line pt-3 text-[9px] uppercase tracking-widest text-sub-muted">
+        <span>refresh · 1s</span>
+        <span>lat 31.23 · lng 121.47</span>
+      </div>
+    </div>
+  );
+}
+
+/* Destination ports mirrored from TradeGlobe's DEST list — keep in sync. */
+const destinationPorts = [
+  { city: "Rotterdam",   country: "Netherlands" },
+  { city: "Hamburg",     country: "Germany" },
+  { city: "Los Angeles", country: "USA" },
+  { city: "New York",    country: "USA" },
+  { city: "Dubai",       country: "UAE" },
+  { city: "Singapore",   country: "Singapore" },
+  { city: "Casablanca",  country: "Morocco" },
+  { city: "Santos",      country: "Brazil" },
+  { city: "Durban",      country: "South Africa" },
+  { city: "Sydney",      country: "Australia" },
+] as const;
+
+/* ————— Global Network section: interactive 3D globe + China-hub rail ————— */
+function NetworkGlobe() {
+  return (
+    <section id="network" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
+      <div className="site-container">
+        <Reveal className="max-w-3xl">
+          <SectionEyebrow>Global Network · Réseau mondial</SectionEyebrow>
+          <h2 className="mt-4 text-3xl font-bold leading-[1.05] tracking-tight text-heading md:text-5xl">
+            China is our base.<br />The world is our market.
+          </h2>
+          <p className="mt-4 text-[15px] leading-7 text-muted-foreground md:text-[17px]">
+            Live trade lanes from our Shanghai hub to buyers across Europe, the Gulf, Africa, the Americas and Asia-Pacific.{" "}
+            <span className="text-sub-muted">La Chine est notre base. Le monde est notre marché.</span>
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.1} className="mt-10 grid items-center gap-8 sm:mt-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
+          {/* Side rail */}
+          <div className="order-1 flex flex-col gap-4">
+            <div className="flex flex-wrap gap-2">
+              {[
+                ["Sourcing", GOLD], ["Manufacturing", GOLD],
+                ["Quality", "#3B82F6"], ["Logistics", "#3B82F6"],
+              ].map(([label, color]) => (
+                <span
+                  key={label}
+                  className="mono rounded-sm px-3 py-1.5 text-[11px] uppercase tracking-widest"
+                  style={{ color, border: `1px solid ${color}47`, background: `${color}10` }}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+            <div className="panel p-5">
+              <div className="flex items-center justify-between border-b border-line pb-3">
+                <span className="label-mono text-heading">China hub</span>
+                <span className="mono text-[9px] text-sub-muted">01 node</span>
+              </div>
+              <ul className="mt-3.5 space-y-2.5">
+                <li className="flex items-center gap-2 text-[13px] text-muted-foreground">
+                  <span className="size-1.5 rounded-full" style={{ background: GOLD, boxShadow: `0 0 8px ${GOLD}b3` }} />
+                  Shanghai · China
+                </li>
+              </ul>
+              <div className="mono mt-4 flex items-center gap-2 border-t border-line pt-3 text-[12px] text-sub-muted">
+                <span className="size-1.5 rounded-full" style={{ background: "#3B82F6", boxShadow: "0 0 8px #3B82F6b3" }} />
+                Destination ports worldwide · 10 shown
+              </div>
+              <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {destinationPorts.map(({ city, country }) => (
+                  <li key={city} className="flex items-center gap-2 text-[13px] text-muted-foreground">
+                    <span className="size-1.5 flex-none rounded-full" style={{ background: "#3B82F6", boxShadow: "0 0 8px #3B82F6b3" }} />
+                    {country} - {city}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="text-[12px] leading-6 text-sub-muted">
+              Send us your exact city list and lanes — the globe updates directly with your ports and routes.
+            </p>
+          </div>
+
+          {/* Globe */}
+          <div className="relative order-2">
+            <TradeGlobe />
+            <p className="mono mt-3 flex items-center gap-2 text-[10px] uppercase tracking-widest text-sub-muted">
+              <span className="inline-block size-3 rounded-full border border-blue" />
+              Drag to rotate · Glissez pour pivoter
+            </p>
+          </div>
         </Reveal>
       </div>
+    </section>
+  );
+}
+
+/* ————— Live Feeds: motion image tiles ————— */
+const feedTiles = [
+  { src: photoSha,      eyebrow: "Yangshan Terminal", title: "Export load · Shanghai",   tone: "green" as const, ch: "CH-11" },
+  { src: photoVessel,   eyebrow: "Vessel · MSKU-4482", title: "Trans-Pacific lane",       tone: "blue" as const,  ch: "CH-12" },
+  { src: photoFactory,  eyebrow: "Production · Line 2", title: "Guangzhou plant",          tone: "amber" as const, ch: "CH-13" },
+  { src: photoOverland, eyebrow: "Overland · Rail",    title: "China–Europe corridor",    tone: "green" as const, ch: "CH-14" },
+  { src: photoSz,       eyebrow: "Consolidation",      title: "Yiwu warehouse",           tone: "green" as const, ch: "CH-15" },
+  { src: photoNl,       eyebrow: "Arrival · EU gateway", title: "Rotterdam",              tone: "blue" as const,  ch: "CH-16" },
+];
+
+function FeedsSection() {
+  return (
+    <section id="feeds" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
+      <div className="site-container">
+        <Reveal className="max-w-3xl">
+          <SectionEyebrow>Live Feeds · Flux en direct</SectionEyebrow>
+          <h2 className="mt-4 text-3xl font-bold leading-[1.05] tracking-tight text-heading md:text-5xl">
+            Containers, vessels &amp; cargo — in motion.
+          </h2>
+        </Reveal>
+
+        <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-3">
+          {feedTiles.map((t, i) => (
+            <Reveal key={t.ch} delay={(i % 3) * 0.08}>
+              <figure className="group relative m-0 aspect-[16/11] overflow-hidden panel">
+                <img
+                  src={t.src}
+                  srcSet={unsplashSrcSet(t.src)}
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 30vw"
+                  alt={t.title}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover opacity-70 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04] group-hover:opacity-95"
+                  style={{ filter: "contrast(1.05) brightness(0.9)", animation: `ken-burns ${26 + (i % 4) * 2}s ease-in-out infinite ${i % 2 ? "reverse" : "normal"}` }}
+                />
+                <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(8,10,13,0.10) 0%, rgba(8,10,13,0.55) 60%, rgba(8,10,13,0.95) 100%)" }} />
+                <div className="absolute inset-x-3.5 top-3.5 flex items-center justify-between">
+                  <span className="glass-panel inline-flex items-center gap-1.5 rounded-sm px-2 py-1">
+                    <span className="status-dot" style={{ background: toneColor[t.tone], color: toneColor[t.tone] }} />
+                    <span className="mono text-[9px] uppercase tracking-widest text-heading">Live</span>
+                  </span>
+                  <span className="glass-panel mono rounded-sm px-2 py-1 text-[9px] uppercase tracking-widest text-blue">{t.ch}</span>
+                </div>
+                <figcaption className="absolute inset-x-0 bottom-0 p-5">
+                  <p className="mono text-[10px] uppercase tracking-widest" style={{ color: toneColor[t.tone] }}>{t.eyebrow}</p>
+                  <p className="mt-1.5 text-base font-semibold text-heading">{t.title}</p>
+                </figcaption>
+              </figure>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ————— Trade Analytics: line / bars / donut ————— */
+function AnalyticsSection() {
+  const lanes: [string, number, string][] = [
+    ["CN → EU", 38, "#3B82F6"],
+    ["CN → N. America", 27, "#3B82F6"],
+    ["CN → Gulf", 18, GOLD],
+    ["CN → Africa", 11, GOLD],
+    ["CN → Asia-Pac", 6, "#10B981"],
+  ];
+  return (
+    <section id="analytics" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
+      <div className="site-container">
+        <Reveal className="max-w-3xl">
+          <SectionEyebrow>Trade Analytics · Analytique</SectionEyebrow>
+          <h2 className="mt-4 text-3xl font-bold leading-[1.05] tracking-tight text-heading md:text-5xl">
+            Every shipment, measured.
+          </h2>
+        </Reveal>
+
+        <div className="mt-10 grid gap-4 sm:mt-14 md:grid-cols-2 lg:grid-cols-3">
+          {/* Export volume line chart */}
+          <Reveal>
+            <div className="panel h-full min-w-0 p-5 md:p-6">
+              <div className="flex items-center justify-between">
+                <p className="label-mono">Export volume · 12 mo</p>
+                <span className="mono text-[10px] text-green">▲ 18.4%</span>
+              </div>
+              <p className="mono mt-3 text-3xl font-semibold text-heading">
+                <CountUp end={24.8} decimals={1} suffix="k" /> <span className="text-[13px] text-sub-muted">TEU</span>
+              </p>
+              <svg viewBox="0 0 320 120" preserveAspectRatio="none" className="mt-3 block h-[120px] w-full">
+                <defs>
+                  <linearGradient id="au-area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.35" />
+                    <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="30" x2="320" y2="30" stroke="#1A1D23" />
+                <line x1="0" y1="60" x2="320" y2="60" stroke="#1A1D23" />
+                <line x1="0" y1="90" x2="320" y2="90" stroke="#1A1D23" />
+                <path d="M0,92 L29,84 L58,88 L87,70 L116,74 L145,58 L174,62 L203,44 L232,50 L261,34 L290,30 L320,22 L320,120 L0,120 Z" fill="url(#au-area)" />
+                <path d="M0,92 L29,84 L58,88 L87,70 L116,74 L145,58 L174,62 L203,44 L232,50 L261,34 L290,30 L320,22" fill="none" stroke="#3B82F6" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                <circle cx="320" cy="22" r="3.5" fill={GOLD} />
+              </svg>
+            </div>
+          </Reveal>
+
+          {/* Containers by lane */}
+          <Reveal delay={0.05}>
+            <div className="panel h-full min-w-0 p-5 md:p-6">
+              <div className="flex items-center justify-between">
+                <p className="label-mono">Containers by lane</p>
+                <span className="mono text-[10px] text-sub-muted">this qtr</span>
+              </div>
+              <div className="mt-4 flex flex-col gap-3">
+                {lanes.map(([label, pct, color]) => (
+                  <div key={label}>
+                    <div className="flex justify-between text-[12px] text-muted-foreground">
+                      <span>{label}</span>
+                      <span className="mono text-heading">{pct}%</span>
+                    </div>
+                    <div className="mt-1.5 h-2 overflow-hidden rounded bg-white/[0.06]">
+                      <div className="h-full rounded" style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}, ${color}cc)` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+
+          {/* On-time donut */}
+          <Reveal delay={0.1}>
+            <div className="panel flex h-full min-w-0 flex-col p-5 md:col-span-2 md:p-6 lg:col-span-1">
+              <p className="label-mono">On-time delivery</p>
+              <div className="mt-4 flex items-center gap-5">
+                <svg viewBox="0 0 120 120" width="112" height="112" className="flex-none">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#1A1D23" strokeWidth="10" />
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#10B981" strokeWidth="10" strokeLinecap="round" strokeDasharray="314" strokeDashoffset="13" transform="rotate(-90 60 60)" />
+                  <text x="60" y="58" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="22" fontWeight="600" fill="#E2E8F0">96%</text>
+                  <text x="60" y="76" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" letterSpacing="2" fill="#64748B">ON TIME</text>
+                </svg>
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <p className="mono text-[10px] uppercase tracking-widest text-sub-muted">QC pass rate</p>
+                    <p className="mono mt-1 text-xl font-semibold text-green"><CountUp end={98.2} decimals={1} suffix="%" /></p>
+                  </div>
+                  <div>
+                    <p className="mono text-[10px] uppercase tracking-widest text-sub-muted">Avg lead time</p>
+                    <p className="mono mt-1 text-xl font-semibold text-blue"><CountUp end={31} decimals={0} /> <span className="text-[12px] text-sub-muted">days</span></p>
+                  </div>
+                </div>
+              </div>
+              <p className="mt-auto pt-4 text-[12px] leading-5 text-sub-muted">
+                Corroborated across inspector, carrier and customs signals.
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ————— Services grid ————— */
+const services = [
+  { icon: Search,      title: "Global Sourcing",            copy: "Find the right products and manufacturers to your exact specifications." },
+  { icon: ShieldCheck, title: "Supplier Verification",      copy: "Cross-referenced compliance, audit records and shipment history." },
+  { icon: Handshake,   title: "Negotiation & Procurement",  copy: "Competitive prices and favorable commercial conditions per SKU." },
+  { icon: BadgeCheck,  title: "Quality Control",            copy: "Pre-shipment inspection and defect telemetry before goods leave." },
+  { icon: Factory,     title: "Production Tracking",        copy: "Line-level milestones, tooling status and daily output per PO." },
+  { icon: Warehouse,   title: "Warehousing & Consolidation", copy: "Receive, store and consolidate goods from multiple suppliers." },
+  { icon: Ship,        title: "International Logistics",     copy: "Ocean, air and rail coordination with customs handled end-to-end." },
+  { icon: Radar,       title: "Risk Radar",                 copy: "Continuous scanning for tariff, sanctions and lane-disruption signals." },
+] as const;
+
+function ServicesGrid() {
+  return (
+    <section id="services" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
+      <div className="site-container">
+        <Reveal className="max-w-3xl">
+          <SectionEyebrow>Services · Prestations</SectionEyebrow>
+          <h2 className="mt-4 text-3xl font-bold leading-[1.05] tracking-tight text-heading md:text-5xl">
+            From factory to final destination.
+          </h2>
+        </Reveal>
+
+        <div className="mt-10 grid gap-3.5 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4">
+          {services.map(({ icon: Icon, title, copy }) => (
+            <Reveal key={title}>
+              <div className="au-svc flex h-full flex-col gap-3 rounded-md border border-line bg-panel p-5 transition-colors">
+                <span className="grid size-10 place-items-center border border-line bg-black/40 text-blue">
+                  <Icon className="size-[18px]" />
+                </span>
+                <p className="text-[15px] font-semibold text-heading">{title}</p>
+                <p className="text-[13px] leading-relaxed text-muted-foreground">{copy}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ————— About (home) ————— */
+function AboutHome() {
+  const glance: [string, string, string][] = [
+    ["Founded", "2019", "#3B82F6"],
+    ["Team", "24 ops", "#3B82F6"],
+    ["Offices", "4 · CN", GOLD],
+    ["Languages", "EN · FR · ZH", GOLD],
+  ];
+  const cities: [string, string][] = [
+    ["Shanghai", "HQ · consolidation node"],
+    ["Shenzhen", "Electronics & hardware"],
+    ["Guangzhou", "Consumer goods"],
+    ["Yiwu", "Small commodities"],
+  ];
+  return (
+    <section id="about" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
+      <div className="site-container grid gap-10 lg:grid-cols-2 lg:gap-14">
+        <Reveal>
+          <SectionEyebrow>About · À propos</SectionEyebrow>
+          <h2 className="mt-4 text-3xl font-bold leading-[1.06] tracking-tight text-heading md:text-[50px]">
+            Your China-based operator, not a broker.
+          </h2>
+          <p className="mt-5 text-[15px] leading-7 text-muted-foreground md:text-[17px]">
+            AURIA is an on-the-ground sourcing, quality and logistics team based in China, serving importers, brands and distributors worldwide. We coordinate every relationship and every shipment from product brief to global delivery — under one contract, in your language.
+          </p>
+          <p className="mt-4 text-[14px] leading-7 text-sub-muted">
+            Commerce des entreprises en Chine — nous ne sommes ni un intermédiaire ni une plateforme. Nous sommes votre équipe opérationnelle, présente physiquement dans les usines chinoises que vous ne pouvez pas visiter.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <button type="button" onClick={openRequestAccess} className="btn-primary">
+              Talk to the team <ArrowUpRight className="size-3.5" />
+            </button>
+            <a href="#network" className="btn-ghost-line">
+              See the network <ArrowRight className="size-3.5" />
+            </a>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          <div className="panel p-6">
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <span className="label-mono text-heading">AURIA · at a glance</span>
+              <span className="mono text-[10px] text-sub-muted">ORG-01</span>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-5">
+              {glance.map(([label, value, color]) => (
+                <div key={label}>
+                  <p className="label-mono">{label}</p>
+                  <p className="mono mt-2 text-[22px] font-semibold" style={{ color }}>{value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 grid gap-2.5 border-t border-line pt-4">
+              {cities.map(([city, note]) => (
+                <div key={city} className="flex items-center gap-2.5 text-[13px] text-muted-foreground">
+                  <span className="mono w-[82px] flex-none text-[10px] uppercase tracking-widest" style={{ color: GOLD }}>{city}</span>
+                  {note}
+                </div>
+              ))}
+            </div>
+            <div className="mono mt-5 flex items-center justify-between border-t border-line pt-3 text-[9px] uppercase tracking-widest text-sub-muted">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
+                hq · Shanghai
+              </span>
+              <span>lat 31.23 · lng 121.47</span>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ————— Partnership CTA ————— */
+function PartnershipCTA() {
+  return (
+    <section id="contact" className="relative overflow-hidden border-b border-line py-16 sm:py-24 lg:py-32">
+      <img
+        src={photoAe}
+        alt=""
+        aria-hidden
+        loading="lazy"
+        decoding="async"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20"
+        style={{ filter: "contrast(1.05) brightness(0.7) hue-rotate(188deg)" }}
+      />
+      <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(8,10,13,0.5), rgba(8,10,13,0.95) 70%)" }} />
+      <Reveal className="relative mx-auto max-w-[760px] px-1 text-center">
+        <SectionEyebrow>Start a Partnership</SectionEyebrow>
+        <h2 className="serif-display mt-5 text-3xl leading-[1.05] text-heading md:text-5xl">
+          Let's build your next<br /><span className="italic">supply chain.</span>
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-[15px] leading-6 text-muted-foreground md:text-[17px]">
+          Tell us what you're looking for. We'll help you source, manufacture and move it from China to wherever your business needs it.
+        </p>
+        <div className="mt-7 flex flex-wrap justify-center gap-3">
+          <Link to="/contact" className="btn-primary">
+            Start a Conversation <ArrowUpRight className="size-3.5" />
+          </Link>
+          <button type="button" onClick={openRequestAccess} className="btn-ghost-line">
+            Request a Quote <ArrowRight className="size-3.5" />
+          </button>
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -1551,16 +2021,15 @@ function KpiStrip() {
 export function AuriaHome() {
   return (
     <SiteLayout>
+      {/* Scoped hover states for the home sections (no global CSS needed). */}
+      <style>{`.au-svc:hover{border-color:#3B82F6;background:rgba(59,130,246,0.04)}`}</style>
       <Hero />
-      <KpiStrip />
-      <Comparison />
-      <CommandBroadcast />
-      <Timeline />
-      <OperationsGallery />
-      <FieldTransmissions />
-      <Modules />
-      <FinalCTA />
-      <ContactSection />
+      <NetworkGlobe />
+      <FeedsSection />
+      <AnalyticsSection />
+      <ServicesGrid />
+      <AboutHome />
+      <PartnershipCTA />
     </SiteLayout>
   );
 }

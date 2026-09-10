@@ -107,7 +107,6 @@ export function AuriaMark({ animate = true }: { animate?: boolean }) {
             className="auria-letter inline-block"
             initial={animate ? { opacity: 0, y: 6 } : false}
             animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -3 }}
             transition={{ delay: 0.08 * i, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           >
             {ch}
