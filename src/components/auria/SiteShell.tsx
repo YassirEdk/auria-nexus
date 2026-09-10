@@ -351,6 +351,67 @@ export function SiteHeader() {
   );
 }
 
+function FooterClocks() {
+  const [now, setNow] = useState<Date>(() => new Date());
+  const [localTz, setLocalTz] = useState<string>(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch {
+      return "UTC";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz) setLocalTz(tz);
+    } catch {}
+    const id = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const fmt = (tz: string) => {
+    try {
+      return new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+        timeZone: tz,
+      }).format(now);
+    } catch {
+      return "--:--:--";
+    }
+  };
+
+  const cityLabel = (tz: string) => {
+    const raw = tz.split("/").pop() || tz;
+    return raw.replace(/_/g, " ");
+  };
+
+  const isSameAsChina = localTz === "Asia/Shanghai";
+
+  return (
+    <div className="hidden md:flex items-center gap-5 mono text-[10px] uppercase tracking-widest text-muted-foreground">
+      <span className="inline-flex items-center gap-2">
+        <span className="status-dot" style={{ background: "#EF4444", color: "#EF4444" }} />
+        <span>Shanghai</span>
+        <span className="text-foreground">{fmt("Asia/Shanghai")}</span>
+      </span>
+      {!isSameAsChina && (
+        <>
+          <span className="text-sub-muted/60">·</span>
+          <span className="inline-flex items-center gap-2">
+            <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
+            <span>{cityLabel(localTz)}</span>
+            <span className="text-foreground">{fmt(localTz)}</span>
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function SiteFooter() {
   return (
     <footer className="fixed inset-x-0 bottom-0 z-40 h-11 border-t border-line bg-background/90 backdrop-blur-md sm:h-12">
@@ -362,24 +423,7 @@ export function SiteFooter() {
           <span className="hidden mono text-[10px] uppercase tracking-widest text-sub-muted sm:inline">© 2026 · v1.0</span>
         </div>
 
-        <div className="hidden md:flex items-center gap-5 mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          <span className="inline-flex items-center gap-2">
-            <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
-            <span>07 nodes</span>
-          </span>
-          <span className="text-sub-muted/60">·</span>
-          <span className="inline-flex items-center gap-2">
-            <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
-            <span>04 lanes</span>
-          </span>
-          <span className="text-sub-muted/60">·</span>
-          <span className="inline-flex items-center gap-2">
-            <span className="status-dot" style={{ background: "#F59E0B", color: "#F59E0B" }} />
-            <span>01 watch</span>
-          </span>
-          <span className="text-sub-muted/60">·</span>
-          <span className="hidden lg:inline text-sub-muted">china → global</span>
-        </div>
+        <FooterClocks />
 
         <div className="flex items-center gap-3 sm:gap-4">
           <Link to="/contact" className="mono hidden text-[10px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground sm:inline">

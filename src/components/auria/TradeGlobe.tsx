@@ -18,7 +18,7 @@ const CN: Node[] = [
 ];
 
 const DEST: Node[] = [
-  { name: "Rotterdam",   country: "Netherlands",  lat: 51.92, lng: 4.48 },
+  { name: "Barcelona",   country: "Spain",        lat: 41.38, lng: 2.17 },
   { name: "Hamburg",     country: "Germany",      lat: 53.55, lng: 9.99 },
   { name: "Los Angeles", country: "USA",          lat: 33.74, lng: -118.27 },
   { name: "New York",    country: "USA",          lat: 40.71, lng: -74.0 },
@@ -32,6 +32,66 @@ const DEST: Node[] = [
 
 const EARTH = earthTexture;
 const BUMP  = bumpTexture;
+
+/** Great-circle angular distance (radians, 0..π) between two lat/lng points. */
+function centralAngle(aLat: number, aLng: number, bLat: number, bLng: number) {
+  const r = Math.PI / 180;
+  const p1 = aLat * r, p2 = bLat * r, dl = (bLng - aLng) * r;
+  const x = Math.sin(p1) * Math.sin(p2) + Math.cos(p1) * Math.cos(p2) * Math.cos(dl);
+  return Math.acos(Math.min(1, Math.max(-1, x)));
+}
+
+/** Camera-facing city label: an always-upright chip floating just above the
+ *  city dot. The lib centres this root element on the point every frame, so the
+ *  visible text is offset upward via an absolutely-positioned child. */
+function makeLabel(
+  d: { name: string; country: string; lat: number; lng: number; hub?: boolean },
+  isNarrow: boolean
+) {
+  const isCN = d.country === "China" || d.country === "Hong Kong";
+  const color = isCN ? "rgba(248,208,128,1)" : "rgba(225,238,255,0.98)";
+  const glow = isCN ? "rgba(248,208,128,0.55)" : "rgba(125,205,255,0.5)";
+  const text =
+    isNarrow && !d.hub
+      ? d.name
+      : d.name === d.country
+        ? d.name
+        : `${d.name} · ${d.country}`;
+
+  const root = document.createElement("div");
+  // Stash coords so the visibility modifier can compute facing-to-camera.
+  root.dataset["lat"] = String(d.lat);
+  root.dataset["lng"] = String(d.lng);
+  // Starts hidden; the visibility modifier fades it in as the city rotates to
+  // the near face and out as it passes behind. NOTE: the globe owns this
+  // element's `transform` (for positioning), so we must never set transform or
+  // transition transform here — only opacity.
+  root.style.cssText = [
+    "position:relative",
+    "pointer-events:none",
+    "user-select:none",
+    "opacity:0",
+    "transition:opacity 0.5s ease",
+  ].join(";");
+
+  const chip = document.createElement("div");
+  chip.textContent = text.toUpperCase();
+  chip.style.cssText = [
+    "position:absolute",
+    "left:50%",
+    "bottom:0",
+    "transform:translate(-50%,-8px)",
+    "white-space:nowrap",
+    "font-family:ui-monospace,SFMono-Regular,Menlo,monospace",
+    `font-size:${d.hub ? 12 : isNarrow ? 9.5 : 11}px`,
+    "font-weight:600",
+    "letter-spacing:0.12em",
+    `color:${color}`,
+    `text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 10px rgba(0,0,0,0.7),0 0 16px ${glow}`,
+  ].join(";");
+  root.appendChild(chip);
+  return root;
+}
 
 export function TradeGlobe() {
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
@@ -49,14 +109,30 @@ export function TradeGlobe() {
   const points = useMemo(
     () => [
       ...CN.map((c) => ({ ...c, color: "#F5C36B", size: c.hub ? 1.15 : 0.85 })),
-      ...DEST.map((c) => ({ ...c, color: "#3B82F6", size: 0.75 })),
+      ...DEST.map((c) => ({ ...c, color: "#7DCDFF", size: 0.75 })),
     ],
     []
   );
-  const routes = useMemo(
-    () => DEST.map((d) => ({ startLat: hub.lat, startLng: hub.lng, endLat: d.lat, endLng: d.lng })),
-    [hub]
-  );
+  // Two arcs per lane sharing identical endpoints + altitude (so they ride the
+  // same curve): a steady solid line, plus a short bright segment that sweeps
+  // along it as a travelling glow. Altitude is derived from the great-circle
+  // angle but capped, so long hauls hug the globe instead of ballooning into
+  // orbital rings. All "line" arcs first, then all "glow" arcs, so the glow
+  // always draws on top.
+  const routes = useMemo(() => {
+    const base = DEST.map((d) => {
+      const angle = centralAngle(hub.lat, hub.lng, d.lat, d.lng);
+      // Scale height with distance so long/near-antipodal hauls lift enough to
+      // clear the sphere (a low cap makes them dive through it), while short
+      // lanes stay tight to the surface.
+      const alt = Math.min(0.6, 0.08 + angle * 0.16);
+      return { startLat: hub.lat, startLng: hub.lng, endLat: d.lat, endLng: d.lng, alt };
+    });
+    return [
+      ...base.map((r) => ({ ...r, kind: "line" as const })),
+      ...base.map((r) => ({ ...r, kind: "glow" as const })),
+    ];
+  }, [hub]);
 
   // Defer everything until the globe scrolls into view: mount the WebGL
   // component, start the texture download, and let the reveal animation play
@@ -177,29 +253,54 @@ export function TradeGlobe() {
             pointAltitude={0.01}
             pointRadius={(d: any) => d.size}
             pointResolution={14}
-            // City + country labels
-            labelsData={points}
-            labelLat={(d: any) => d.lat}
-            labelLng={(d: any) => d.lng}
-            labelText={(d: any) => (isNarrow && !d.hub ? d.name : `${d.name} · ${d.country}`)}
-            labelSize={(d: any) => (d.hub ? 1.05 : isNarrow ? 0.6 : 0.78)}
-            labelDotRadius={(d: any) => (d.hub ? 0.6 : 0.42)}
-            labelColor={(d: any) =>
-              d.country === "China" || d.country === "Hong Kong"
-                ? "rgba(245,195,107,0.96)"
-                : "rgba(190,214,255,0.94)"
-            }
-            labelResolution={2}
-            labelAltitude={0.013}
-            // Trade arcs — auto-scaled altitude so long routes never clip the sphere
+            // City + country labels — camera-facing HTML so they stay upright
+            // at any rotation (surface labels tilt near the globe's edge).
+            htmlElementsData={points}
+            htmlLat={(d: any) => d.lat}
+            htmlLng={(d: any) => d.lng}
+            htmlAltitude={0.012}
+            htmlElement={(d: any) => makeLabel(d, isNarrow)}
+            htmlElementVisibilityModifier={(el: HTMLElement, isVisible: boolean) => {
+              // Only opacity — the globe controls this element's transform for
+              // positioning, so touching transform here detaches the label.
+              // Beyond the lib's behind-the-globe test, also hide labels near
+              // the limb: show only when the city's surface normal faces the
+              // camera within ~70°, so edge cities fade out before the rim.
+              if (!isVisible) { el.style.opacity = "0"; return; }
+              const g = globeRef.current;
+              const lat = Number(el.dataset["lat"]);
+              const lng = Number(el.dataset["lng"]);
+              if (!g || Number.isNaN(lat) || Number.isNaN(lng)) {
+                el.style.opacity = "1";
+                return;
+              }
+              const cam = g.camera().position;
+              const camLen = Math.hypot(cam.x, cam.y, cam.z) || 1;
+              const phi = (90 - lat) * Math.PI / 180;
+              const theta = (90 - lng) * Math.PI / 180;
+              const px = Math.sin(phi) * Math.cos(theta);
+              const py = Math.cos(phi);
+              const pz = Math.sin(phi) * Math.sin(theta);
+              const facing = (px * cam.x + py * cam.y + pz * cam.z) / camLen;
+              el.style.opacity = facing > 0.34 ? "1" : "0";
+            }}
+            // Trade arcs — a steady solid line (gold core → soft cyan port) with
+            // a short bright segment sweeping along it as a travelling glow.
+            // The "line" arcs are fully solid (dash 1 / gap 0) so the global
+            // dash animation leaves them untouched; only the "glow" arcs move.
             arcsData={routes}
-            arcColor={() => ["rgba(245,195,107,0.95)", "rgba(96,165,250,0.9)"]}
-            arcAltitudeAutoScale={0.55}
-            arcStroke={0.55}
-            arcCurveResolution={64}
-            arcDashLength={0.45}
-            arcDashGap={0.18}
-            arcDashAnimateTime={2200}
+            arcColor={(d: any) =>
+              d.kind === "glow"
+                ? "rgba(255,246,222,0.95)"
+                : ["rgba(245,195,107,0.95)", "rgba(120,205,255,0.8)"]
+            }
+            arcAltitude={(d: any) => d.alt}
+            arcStroke={(d: any) => (d.kind === "glow" ? 0.55 : 0.38)}
+            arcCurveResolution={128}
+            arcDashLength={(d: any) => (d.kind === "glow" ? 0.16 : 1)}
+            arcDashGap={(d: any) => (d.kind === "glow" ? 0.84 : 0)}
+            arcDashInitialGap={(d: any) => (d.kind === "glow" ? Math.random() : 0)}
+            arcDashAnimateTime={2600}
             // Pulsing ring on the Shanghai hub
             ringsData={CN}
             ringColor={() => (t: number) => `rgba(245,195,107,${1 - t})`}

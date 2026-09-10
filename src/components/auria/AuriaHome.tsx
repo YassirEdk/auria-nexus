@@ -945,66 +945,188 @@ function Hero() {
   );
 }
 
-/** Hero-right "Live Operations" panel — node list mirrors the mockup. */
+/** Trend series feeding the two hero KPI sparklines (unitless, auto-scaled). */
+const uptimeTrend = [
+  99.99, 100, 99.98, 100, 100, 99.97, 100, 99.7, 99.99, 100, 100, 99.98,
+  99.55, 99.9, 100, 100, 99.99, 100, 100, 99.96, 99.72, 99.95, 100, 100,
+];
+const signalsTrend = [
+  0.34, 0.5, 0.42, 0.6, 0.55, 0.72, 0.5, 0.68, 0.62, 0.8, 0.7, 0.9, 0.78,
+  0.88, 0.82, 0.98,
+];
+
+/** Smooth (Catmull-Rom) path through a set of points, for the sparklines. */
+function smoothPath(pts: readonly [number, number][]) {
+  if (pts.length < 2) return "";
+  const first = pts[0]!;
+  let d = `M ${first[0]} ${first[1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i]!;
+    const p1 = pts[i]!;
+    const p2 = pts[i + 1]!;
+    const p3 = pts[i + 2] ?? p2;
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p2[0]} ${p2[1]}`;
+  }
+  return d;
+}
+
+/** Minimal filled-area sparkline. Auto-scales to the series; crisp stroke via
+ *  non-scaling-stroke so it stays 1.5px at any width. */
+function SparkArea({ series, color, gradId }: { series: number[]; color: string; gradId: string }) {
+  const W = 120;
+  const H = 42;
+  const PAD = 3;
+  const max = Math.max(...series);
+  const min = Math.min(...series);
+  const range = max - min || 1;
+  const pts = series.map<[number, number]>((v, i) => [
+    (i / (series.length - 1)) * W,
+    H - PAD - ((v - min) / range) * (H - PAD * 2),
+  ]);
+  const line = smoothPath(pts);
+  const area = `${line} L ${W} ${H} L 0 ${H} Z`;
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      className="mt-3 block h-[42px] w-full"
+      aria-hidden
+    >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gradId})`} />
+      <path
+        d={line}
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+
+/** One hero KPI: label + delta chip, big value, and a filled-area sparkline. */
+function MetricTile({
+  label, value, unit, delta, color, gradId, series,
+}: {
+  label: string;
+  value: string;
+  unit?: string;
+  delta: string;
+  color: string;
+  gradId: string;
+  series: number[];
+}) {
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="label-mono truncate">{label}</p>
+        <span
+          className="mono inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] leading-none"
+          style={{ color, background: `${color}1a` }}
+        >
+          <ArrowUpRight className="size-2.5" strokeWidth={2.5} />
+          {delta}
+        </span>
+      </div>
+      <p className="mono mt-2.5 flex items-baseline text-[32px] font-semibold leading-none tracking-tight tabular-nums" style={{ color }}>
+        {value}
+        {unit && <span className="ml-0.5 text-lg opacity-60">{unit}</span>}
+      </p>
+      <SparkArea series={series} color={color} gradId={gradId} />
+    </div>
+  );
+}
+
+/** Hero-right "Operations" panel — node list mirrors the mockup. */
 function HeroLivePanel() {
-  const nodes: [string, string, string][] = [
-    ["Shanghai · SHA", "OK", "green"],
-    ["Rotterdam · NL", "OK", "green"],
-    ["Dubai · AE", "OK", "green"],
-    ["Sydney · AU", "WATCH", "amber"],
-    ["Red Sea lane", "ALERT", "red"],
+  const nodes: { label: string; status: string; tone: string; latency: string }[] = [
+    { label: "Shanghai · SHA", status: "OK", tone: "green", latency: "12ms" },
+    { label: "Rotterdam · NL", status: "OK", tone: "green", latency: "48ms" },
+    { label: "Dubai · AE", status: "OK", tone: "green", latency: "33ms" },
+    { label: "Sydney · AU", status: "WATCH", tone: "amber", latency: "91ms" },
+    { label: "Red Sea lane", status: "ALERT", tone: "red", latency: "—" },
   ];
   return (
-    <div className="panel relative overflow-hidden p-5 lg:p-6">
-      <div className="flex items-center justify-between border-b border-line pb-3">
-        <div className="flex items-center gap-2">
-          <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
-          <span className="label-mono text-heading">Live Operations</span>
+    <div className="panel relative select-none overflow-hidden p-6 lg:p-8">
+      {/* top accent hairline */}
+      <span
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green/60 to-transparent"
+      />
+
+      <div className="flex items-center justify-between border-b border-line pb-4">
+        <div className="flex items-center gap-2.5">
+          <span className="inline-flex size-2 rounded-full bg-green" />
+          <span className="label-mono text-heading">Operations</span>
         </div>
-        <span className="mono text-[9px] text-sub-muted">OPS-01 · SYNC</span>
+        <span className="mono text-[9px] tabular-nums text-sub-muted">OPS-01 · SYNC</span>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-4">
-        <div>
-          <p className="label-mono">Uptime · 30d</p>
-          <p className="mono mt-2 text-3xl font-semibold text-green">99.98%</p>
-          <div className="mt-2 h-1 w-full overflow-hidden bg-white/10">
-            <div className="h-full bg-green" style={{ width: "99.98%" }} />
-          </div>
-        </div>
-        <div>
-          <p className="label-mono">Signals · 1h</p>
-          <p className="mono mt-2 text-3xl font-semibold text-blue">12,482</p>
-          <Sparkbars animated={false} />
-        </div>
+      <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4">
+        <MetricTile
+          label="Uptime · 30d"
+          value="99.98"
+          unit="%"
+          delta="0.04%"
+          color={toneColor["green"]!}
+          gradId="spark-uptime"
+          series={uptimeTrend}
+        />
+        <MetricTile
+          label="Signals · 1h"
+          value="12,482"
+          delta="6.2%"
+          color={toneColor["blue"]!}
+          gradId="spark-signals"
+          series={signalsTrend}
+        />
       </div>
 
-      <div className="mt-6">
-        <p className="label-mono mb-3">Node status</p>
-        <ul className="divide-y divide-line">
-          {nodes.map(([label, status, tone]) => (
-            <li key={label} className="flex items-center justify-between py-2 text-[13px]">
-              <span className="mono uppercase tracking-widest text-muted-foreground">{label}</span>
-              <span className={`status-badge tone-${tone}`}>
-                <span className="status-dot" style={{ background: toneColor[tone], color: toneColor[tone] }} />
-                {status}
+      <div className="mt-8">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="label-mono">Node status</p>
+          <p className="label-mono text-sub-muted">5 lanes · 1 hub</p>
+        </div>
+        <ul className="-mx-2">
+          {nodes.map(({ label, status, tone, latency }) => (
+            <li
+              key={label}
+              className="group flex items-center justify-between rounded-sm px-2 py-2.5 text-[14px] transition-colors hover:bg-white/[0.025]"
+            >
+              <span className="flex min-w-0 items-center gap-3">
+                <span className="inline-flex size-1.5 shrink-0 rounded-full" style={{ background: toneColor[tone] }} />
+                <span className="mono truncate uppercase tracking-widest text-muted-foreground transition-colors group-hover:text-foreground">
+                  {label}
+                </span>
+              </span>
+              <span className="flex shrink-0 items-center gap-3.5">
+                <span className="mono text-[11px] tabular-nums text-sub-muted">{latency}</span>
+                <span className={`status-badge tone-${tone}`}>{status}</span>
               </span>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="mono mt-6 flex items-center justify-between border-t border-line pt-3 text-[9px] uppercase tracking-widest text-sub-muted">
-        <span>refresh · 1s</span>
-        <span>lat 31.23 · lng 121.47</span>
-      </div>
     </div>
   );
 }
 
 /* Destination ports mirrored from TradeGlobe's DEST list — keep in sync. */
 const destinationPorts = [
-  { city: "Rotterdam",   country: "Netherlands" },
+  { city: "Barcelona",   country: "Spain" },
   { city: "Hamburg",     country: "Germany" },
   { city: "Los Angeles", country: "USA" },
   { city: "New York",    country: "USA" },
@@ -1071,6 +1193,10 @@ function NetworkGlobe() {
                     {country} - {city}
                   </li>
                 ))}
+                <li className="mono flex items-center gap-2 text-[12px] uppercase tracking-widest text-blue">
+                  <span className="size-1.5 flex-none rounded-full border border-blue" />
+                  + more worldwide
+                </li>
               </ul>
             </div>
             <p className="text-[12px] leading-6 text-sub-muted">
