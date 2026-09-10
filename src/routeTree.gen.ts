@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as HowWeWorkRouteImport } from './routes/how-we-work'
 import { Route as IndustriesRouteImport } from './routes/industries'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ServicesRouteImport } from './routes/services'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const IndustriesRoute = IndustriesRouteImport.update({
   path: '/industries',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/how-we-work': typeof HowWeWorkRoute
   '/industries': typeof IndustriesRoute
+  '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/how-we-work': typeof HowWeWorkRoute
   '/industries': typeof IndustriesRoute
+  '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
 }
 export interface FileRoutesById {
@@ -70,14 +78,28 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/how-we-work': typeof HowWeWorkRoute
   '/industries': typeof IndustriesRoute
+  '/login': typeof LoginRoute
   '/services': typeof ServicesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/about' | '/contact' | '/how-we-work' | '/industries' | '/services'
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/how-we-work'
+    | '/industries'
+    | '/login'
+    | '/services'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/contact' | '/how-we-work' | '/industries' | '/services'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/how-we-work'
+    | '/industries'
+    | '/login'
+    | '/services'
   id:
     | '__root__'
     | '/'
@@ -85,6 +107,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/how-we-work'
     | '/industries'
+    | '/login'
     | '/services'
   fileRoutesById: FileRoutesById
 }
@@ -94,6 +117,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   HowWeWorkRoute: typeof HowWeWorkRoute
   IndustriesRoute: typeof IndustriesRoute
+  LoginRoute: typeof LoginRoute
   ServicesRoute: typeof ServicesRoute
 }
 
@@ -134,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndustriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services': {
       id: '/services'
       path: '/services'
@@ -150,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   HowWeWorkRoute: HowWeWorkRoute,
   IndustriesRoute: IndustriesRoute,
+  LoginRoute: LoginRoute,
   ServicesRoute: ServicesRoute,
 }
 export const routeTree = rootRouteImport

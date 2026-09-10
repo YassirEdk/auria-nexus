@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight, Lock } from "lucide-react";
 import { useEffect, useState, type ReactNode, type MouseEvent } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
 import { RequestAccessModal, openRequestAccess } from "./RequestAccessModal";
@@ -281,12 +281,20 @@ export function SiteHeader() {
           }}
         />
         <motion.div
-          className="inline-flex"
+          className="flex items-center gap-2"
           variants={{
             hidden: { opacity: 0, scale: 0.9 },
             show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
           }}
         >
+          <Link
+            to="/login"
+            className="island-cta island-cta--ghost island-cta--compact hidden lg:inline-flex"
+            aria-label="Client Space"
+          >
+            <Lock className="size-3.5" />
+            <span>Client<span className="hidden xl:inline">&nbsp;Space</span></span>
+          </Link>
           <button
             type="button"
             onClick={openRequestAccess}
@@ -333,7 +341,14 @@ export function SiteHeader() {
               </li>
             ))}
           </ul>
-          <div className="border-t border-line p-5 sm:p-6">
+          <div className="grid gap-3 border-t border-line p-5 sm:p-6">
+            <Link
+              to="/login"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-line px-4 py-2.5 text-sm font-medium text-heading transition-colors active:bg-white/5"
+            >
+              <Lock className="size-3.5" /> Client Space
+            </Link>
             <button
               type="button"
               onClick={() => {
