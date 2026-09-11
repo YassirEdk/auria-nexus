@@ -1143,7 +1143,8 @@ const destinationPorts = [
 
 /* ————— Global Network section: interactive 3D globe + China-hub rail ————— */
 function NetworkGlobe() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
   return (
     <section id="network" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
@@ -1202,7 +1203,13 @@ function NetworkGlobe() {
                 </li>
               </ul>
             </div>
-            <p className="text-[12px] leading-6 text-sub-muted">
+            <p
+              className={
+                isAr
+                  ? "font-sans text-[15px] leading-7 text-sub-muted"
+                  : "text-[12px] leading-6 text-sub-muted"
+              }
+            >
               {t("net.railNote")}
             </p>
           </div>
@@ -1210,7 +1217,13 @@ function NetworkGlobe() {
           {/* Globe */}
           <div className="relative order-2">
             <TradeGlobe />
-            <p className="mono mt-3 flex items-center gap-2 text-[10px] uppercase tracking-widest text-sub-muted">
+            <p
+              className={
+                isAr
+                  ? "font-sans mt-3 flex items-center gap-2 text-[14px] text-sub-muted"
+                  : "mono mt-3 flex items-center gap-2 text-[10px] uppercase tracking-widest text-sub-muted"
+              }
+            >
               <span className="inline-block size-3 rounded-full border border-blue" />
               {t("net.dragRotate")}
             </p>
@@ -1223,12 +1236,12 @@ function NetworkGlobe() {
 
 /* ————— Live Feeds: motion image tiles ————— */
 const feedTiles = [
-  { src: photoSha,      eyebrow: "Yangshan Terminal", title: "Export load · Shanghai",   tone: "green" as const, ch: "CH-11" },
-  { src: photoVessel,   eyebrow: "Vessel · MSKU-4482", title: "Trans-Pacific lane",       tone: "blue" as const,  ch: "CH-12" },
-  { src: photoFactory,  eyebrow: "Production · Line 2", title: "Guangzhou plant",          tone: "amber" as const, ch: "CH-13" },
-  { src: photoOverland, eyebrow: "Overland · Rail",    title: "China–Europe corridor",    tone: "green" as const, ch: "CH-14" },
-  { src: photoSz,       eyebrow: "Consolidation",      title: "Yiwu warehouse",           tone: "green" as const, ch: "CH-15" },
-  { src: photoNl,       eyebrow: "Arrival · EU gateway", title: "Rotterdam",              tone: "blue" as const,  ch: "CH-16" },
+  { src: photoSha,      key: "sha",      tone: "green" as const, ch: "CH-11" },
+  { src: photoVessel,   key: "vessel",   tone: "blue" as const,  ch: "CH-12" },
+  { src: photoFactory,  key: "factory",  tone: "amber" as const, ch: "CH-13" },
+  { src: photoOverland, key: "overland", tone: "green" as const, ch: "CH-14" },
+  { src: photoSz,       key: "yiwu",     tone: "green" as const, ch: "CH-15" },
+  { src: photoNl,       key: "rotterdam", tone: "blue" as const, ch: "CH-16" },
 ];
 
 function FeedsSection() {
@@ -1244,14 +1257,17 @@ function FeedsSection() {
         </Reveal>
 
         <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-3">
-          {feedTiles.map((t, i) => (
-            <Reveal key={t.ch} delay={(i % 3) * 0.08}>
+          {feedTiles.map((tile, i) => {
+            const eyebrow = t(`home.tiles.${tile.key}.eyebrow`);
+            const title = t(`home.tiles.${tile.key}.title`);
+            return (
+            <Reveal key={tile.ch} delay={(i % 3) * 0.08}>
               <figure className="group relative m-0 aspect-[16/11] overflow-hidden panel">
                 <img
-                  src={t.src}
-                  srcSet={unsplashSrcSet(t.src)}
+                  src={tile.src}
+                  srcSet={unsplashSrcSet(tile.src)}
                   sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 30vw"
-                  alt={t.title}
+                  alt={title}
                   loading="lazy"
                   decoding="async"
                   className="absolute inset-0 h-full w-full object-cover opacity-70 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04] group-hover:opacity-95"
@@ -1260,18 +1276,19 @@ function FeedsSection() {
                 <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(8,10,13,0.10) 0%, rgba(8,10,13,0.55) 60%, rgba(8,10,13,0.95) 100%)" }} />
                 <div className="absolute inset-x-3.5 top-3.5 flex items-center justify-between">
                   <span className="glass-panel inline-flex items-center gap-1.5 rounded-sm px-2 py-1">
-                    <span className="status-dot" style={{ background: toneColor[t.tone], color: toneColor[t.tone] }} />
-                    <span className="mono text-[9px] uppercase tracking-widest text-heading">Live</span>
+                    <span className="status-dot" style={{ background: toneColor[tile.tone], color: toneColor[tile.tone] }} />
+                    <span className="mono text-[9px] uppercase tracking-widest text-heading">{t("home.feedStatus")}</span>
                   </span>
-                  <span className="glass-panel mono rounded-sm px-2 py-1 text-[9px] uppercase tracking-widest text-blue">{t.ch}</span>
+                  <span className="glass-panel mono rounded-sm px-2 py-1 text-[9px] uppercase tracking-widest text-blue">{tile.ch}</span>
                 </div>
                 <figcaption className="absolute inset-x-0 bottom-0 p-5">
-                  <p className="mono text-[10px] uppercase tracking-widest" style={{ color: toneColor[t.tone] }}>{t.eyebrow}</p>
-                  <p className="mt-1.5 text-base font-semibold text-heading">{t.title}</p>
+                  <p className="mono text-[10px] uppercase tracking-widest" style={{ color: toneColor[tile.tone] }}>{eyebrow}</p>
+                  <p className="mt-1.5 text-base font-semibold text-heading">{title}</p>
                 </figcaption>
               </figure>
             </Reveal>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -1280,13 +1297,17 @@ function FeedsSection() {
 
 /* ————— Trade Analytics: line / bars / donut ————— */
 function AnalyticsSection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
+  // label-mono forces uppercase + wide letter-spacing, which breaks Arabic
+  // cursive joins; use a plain sans label for Arabic instead.
+  const labelCls = isAr ? "font-sans text-[13px] text-sub-muted" : "label-mono";
   const lanes: [string, number, string][] = [
-    ["CN → EU", 38, "#3B82F6"],
-    ["CN → N. America", 27, "#3B82F6"],
-    ["CN → Gulf", 18, GOLD],
-    ["CN → Africa", 11, GOLD],
-    ["CN → Asia-Pac", 6, "#10B981"],
+    [t("home.lanes.eu"), 38, "#3B82F6"],
+    [t("home.lanes.na"), 27, "#3B82F6"],
+    [t("home.lanes.gulf"), 18, GOLD],
+    [t("home.lanes.africa"), 11, GOLD],
+    [t("home.lanes.apac"), 6, "#10B981"],
   ];
   return (
     <section id="analytics" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
@@ -1303,11 +1324,11 @@ function AnalyticsSection() {
           <Reveal>
             <div className="panel h-full min-w-0 p-5 md:p-6">
               <div className="flex items-center justify-between">
-                <p className="label-mono">Export volume · 12 mo</p>
+                <p className={labelCls}>{t("home.exportVolume")}</p>
                 <span className="mono text-[10px] text-green">▲ 18.4%</span>
               </div>
               <p className="mono mt-3 text-3xl font-semibold text-heading">
-                <CountUp end={24.8} decimals={1} suffix="k" /> <span className="text-[13px] text-sub-muted">TEU</span>
+                <CountUp end={24.8} decimals={1} suffix="k" /> <span className="text-[13px] text-sub-muted">{t("home.teu")}</span>
               </p>
               <svg viewBox="0 0 320 120" preserveAspectRatio="none" className="mt-3 block h-[120px] w-full">
                 <defs>
@@ -1330,8 +1351,8 @@ function AnalyticsSection() {
           <Reveal delay={0.05}>
             <div className="panel h-full min-w-0 p-5 md:p-6">
               <div className="flex items-center justify-between">
-                <p className="label-mono">Containers by lane</p>
-                <span className="mono text-[10px] text-sub-muted">this qtr</span>
+                <p className={labelCls}>{t("home.containersByLane")}</p>
+                <span className={isAr ? "text-[11px] text-sub-muted" : "mono text-[10px] text-sub-muted"}>{t("home.thisQtr")}</span>
               </div>
               <div className="mt-4 flex flex-col gap-3">
                 {lanes.map(([label, pct, color]) => (
@@ -1352,27 +1373,27 @@ function AnalyticsSection() {
           {/* On-time donut */}
           <Reveal delay={0.1}>
             <div className="panel flex h-full min-w-0 flex-col p-5 md:col-span-2 md:p-6 lg:col-span-1">
-              <p className="label-mono">On-time delivery</p>
+              <p className={labelCls}>{t("home.onTimeDelivery")}</p>
               <div className="mt-4 flex items-center gap-5">
                 <svg viewBox="0 0 120 120" width="112" height="112" className="flex-none">
                   <circle cx="60" cy="60" r="50" fill="none" stroke="#1A1D23" strokeWidth="10" />
                   <circle cx="60" cy="60" r="50" fill="none" stroke="#10B981" strokeWidth="10" strokeLinecap="round" strokeDasharray="314" strokeDashoffset="13" transform="rotate(-90 60 60)" />
                   <text x="60" y="58" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="22" fontWeight="600" fill="#E2E8F0">96%</text>
-                  <text x="60" y="76" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" letterSpacing="2" fill="#64748B">ON TIME</text>
+                  <text x="60" y="76" textAnchor="middle" fontFamily={isAr ? "var(--font-sans)" : "var(--font-mono)"} fontSize="9" letterSpacing={isAr ? "0" : "2"} fill="#64748B">{isAr ? t("home.onTime") : "ON TIME"}</text>
                 </svg>
                 <div className="flex flex-col gap-3">
                   <div>
-                    <p className="mono text-[10px] uppercase tracking-widest text-sub-muted">QC pass rate</p>
+                    <p className={isAr ? "font-sans text-[12px] text-sub-muted" : "mono text-[10px] uppercase tracking-widest text-sub-muted"}>{t("home.qcPassRate")}</p>
                     <p className="mono mt-1 text-xl font-semibold text-green"><CountUp end={98.2} decimals={1} suffix="%" /></p>
                   </div>
                   <div>
-                    <p className="mono text-[10px] uppercase tracking-widest text-sub-muted">Avg lead time</p>
-                    <p className="mono mt-1 text-xl font-semibold text-blue"><CountUp end={31} decimals={0} /> <span className="text-[12px] text-sub-muted">days</span></p>
+                    <p className={isAr ? "font-sans text-[12px] text-sub-muted" : "mono text-[10px] uppercase tracking-widest text-sub-muted"}>{t("home.avgLeadTime")}</p>
+                    <p className="mono mt-1 text-xl font-semibold text-blue"><CountUp end={31} decimals={0} /> <span className="text-[12px] text-sub-muted">{t("home.days")}</span></p>
                   </div>
                 </div>
               </div>
               <p className="mt-auto pt-4 text-[12px] leading-5 text-sub-muted">
-                Corroborated across inspector, carrier and customs signals.
+                {t("home.corroborated")}
               </p>
             </div>
           </Reveal>
@@ -1431,7 +1452,6 @@ function AboutHome() {
     [t("about.glanceFounded"), "2019", "#3B82F6"],
     [t("about.glanceTeam"), t("about.glanceTeamV"), "#3B82F6"],
     [t("about.glanceOffices"), t("about.glanceOfficesV"), GOLD],
-    [t("about.glanceLanguages"), "EN · FR · ZH", GOLD],
   ];
   const cities: [string, string][] = [
     ["Shanghai", t("home.cityShanghai")],

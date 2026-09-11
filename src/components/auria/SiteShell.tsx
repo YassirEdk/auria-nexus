@@ -449,7 +449,7 @@ export function SiteFooter() {
 
         <div className="flex items-center gap-3 sm:gap-4">
           <Link to="/contact" className="mono hidden text-[10px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground sm:inline">
-            hello@auria.io
+            aureacompany907@gmail.com
           </Link>
           <span aria-hidden className="site-header__rule hidden h-5 w-px sm:block" />
           <div className="flex items-center gap-2.5 sm:gap-3">

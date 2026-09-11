@@ -55,44 +55,37 @@ function makeLabel(
   const color = isCN ? "rgba(248,208,128,1)" : "rgba(225,238,255,0.98)";
   const glow = isCN ? "rgba(248,208,128,0.55)" : "rgba(125,205,255,0.5)";
 
+  // Single element — the globe's CSS2DRenderer positions this via inline
+  // transform + position:absolute; a nested "chip" or overriding position on
+  // the root confused the renderer and left labels stuck at (0,0). Padding
+  // pushes the visible text above the anchor point without touching transform.
   const root = document.createElement("div");
-  // Stash coords so the visibility modifier can compute facing-to-camera.
   root.dataset["lat"] = String(d.lat);
   root.dataset["lng"] = String(d.lng);
   root.dataset["globeLabel"] = "1";
-  // Starts visible so labels appear immediately even if the raf tick hasn't
-  // fired yet or the label lives in an overlay container outside wrapRef; the
-  // tick still fades labels out as they rotate behind the globe. NOTE: the
-  // globe owns this element's `transform` (for positioning), so we must never
-  // set transform or transition transform here — only opacity.
+  root.textContent = isAr ? text : text.toUpperCase();
+  const fontSize = d.hub ? (isAr ? 14 : 12) : isNarrow ? (isAr ? 11 : 9.5) : (isAr ? 13 : 11);
   root.style.cssText = [
-    "position:relative",
     "pointer-events:none",
     "user-select:none",
     "opacity:1",
     "transition:opacity 0.5s ease",
-  ].join(";");
-
-  const chip = document.createElement("div");
-  // Arabic is cursive: mono fonts, uppercasing and letter-spacing all break the
-  // letter joins, so use a normal UI font and no tracking for Arabic.
-  chip.textContent = isAr ? text : text.toUpperCase();
-  chip.style.cssText = [
-    "position:absolute",
-    "left:50%",
-    "bottom:0",
-    "transform:translate(-50%,-8px)",
     "white-space:nowrap",
+    // Bidi-neutral so " · " between Arabic and Arabic doesn't get reordered.
+    `direction:${isAr ? "rtl" : "ltr"}`,
+    "text-align:center",
+    // Padding-bottom pushes the visible text upward within the CSS2D-centered
+    // element, so labels sit above the city dot instead of on top of it.
+    "padding-bottom:22px",
     isAr
-      ? "font-family:'Noto Sans Arabic','Segoe UI',Tahoma,system-ui,sans-serif"
+      ? "font-family:'Noto Sans Arabic','Segoe UI Arabic','Tahoma','Arial',sans-serif"
       : "font-family:ui-monospace,SFMono-Regular,Menlo,monospace",
-    `font-size:${d.hub ? (isAr ? 14 : 12) : isNarrow ? (isAr ? 11 : 9.5) : (isAr ? 13 : 11)}px`,
+    `font-size:${fontSize}px`,
     "font-weight:600",
     isAr ? "letter-spacing:0" : "letter-spacing:0.12em",
     `color:${color}`,
     `text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 10px rgba(0,0,0,0.7),0 0 16px ${glow}`,
   ].join(";");
-  root.appendChild(chip);
   return root;
 }
 
@@ -267,7 +260,16 @@ export function TradeGlobe() {
   const isNarrow = size.w > 0 && size.w < 480;
 
   return (
-    <div ref={wrapRef} className="relative h-[min(72vh,600px)] min-h-[380px] w-full">
+    <div
+      ref={wrapRef}
+      dir="ltr"
+      className="relative h-[min(72vh,600px)] min-h-[380px] w-full"
+    >
+      {/* Force LTR: react-globe.gl positions its HTML label overlay assuming an
+          LTR coordinate system. Under the page's RTL direction (Arabic) the
+          horizontal offsets get mirrored and every label lands on the opposite
+          side of the globe. The globe is a visual layer, not text flow, so
+          pinning it to LTR is safe and keeps labels on their cities. */}
       {/* Loading placeholder — a soft glowing orb + status line, faded out once
           the globe reports ready so the area never sits blank while the WebGL
           chunk and texture load. */}

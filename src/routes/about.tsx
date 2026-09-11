@@ -66,7 +66,6 @@ function AboutContent() {
                     { l: t("about.glanceOffices"), v: t("about.glanceOfficesV") },
                     { l: t("about.glanceClients"), v: "180+" },
                     { l: t("about.glanceCategories"), v: t("about.glanceCategoriesV") },
-                    { l: t("about.glanceLanguages"), v: "EN · FR · ZH" },
                   ].map((k) => (
                     <div key={k.l}>
                       <p className="label-mono">{k.l}</p>
