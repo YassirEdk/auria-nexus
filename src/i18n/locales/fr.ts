@@ -139,6 +139,8 @@ const fr: typeof import("./en").default = {
     channelEncrypted: "canal · chiffré",
     close: "Fermer",
     waGreeting: "Bonjour, je suis {{name}}. Je souhaite poser ma candidature pour travailler avec un opérateur AURIA. Voici mes informations :",
+    fillAll: "Veuillez remplir tous les champs avant d'envoyer.",
+    haveQuestion: "J'ai une question",
   },
   services: {
     headerEyebrow: "Services",

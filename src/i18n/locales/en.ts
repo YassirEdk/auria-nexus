@@ -139,6 +139,8 @@ const en = {
     channelEncrypted: "channel · encrypted",
     close: "Close",
     waGreeting: "Hello, I'm {{name}}. I'd like to apply to work with an AURIA operator. Here are my details:",
+    fillAll: "Please fill in all fields before submitting.",
+    haveQuestion: "I have a question",
   },
   services: {
     headerEyebrow: "Services",

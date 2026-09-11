@@ -139,6 +139,8 @@ const ar: typeof import("./en").default = {
     channelEncrypted: "القناة · مشفَّرة",
     close: "إغلاق",
     waGreeting: "مرحبًا، أنا {{name}}. أرغب في التقديم للعمل مع مشغّل AURIA. وإليكم معلوماتي:",
+    fillAll: "يرجى ملء جميع الحقول قبل الإرسال.",
+    haveQuestion: "لدي سؤال",
   },
   services: {
     headerEyebrow: "الخدمات",

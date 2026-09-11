@@ -2114,12 +2114,30 @@ function ContactSection() {
   const [form, setForm] = useState<Record<string, string>>({});
   const [error, setError] = useState(false);
   const [showChannels, setShowChannels] = useState(false);
+  const channelsWrapRef = useRef<HTMLDivElement | null>(null);
   const setField = (key: string, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
     if (error) setError(false);
     // Editing after the channel picker is shown re-hides it so the send is re-confirmed.
     if (showChannels) setShowChannels(false);
   };
+
+  // Dismiss the send-via popup when the user clicks outside it (the submit
+  // button lives in the same wrapper, so re-clicking Transmit Inquiry still
+  // re-opens the picker via onTransmit).
+  useEffect(() => {
+    if (!showChannels) return;
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      const node = channelsWrapRef.current;
+      if (node && !node.contains(e.target as Node)) setShowChannels(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+    };
+  }, [showChannels]);
 
   // Step 1: validate all fields, then reveal the WhatsApp / Gmail choices.
   const onTransmit = () => {
@@ -2217,11 +2235,8 @@ function ContactSection() {
                 {t("home.contactError")}
               </p>
             )}
-            <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
-              <span className="status-badge tone-green">
-                <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} /> {t("home.contactEncrypted")}
-              </span>
-              <div className="relative">
+            <div className="flex flex-wrap items-center justify-end gap-3 sm:col-span-2">
+              <div className="relative" ref={channelsWrapRef}>
                 {showChannels && (
                   <motion.div
                     initial={{ opacity: 0, y: 10, scale: 0.85, x: "-50%" }}
