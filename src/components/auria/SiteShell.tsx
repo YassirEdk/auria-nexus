@@ -268,7 +268,6 @@ export function SiteHeader() {
                     active ? "island-nav-link--active" : "",
                   ].join(" ")}
                 >
-                  {active && <span aria-hidden className="island-nav-link__dot" />}
                   <span>{t(`nav.${link.key}`)}</span>
                 </Link>
               </motion.div>
