@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import {
   ArrowUpRight, ArrowRight, Radar, ShieldCheck, Factory, Ship, Warehouse, Search,
@@ -23,14 +24,14 @@ import photoFactory from "@/assets/hero/1553413077-190dd305871c.jpg";
 import photoVessel from "@/assets/hero/vessel-9153850.jpg";
 
 const modules = [
-  { icon: Search,        title: "Sourcing Signals",     copy: "Live supplier intake from verified Chinese manufacturing hubs, ranked by capability match." },
-  { icon: BadgeCheck,    title: "Supplier Verification", copy: "Cross-referenced compliance, factory audit records and shipment history in one dossier." },
-  { icon: Handshake,     title: "Negotiation Ops",       copy: "Comparative quotes, MOQ benchmarks and negotiation runbooks per SKU family." },
-  { icon: ShieldCheck,   title: "Quality Assurance",     copy: "Pre-shipment inspection scheduling and defect telemetry from third-party inspectors." },
-  { icon: Factory,       title: "Production Tracking",   copy: "Line-level milestones, tooling status and daily output signals per PO." },
-  { icon: Warehouse,     title: "Consolidation Ops",     copy: "Multi-supplier warehousing, palletization and export prep at the Shanghai node." },
-  { icon: Ship,          title: "Logistics Feed",        copy: "Booking, container status and ETA drift across ocean, air and rail lanes." },
-  { icon: Radar,         title: "Risk Radar",            copy: "Continuous scanning for tariff, sanctions and lane-disruption signals." },
+  { icon: Search,        key: "mod1" },
+  { icon: BadgeCheck,    key: "mod2" },
+  { icon: Handshake,     key: "mod3" },
+  { icon: ShieldCheck,   key: "mod4" },
+  { icon: Factory,       key: "mod5" },
+  { icon: Warehouse,     key: "mod6" },
+  { icon: Ship,          key: "mod7" },
+  { icon: Radar,         key: "mod8" },
 ] as const;
 
 const timeline = [
@@ -809,6 +810,7 @@ function LivePanel() {
 }
 
 function Hero() {
+  const { t } = useTranslation();
   const lite = usePerfLite();
   const isMobile = useIsMobileViewport();
   return (
@@ -876,47 +878,47 @@ function Hero() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="status-badge tone-blue">
                 <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
-                System online
+                {t("home.heroBadge1")}
               </span>
               <span className="status-badge tone-green">
                 <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
-                China → Global
+                {t("home.heroBadge2")}
               </span>
             </div>
 
             <h1 className="mt-5 select-none font-sans font-bold tracking-[-0.025em] text-heading text-[32px] leading-[1.05] sm:mt-6 sm:text-[46px] sm:leading-[1.06] md:text-[70px]">
-              Your global gateway<br />
-              to China.<br />
-              <span className="font-semibold text-muted-foreground">Sourcing, corroborated.</span>
+              {t("home.heroTitle1")}<br />
+              {t("home.heroTitle2")}<br />
+              <span className="font-semibold text-muted-foreground">{t("home.heroTitle3")}</span>
             </h1>
 
             <p className="mono mt-4 text-[12px] uppercase tracking-[0.14em]" style={{ color: GOLD }}>
-              Commerce des entreprises · Chine → International
+              {t("home.heroGold")}
             </p>
 
             <p className="mt-4 max-w-xl select-none text-[15px] leading-6 text-muted-foreground sm:mt-5 sm:text-base sm:leading-7 md:text-lg">
-              AURIA connects businesses worldwide with trusted Chinese manufacturers — one console for sourcing, verification, quality control and logistics, every decision backed by more than one signal.
+              {t("home.heroP1")}
             </p>
             <p className="mt-3 hidden max-w-xl select-none text-[14px] leading-6 text-sub-muted sm:block">
-              Nous sommes votre équipe opérationnelle sur le terrain en Chine : de l'appel d'offres à la livraison mondiale, sous un seul contrat.
+              {t("home.heroP2")}
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-10">
               <button type="button" onClick={openRequestAccess} className="btn-primary">
-                Start a Partnership <ArrowUpRight className="size-3.5" />
+                {t("home.ctaStart")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
               </button>
               <a href="#network" className="btn-ghost-line">
-                Explore the Network <ArrowRight className="size-3.5" />
+                {t("home.ctaExplore")} <ArrowRight className="size-3.5 rtl:-scale-x-100" />
               </a>
             </div>
 
             {/* Micro KPI row — animated count-ups */}
             <div className="mt-7 grid max-w-2xl grid-cols-2 gap-4 border-t border-line pt-6 sm:mt-14 sm:gap-6 sm:pt-8 sm:grid-cols-4">
               {[
-                { l: "Uptime", n: 99.98, suffix: "%", decimals: 2, color: "#10B981" },
-                { l: "Lanes", n: 42, suffix: "", decimals: 0, color: "#3B82F6" },
-                { l: "Hub · CN", n: 1, suffix: "", decimals: 0, color: GOLD },
-                { l: "Advisories", n: 3, suffix: "", decimals: 0, color: "#EF4444", pad: true },
+                { l: t("home.kpiUptime"), n: 99.98, suffix: "%", decimals: 2, color: "#10B981" },
+                { l: t("home.kpiLanes"), n: 42, suffix: "", decimals: 0, color: "#3B82F6" },
+                { l: t("home.kpiHub"), n: 1, suffix: "", decimals: 0, color: GOLD },
+                { l: t("home.kpiAdvisories"), n: 3, suffix: "", decimals: 0, color: "#EF4444", pad: true },
               ].map((k) => (
                 <div key={k.l}>
                   <p className="label-mono">{k.l}</p>
@@ -1050,12 +1052,13 @@ function MetricTile({
 
 /** Hero-right "Operations" panel — node list mirrors the mockup. */
 function HeroLivePanel() {
+  const { t } = useTranslation();
   const nodes: { label: string; status: string; tone: string; latency: string }[] = [
-    { label: "Shanghai · SHA", status: "OK", tone: "green", latency: "12ms" },
-    { label: "Rotterdam · NL", status: "OK", tone: "green", latency: "48ms" },
-    { label: "Dubai · AE", status: "OK", tone: "green", latency: "33ms" },
-    { label: "Sydney · AU", status: "WATCH", tone: "amber", latency: "91ms" },
-    { label: "Red Sea lane", status: "ALERT", tone: "red", latency: "—" },
+    { label: t("ops.node1"), status: t("ops.statusOk"), tone: "green", latency: "12ms" },
+    { label: t("ops.node2"), status: t("ops.statusOk"), tone: "green", latency: "48ms" },
+    { label: t("ops.node3"), status: t("ops.statusOk"), tone: "green", latency: "33ms" },
+    { label: t("ops.node4"), status: t("ops.statusWatch"), tone: "amber", latency: "91ms" },
+    { label: t("ops.node5"), status: t("ops.statusAlert"), tone: "red", latency: "—" },
   ];
   return (
     <div className="panel relative select-none overflow-hidden p-6 lg:p-8">
@@ -1068,14 +1071,14 @@ function HeroLivePanel() {
       <div className="flex items-center justify-between border-b border-line pb-4">
         <div className="flex items-center gap-2.5">
           <span className="inline-flex size-2 rounded-full bg-green" />
-          <span className="label-mono text-heading">Operations</span>
+          <span className="label-mono text-heading">{t("ops.operations")}</span>
         </div>
         <span className="mono text-[9px] tabular-nums text-sub-muted">OPS-01 · SYNC</span>
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4">
         <MetricTile
-          label="Uptime · 30d"
+          label={t("ops.uptime")}
           value="99.98"
           unit="%"
           delta="0.04%"
@@ -1084,7 +1087,7 @@ function HeroLivePanel() {
           series={uptimeTrend}
         />
         <MetricTile
-          label="Signals · 1h"
+          label={t("ops.signals")}
           value="12,482"
           delta="6.2%"
           color={toneColor["blue"]!}
@@ -1095,8 +1098,8 @@ function HeroLivePanel() {
 
       <div className="mt-8">
         <div className="mb-3 flex items-center justify-between">
-          <p className="label-mono">Node status</p>
-          <p className="label-mono text-sub-muted">5 lanes · 1 hub</p>
+          <p className="label-mono">{t("ops.nodeStatus")}</p>
+          <p className="label-mono text-sub-muted">{t("ops.lanesHub")}</p>
         </div>
         <ul className="-mx-2">
           {nodes.map(({ label, status, tone, latency }) => (
@@ -1123,33 +1126,34 @@ function HeroLivePanel() {
   );
 }
 
-/* Destination ports mirrored from TradeGlobe's DEST list — keep in sync. */
+/* Destination ports mirrored from TradeGlobe's DEST list — keep in sync.
+   `key` matches the shared `globe` i18n namespace for localized names. */
 const destinationPorts = [
-  { city: "Barcelona",   country: "Spain" },
-  { city: "Hamburg",     country: "Germany" },
-  { city: "Los Angeles", country: "USA" },
-  { city: "New York",    country: "USA" },
-  { city: "Dubai",       country: "UAE" },
-  { city: "Singapore",   country: "Singapore" },
-  { city: "Casablanca",  country: "Morocco" },
-  { city: "Santos",      country: "Brazil" },
-  { city: "Durban",      country: "South Africa" },
-  { city: "Sydney",      country: "Australia" },
+  { key: "barcelona" },
+  { key: "hamburg" },
+  { key: "losAngeles" },
+  { key: "newYork" },
+  { key: "dubai" },
+  { key: "singapore" },
+  { key: "casablanca" },
+  { key: "santos" },
+  { key: "durban" },
+  { key: "sydney" },
 ] as const;
 
 /* ————— Global Network section: interactive 3D globe + China-hub rail ————— */
 function NetworkGlobe() {
+  const { t } = useTranslation();
   return (
     <section id="network" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
         <Reveal className="max-w-3xl">
-          <SectionEyebrow>Global Network · Réseau mondial</SectionEyebrow>
+          <SectionEyebrow>{t("home.networkEyebrow")}</SectionEyebrow>
           <h2 className="mt-4 text-3xl font-bold leading-[1.05] tracking-tight text-heading md:text-5xl">
-            China is our base.<br />The world is our market.
+            {t("home.networkTitle1")}<br />{t("home.networkTitle2")}
           </h2>
           <p className="mt-4 text-[15px] leading-7 text-muted-foreground md:text-[17px]">
-            Live trade lanes from our Shanghai hub to buyers across Europe, the Gulf, Africa, the Americas and Asia-Pacific.{" "}
-            <span className="text-sub-muted">La Chine est notre base. Le monde est notre marché.</span>
+            {t("home.networkCopy")}
           </p>
         </Reveal>
 
@@ -1158,8 +1162,8 @@ function NetworkGlobe() {
           <div className="order-1 flex flex-col gap-4">
             <div className="flex flex-wrap gap-2">
               {[
-                ["Sourcing", GOLD], ["Manufacturing", GOLD],
-                ["Quality", "#3B82F6"], ["Logistics", "#3B82F6"],
+                [t("net.tagSourcing"), GOLD], [t("net.tagManufacturing"), GOLD],
+                [t("net.tagQuality"), "#3B82F6"], [t("net.tagLogistics"), "#3B82F6"],
               ].map(([label, color]) => (
                 <span
                   key={label}
@@ -1172,34 +1176,34 @@ function NetworkGlobe() {
             </div>
             <div className="panel p-5">
               <div className="flex items-center justify-between border-b border-line pb-3">
-                <span className="label-mono text-heading">China hub</span>
-                <span className="mono text-[9px] text-sub-muted">01 node</span>
+                <span className="label-mono text-heading">{t("net.chinaHub")}</span>
+                <span className="mono text-[9px] text-sub-muted">{t("net.oneNode")}</span>
               </div>
               <ul className="mt-3.5 space-y-2.5">
                 <li className="flex items-center gap-2 text-[13px] text-muted-foreground">
                   <span className="size-1.5 rounded-full" style={{ background: GOLD, boxShadow: `0 0 8px ${GOLD}b3` }} />
-                  Shanghai · China
+                  {t("globe.shanghai")} · {t("globe.shanghaiCountry")}
                 </li>
               </ul>
               <div className="mono mt-4 flex items-center gap-2 border-t border-line pt-3 text-[12px] text-sub-muted">
                 <span className="size-1.5 rounded-full" style={{ background: "#3B82F6", boxShadow: "0 0 8px #3B82F6b3" }} />
-                Destination ports worldwide · 10 shown
+                {t("net.destPorts")}
               </div>
               <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {destinationPorts.map(({ city, country }) => (
-                  <li key={city} className="flex items-center gap-2 text-[13px] text-muted-foreground">
+                {destinationPorts.map(({ key }) => (
+                  <li key={key} className="flex items-center gap-2 text-[13px] text-muted-foreground">
                     <span className="size-1.5 flex-none rounded-full" style={{ background: "#3B82F6", boxShadow: "0 0 8px #3B82F6b3" }} />
-                    {country} - {city}
+                    {t(`globe.${key}Country`)} - {t(`globe.${key}`)}
                   </li>
                 ))}
                 <li className="mono flex items-center gap-2 text-[12px] uppercase tracking-widest text-blue">
                   <span className="size-1.5 flex-none rounded-full border border-blue" />
-                  + more worldwide
+                  {t("net.moreWorldwide")}
                 </li>
               </ul>
             </div>
             <p className="text-[12px] leading-6 text-sub-muted">
-              Send us your exact city list and lanes — the globe updates directly with your ports and routes.
+              {t("net.railNote")}
             </p>
           </div>
 
@@ -1208,7 +1212,7 @@ function NetworkGlobe() {
             <TradeGlobe />
             <p className="mono mt-3 flex items-center gap-2 text-[10px] uppercase tracking-widest text-sub-muted">
               <span className="inline-block size-3 rounded-full border border-blue" />
-              Drag to rotate · Glissez pour pivoter
+              {t("net.dragRotate")}
             </p>
           </div>
         </Reveal>
@@ -1228,13 +1232,14 @@ const feedTiles = [
 ];
 
 function FeedsSection() {
+  const { t } = useTranslation();
   return (
     <section id="feeds" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
         <Reveal className="max-w-3xl">
-          <SectionEyebrow>Live Feeds · Flux en direct</SectionEyebrow>
+          <SectionEyebrow>{t("home.feedsEyebrow")}</SectionEyebrow>
           <h2 className="mt-4 text-3xl font-bold leading-[1.05] tracking-tight text-heading md:text-5xl">
-            Containers, vessels &amp; cargo — in motion.
+            {t("home.feedsTitle")}
           </h2>
         </Reveal>
 
@@ -1275,6 +1280,7 @@ function FeedsSection() {
 
 /* ————— Trade Analytics: line / bars / donut ————— */
 function AnalyticsSection() {
+  const { t } = useTranslation();
   const lanes: [string, number, string][] = [
     ["CN → EU", 38, "#3B82F6"],
     ["CN → N. America", 27, "#3B82F6"],
@@ -1286,9 +1292,9 @@ function AnalyticsSection() {
     <section id="analytics" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
         <Reveal className="max-w-3xl">
-          <SectionEyebrow>Trade Analytics · Analytique</SectionEyebrow>
+          <SectionEyebrow>{t("home.analyticsEyebrow")}</SectionEyebrow>
           <h2 className="mt-4 text-3xl font-bold leading-[1.05] tracking-tight text-heading md:text-5xl">
-            Every shipment, measured.
+            {t("home.analyticsTitle")}
           </h2>
         </Reveal>
 
@@ -1378,36 +1384,37 @@ function AnalyticsSection() {
 
 /* ————— Services grid ————— */
 const services = [
-  { icon: Search,      title: "Global Sourcing",            copy: "Find the right products and manufacturers to your exact specifications." },
-  { icon: ShieldCheck, title: "Supplier Verification",      copy: "Cross-referenced compliance, audit records and shipment history." },
-  { icon: Handshake,   title: "Negotiation & Procurement",  copy: "Competitive prices and favorable commercial conditions per SKU." },
-  { icon: BadgeCheck,  title: "Quality Control",            copy: "Pre-shipment inspection and defect telemetry before goods leave." },
-  { icon: Factory,     title: "Production Tracking",        copy: "Line-level milestones, tooling status and daily output per PO." },
-  { icon: Warehouse,   title: "Warehousing & Consolidation", copy: "Receive, store and consolidate goods from multiple suppliers." },
-  { icon: Ship,        title: "International Logistics",     copy: "Ocean, air and rail coordination with customs handled end-to-end." },
-  { icon: Radar,       title: "Risk Radar",                 copy: "Continuous scanning for tariff, sanctions and lane-disruption signals." },
+  { icon: Search,      key: "svc1" },
+  { icon: ShieldCheck, key: "svc2" },
+  { icon: Handshake,   key: "svc3" },
+  { icon: BadgeCheck,  key: "svc4" },
+  { icon: Factory,     key: "svc5" },
+  { icon: Warehouse,   key: "svc6" },
+  { icon: Ship,        key: "svc7" },
+  { icon: Radar,       key: "svc8" },
 ] as const;
 
 function ServicesGrid() {
+  const { t } = useTranslation();
   return (
     <section id="services" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
         <Reveal className="max-w-3xl">
-          <SectionEyebrow>Services · Prestations</SectionEyebrow>
+          <SectionEyebrow>{t("home.servicesEyebrow")}</SectionEyebrow>
           <h2 className="mt-4 text-3xl font-bold leading-[1.05] tracking-tight text-heading md:text-5xl">
-            From factory to final destination.
+            {t("home.servicesTitle")}
           </h2>
         </Reveal>
 
         <div className="mt-10 grid gap-3.5 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4">
-          {services.map(({ icon: Icon, title, copy }) => (
-            <Reveal key={title}>
+          {services.map(({ icon: Icon, key }) => (
+            <Reveal key={key}>
               <div className="au-svc flex h-full flex-col gap-3 rounded-md border border-line bg-panel p-5 transition-colors">
                 <span className="grid size-10 place-items-center border border-line bg-black/40 text-blue">
                   <Icon className="size-[18px]" />
                 </span>
-                <p className="text-[15px] font-semibold text-heading">{title}</p>
-                <p className="text-[13px] leading-relaxed text-muted-foreground">{copy}</p>
+                <p className="text-[15px] font-semibold text-heading">{t(`home.${key}Title`)}</p>
+                <p className="text-[13px] leading-relaxed text-muted-foreground">{t(`home.${key}Copy`)}</p>
               </div>
             </Reveal>
           ))}
@@ -1419,38 +1426,39 @@ function ServicesGrid() {
 
 /* ————— About (home) ————— */
 function AboutHome() {
+  const { t } = useTranslation();
   const glance: [string, string, string][] = [
-    ["Founded", "2019", "#3B82F6"],
-    ["Team", "24 ops", "#3B82F6"],
-    ["Offices", "4 · CN", GOLD],
-    ["Languages", "EN · FR · ZH", GOLD],
+    [t("about.glanceFounded"), "2019", "#3B82F6"],
+    [t("about.glanceTeam"), t("about.glanceTeamV"), "#3B82F6"],
+    [t("about.glanceOffices"), t("about.glanceOfficesV"), GOLD],
+    [t("about.glanceLanguages"), "EN · FR · ZH", GOLD],
   ];
   const cities: [string, string][] = [
-    ["Shanghai", "HQ · consolidation node"],
-    ["Shenzhen", "Electronics & hardware"],
-    ["Guangzhou", "Consumer goods"],
-    ["Yiwu", "Small commodities"],
+    ["Shanghai", t("home.cityShanghai")],
+    ["Shenzhen", t("home.cityShenzhen")],
+    ["Guangzhou", t("home.cityGuangzhou")],
+    ["Yiwu", t("home.cityYiwu")],
   ];
   return (
     <section id="about" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container grid gap-10 lg:grid-cols-2 lg:gap-14">
         <Reveal>
-          <SectionEyebrow>About · À propos</SectionEyebrow>
+          <SectionEyebrow>{t("home.aboutEyebrow")}</SectionEyebrow>
           <h2 className="mt-4 text-3xl font-bold leading-[1.06] tracking-tight text-heading md:text-[50px]">
-            Your China-based operator, not a broker.
+            {t("home.aboutTitle")}
           </h2>
           <p className="mt-5 text-[15px] leading-7 text-muted-foreground md:text-[17px]">
-            AURIA is an on-the-ground sourcing, quality and logistics team based in China, serving importers, brands and distributors worldwide. We coordinate every relationship and every shipment from product brief to global delivery — under one contract, in your language.
+            {t("home.aboutP1")}
           </p>
           <p className="mt-4 text-[14px] leading-7 text-sub-muted">
-            Commerce des entreprises en Chine — nous ne sommes ni un intermédiaire ni une plateforme. Nous sommes votre équipe opérationnelle, présente physiquement dans les usines chinoises que vous ne pouvez pas visiter.
+            {t("home.aboutP2")}
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <button type="button" onClick={openRequestAccess} className="btn-primary">
-              Talk to the team <ArrowUpRight className="size-3.5" />
+              {t("home.aboutCtaTeam")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
             </button>
             <a href="#network" className="btn-ghost-line">
-              See the network <ArrowRight className="size-3.5" />
+              {t("home.aboutCtaNetwork")} <ArrowRight className="size-3.5 rtl:-scale-x-100" />
             </a>
           </div>
         </Reveal>
@@ -1458,7 +1466,7 @@ function AboutHome() {
         <Reveal delay={0.1}>
           <div className="panel p-6">
             <div className="flex items-center justify-between border-b border-line pb-3">
-              <span className="label-mono text-heading">AURIA · at a glance</span>
+              <span className="label-mono text-heading">{t("home.atAGlance")}</span>
               <span className="mono text-[10px] text-sub-muted">ORG-01</span>
             </div>
             <div className="mt-5 grid grid-cols-2 gap-5">
@@ -1493,6 +1501,7 @@ function AboutHome() {
 
 /* ————— Partnership CTA ————— */
 function PartnershipCTA() {
+  const { t } = useTranslation();
   return (
     <section id="contact" className="relative overflow-hidden border-b border-line py-16 sm:py-24 lg:py-32">
       <img
@@ -1506,19 +1515,19 @@ function PartnershipCTA() {
       />
       <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(8,10,13,0.5), rgba(8,10,13,0.95) 70%)" }} />
       <Reveal className="relative mx-auto max-w-[760px] px-1 text-center">
-        <SectionEyebrow>Start a Partnership</SectionEyebrow>
+        <SectionEyebrow>{t("home.partnershipEyebrow")}</SectionEyebrow>
         <h2 className="serif-display mt-5 text-3xl leading-[1.05] text-heading md:text-5xl">
-          Let's build your next<br /><span className="italic">supply chain.</span>
+          {t("home.partnershipTitle1")}<br /><span className="italic">{t("home.partnershipTitle2")}</span>
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-6 text-muted-foreground md:text-[17px]">
-          Tell us what you're looking for. We'll help you source, manufacture and move it from China to wherever your business needs it.
+          {t("home.partnershipCopy")}
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Link to="/contact" className="btn-primary">
-            Start a Conversation <ArrowUpRight className="size-3.5" />
+            {t("home.partnershipCta1")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
           </Link>
           <button type="button" onClick={openRequestAccess} className="btn-ghost-line">
-            Request a Quote <ArrowRight className="size-3.5" />
+            {t("home.partnershipCta2")} <ArrowRight className="size-3.5 rtl:-scale-x-100" />
           </button>
         </div>
       </Reveal>
@@ -1527,16 +1536,17 @@ function PartnershipCTA() {
 }
 
 function Comparison() {
+  const { t } = useTranslation();
   return (
     <section id="comparison" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
         <Reveal className="text-center">
-          <span className="label-mono">/ 02 Signals</span>
+          <span className="label-mono">{t("home.signalsEyebrow")}</span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
-            One signal is not enough.
+            {t("home.signalsTitle")}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-            A supplier quote is a claim. A shipment update is a claim. AURIA only marks a supply chain event as truthful once it is corroborated across independent sources.
+            {t("home.signalsIntro")}
           </p>
         </Reveal>
 
@@ -1545,21 +1555,21 @@ function Comparison() {
           <Reveal>
             <div className="panel p-6 md:p-8">
               <div className="flex items-center justify-between">
-                <span className="label-mono text-amber">Unverified</span>
+                <span className="label-mono text-amber">{t("home.signalsUnverified")}</span>
                 <span className="status-badge tone-amber">
-                  <span className="status-dot" style={{ background: "#F59E0B", color: "#F59E0B" }} /> low confidence
+                  <span className="status-dot" style={{ background: "#F59E0B", color: "#F59E0B" }} /> {t("home.signalsLowConf")}
                 </span>
               </div>
-              <h3 className="mt-6 text-xl font-semibold text-heading">Single-source claim</h3>
+              <h3 className="mt-6 text-xl font-semibold text-heading">{t("home.signalsCard1Title")}</h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Supplier self-reports on production, quality, and shipment. Nothing to cross-check against.
+                {t("home.signalsCard1Copy")}
               </p>
               <div className="mt-8">
-                <p className="label-mono mb-3">Corroborating evidence</p>
-                <div className="dashed-empty">No secondary signals attached</div>
+                <p className="label-mono mb-3">{t("home.signalsCorrobEvidence")}</p>
+                <div className="dashed-empty">{t("home.signalsNoSignals")}</div>
               </div>
               <div className="mt-8 flex items-center justify-between border-t border-line pt-4">
-                <span className="mono text-[11px] uppercase tracking-widest text-sub-muted">Confidence</span>
+                <span className="mono text-[11px] uppercase tracking-widest text-sub-muted">{t("home.signalsConfidence")}</span>
                 <span className="mono text-sm font-semibold text-amber">32%</span>
               </div>
             </div>
@@ -1569,14 +1579,14 @@ function Comparison() {
           <Reveal delay={0.1}>
             <div className="relative panel border-blue/60 p-6 md:p-8" style={{ boxShadow: "0 20px 60px -20px rgba(59,130,246,0.25)", borderColor: "rgba(59,130,246,0.55)" }}>
               <div className="flex items-center justify-between">
-                <span className="label-mono text-blue">Corroborated</span>
+                <span className="label-mono text-blue">{t("home.signalsCorroborated")}</span>
                 <span className="status-badge tone-green">
-                  <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} /> 91% high confidence
+                  <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} /> {t("home.signalsHighConf")}
                 </span>
               </div>
-              <h3 className="mt-6 text-xl font-semibold text-heading">Cross-signed event</h3>
+              <h3 className="mt-6 text-xl font-semibold text-heading">{t("home.signalsCard2Title")}</h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Four independent evidence streams align on the same event before AURIA marks it truthful.
+                {t("home.signalsCard2Copy")}
               </p>
               <div className="mt-8 grid grid-cols-2 gap-3">
                 {[
@@ -1605,16 +1615,17 @@ function Comparison() {
 }
 
 function Timeline() {
+  const { t } = useTranslation();
   return (
     <section id="timeline" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
         <Reveal className="mx-auto max-w-3xl text-center">
-          <span className="label-mono">/ 03 Feed</span>
+          <span className="label-mono">{t("home.feedEyebrow")}</span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
-            Intelligence timeline.
+            {t("home.feedTitle")}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-            A sample of the tactical feed AURIA operators watch every day — cross-source, timestamped, ranked by confidence.
+            {t("home.feedIntro")}
           </p>
         </Reveal>
 
@@ -1648,24 +1659,25 @@ function Timeline() {
 }
 
 function Modules() {
+  const { t } = useTranslation();
   return (
     <section id="modules" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
         <Reveal className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="label-mono">/ 04 Platform</span>
+            <span className="label-mono">{t("home.platformEyebrow")}</span>
             <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight text-heading md:text-5xl">
-              Explore platform modules.
+              {t("home.platformTitle")}
             </h2>
           </div>
           <p className="max-w-md text-sm leading-6 text-muted-foreground md:text-base">
-            Every AURIA capability is a self-contained module. Deploy one, deploy all — they share the same evidence graph.
+            {t("home.platformCopy")}
           </p>
         </Reveal>
 
         <div className="mt-10 grid sm:mt-14 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {modules.map(({ icon: Icon, title, copy }, i) => (
-            <Reveal key={title} delay={(i % 4) * 0.05}>
+          {modules.map(({ icon: Icon, key }, i) => (
+            <Reveal key={key} delay={(i % 4) * 0.05}>
               <TiltCard className="h-full">
                 <Link to="/contact" className="module-card module-card--tilt group relative h-full overflow-hidden">
                   {/* cursor-driven sheen */}
@@ -1683,9 +1695,9 @@ function Modules() {
                     <ArrowUpRight className="size-4 text-sub-muted transition-transform duration-300 group-hover:text-blue group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </div>
                   <p className="module-card-title relative mt-8 text-[14px] font-semibold text-heading transition-colors">
-                    {title}
+                    {t(`home.${key}Title`)}
                   </p>
-                  <p className="relative text-[11px] leading-relaxed text-muted-foreground">{copy}</p>
+                  <p className="relative text-[11px] leading-relaxed text-muted-foreground">{t(`home.${key}Copy`)}</p>
                   <div className="relative mt-auto flex items-center gap-2 pt-3">
                     <span className="status-badge tone-muted"><MapPin className="size-2.5" /> CN·GLOBAL</span>
                     <span className="mono text-[9px] uppercase tracking-widest text-sub-muted">
@@ -1712,14 +1724,15 @@ const opsPhotos = [
 ];
 
 function OperationsGallery() {
+  const { t } = useTranslation();
   return (
     <section className="border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
         <Reveal className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="label-mono">/ 03·B Field Ops</span>
+            <span className="label-mono">{t("home.fieldOpsEyebrow")}</span>
             <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight text-heading md:text-5xl">
-              From the field.
+              {t("home.fieldOpsTitle")}
             </h2>
           </div>
           <p className="max-w-md text-sm leading-6 text-muted-foreground md:text-base">
@@ -1796,14 +1809,15 @@ const broadcastThumbs = [
 ];
 
 function CommandBroadcast() {
+  const { t } = useTranslation();
   return (
     <section id="broadcast" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
       <div className="site-container">
         <Reveal className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="label-mono">/ 03·A Evidence</span>
+            <span className="label-mono">{t("home.evidenceEyebrow")}</span>
             <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight text-heading md:text-5xl">
-              Eyes <span className="italic serif-display">on the ground.</span>
+              {t("home.evidenceTitle1")} <span className="italic serif-display">{t("home.evidenceTitle2")}</span>
             </h2>
           </div>
           <p className="max-w-md text-sm leading-6 text-muted-foreground md:text-base">
@@ -1932,6 +1946,7 @@ const fieldTransmissionsRowB = [
 const fieldTransmissions = [...fieldTransmissionsRowA, ...fieldTransmissionsRowB];
 
 function FieldTransmissions() {
+  const { t } = useTranslation();
   const lite = usePerfLite();
   const mobile = useIsMobileViewport();
   // On perf-lite / narrow phones, a horizontally scrolling snap row is cheaper
@@ -1942,9 +1957,9 @@ function FieldTransmissions() {
       <div className="site-container mb-8 lg:mb-10">
         <Reveal className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="label-mono">/ 03·C Ticker</span>
+            <span className="label-mono">{t("home.tickerEyebrow")}</span>
             <h2 className="mt-3 max-w-2xl text-2xl font-bold tracking-tight text-heading md:text-4xl">
-              Field transmissions.
+              {t("home.tickerTitle")}
             </h2>
           </div>
           <p className="mono max-w-md text-[11px] uppercase tracking-widest text-sub-muted">
@@ -2016,6 +2031,7 @@ function TransmissionCard({ src, label, tone }: { src: string; label: string; to
 }
 
 function FinalCTA() {
+  const { t } = useTranslation();
   return (
     <section className="relative overflow-hidden border-b border-line py-16 sm:py-24 lg:py-32">
       <div
@@ -2025,19 +2041,19 @@ function FinalCTA() {
       />
       <div className="site-container text-center">
         <Reveal>
-          <span className="label-mono text-blue">/ 05 Deploy</span>
+          <span className="label-mono text-blue">{t("home.deployEyebrow")}</span>
           <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-bold tracking-tight text-heading md:text-4xl">
-            Ship your next order on <span className="text-blue">verified signals</span>.
+            {t("home.deployTitle1")} <span className="text-blue">{t("home.deployTitle2")}</span>.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-muted-foreground md:text-base">
-            Get an AURIA operator on your next PO within 48 hours.
+            {t("home.deployCopy")}
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <button type="button" onClick={openRequestAccess} className="btn-primary">
-              Get Started <ArrowUpRight className="size-3.5" />
+              {t("home.deployCtaStart")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
             </button>
             <Link to="/contact" className="btn-ghost-line">
-              Talk to Expert <ArrowRight className="size-3.5" />
+              {t("home.deployCtaExpert")} <ArrowRight className="size-3.5 rtl:-scale-x-100" />
             </Link>
           </div>
         </Reveal>
@@ -2047,16 +2063,17 @@ function FinalCTA() {
 }
 
 function ContactSection() {
+  const { t } = useTranslation();
   return (
     <section className="border-b border-line py-14 sm:py-20 lg:py-32" id="inquiry">
       <div className="site-container grid gap-8 sm:gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-12">
         <Reveal>
-          <span className="section-eyebrow">Contact</span>
+          <span className="section-eyebrow">{t("home.contactEyebrow")}</span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-4xl">
-            Open a secure channel.
+            {t("home.contactTitle")}
           </h2>
           <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
-            Share your product, quantity and destination. An operator will confirm receipt within one working day.
+            {t("home.contactCopy")}
           </p>
           <div className="mono mt-8 space-y-2 text-[11px] uppercase tracking-widest text-sub-muted">
             <p><span className="text-blue">OPS ·</span> China</p>
@@ -2067,28 +2084,28 @@ function ContactSection() {
         <Reveal delay={0.1}>
           <form className="panel grid gap-4 p-5 sm:grid-cols-2 sm:gap-5 sm:p-6 md:p-8" onSubmit={(e) => e.preventDefault()}>
             {[
-              ["Full Name", "text", "Your name", false],
-              ["Company", "text", "Company name", false],
-              ["Business Email", "email", "name@company.com", false],
-              ["Country", "text", "Country", false],
-              ["What are you sourcing?", "text", "Product or category", true],
-              ["Estimated Volume", "text", "Quantity or budget", true],
-            ].map(([label, type, placeholder, wide]) => (
-              <label key={String(label)} className={`space-y-2 ${wide ? "sm:col-span-2" : ""}`}>
-                <span className="label-mono">{label}</span>
-                <input type={type as string} placeholder={placeholder as string} className="field-input" />
+              ["fullName", "text", false],
+              ["company", "text", false],
+              ["email", "email", false],
+              ["country", "text", false],
+              ["sourcing", "text", true],
+              ["volume", "text", true],
+            ].map(([field, type, wide]) => (
+              <label key={String(field)} className={`space-y-2 ${wide ? "sm:col-span-2" : ""}`}>
+                <span className="label-mono">{t(`requestAccess.${field}`)}</span>
+                <input type={type as string} placeholder={t(`requestAccess.${field}Ph`)} className="field-input" />
               </label>
             ))}
             <label className="space-y-2 sm:col-span-2">
-              <span className="label-mono">Message</span>
-              <textarea rows={4} placeholder="Specifications, timeline and destination" className="field-input resize-none" />
+              <span className="label-mono">{t("requestAccess.message")}</span>
+              <textarea rows={4} placeholder={t("requestAccess.messagePh")} className="field-input resize-none" />
             </label>
             <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
               <span className="status-badge tone-green">
-                <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} /> Channel encrypted
+                <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} /> {t("home.contactEncrypted")}
               </span>
               <button type="submit" className="btn-primary">
-                Transmit Inquiry <ArrowUpRight className="size-3.5" />
+                {t("home.contactTransmit")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
               </button>
             </div>
           </form>
@@ -2099,11 +2116,12 @@ function ContactSection() {
 }
 
 function KpiStrip() {
+  const { t } = useTranslation();
   const kpis = [
-    { label: "Nodes", n: 7, decimals: 0, prefix: "0", suffix: "", tone: "blue" },
-    { label: "Signals / day", n: 12.4, decimals: 1, prefix: "", suffix: "K", tone: "green" },
-    { label: "Lanes tracked", n: 42, decimals: 0, prefix: "", suffix: "", tone: "green" },
-    { label: "Advisories", n: 3, decimals: 0, prefix: "0", suffix: "", tone: "red" },
+    { label: t("home.ksNodes"), n: 7, decimals: 0, prefix: "0", suffix: "", tone: "blue" },
+    { label: t("home.ksSignals"), n: 12.4, decimals: 1, prefix: "", suffix: "K", tone: "green" },
+    { label: t("home.ksLanes"), n: 42, decimals: 0, prefix: "", suffix: "", tone: "green" },
+    { label: t("home.ksAdvisories"), n: 3, decimals: 0, prefix: "0", suffix: "", tone: "red" },
   ];
   return (
     <section className="border-b border-line bg-panel/40">

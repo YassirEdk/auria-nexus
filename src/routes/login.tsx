@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, ArrowLeft, Lock, Mail, Eye, EyeOff, ShieldCheck, Globe2, Boxes, AlertCircle, KeyRound, X } from "lucide-react";
 import { AuriaLogo } from "@/components/auria/SiteShell";
@@ -7,12 +8,13 @@ import { AuriaLogo } from "@/components/auria/SiteShell";
 const GOLD = "#F5C36B";
 
 const highlights = [
-  { icon: Boxes, title: "Live order dossiers", copy: "Every PO, inspection and shipment in one secure workspace." },
-  { icon: Globe2, title: "Global lane tracking", copy: "ETA drift, customs status and lane risk from Shanghai to your port." },
-  { icon: ShieldCheck, title: "Corroborated evidence", copy: "Two-source verified events — no single-source claims." },
-];
+  { icon: Boxes, key: "highlight1" },
+  { icon: Globe2, key: "highlight2" },
+  { icon: ShieldCheck, key: "highlight3" },
+] as const;
 
 function LoginPage() {
+  const { t } = useTranslation();
   const [showPw, setShowPw] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(false);
@@ -52,18 +54,18 @@ function LoginPage() {
 
           <div>
             <span className="label-mono" style={{ color: GOLD }}>
-              Client Space · Espace client
+              {t("login.eyebrow")}
             </span>
             <h1 className="mt-4 max-w-lg text-4xl font-bold leading-[1.06] tracking-tight text-heading xl:text-5xl">
-              Your China operation, in one secure console.
+              {t("login.panelTitle")}
             </h1>
             <p className="mt-4 max-w-md text-[15px] leading-7 text-muted-foreground">
-              Sign in to track sourcing, production, inspections and live trade lanes — from the Shanghai hub to your door.
+              {t("login.panelCopy")}
             </p>
 
             <ul className="mt-10 space-y-4">
-              {highlights.map(({ icon: Icon, title, copy }) => (
-                <li key={title} className="flex items-start gap-3.5">
+              {highlights.map(({ icon: Icon, key }) => (
+                <li key={key} className="flex items-start gap-3.5">
                   <span
                     className="mt-0.5 grid size-9 flex-none place-items-center rounded-md border border-line"
                     style={{ background: "rgba(59,130,246,0.08)" }}
@@ -71,8 +73,8 @@ function LoginPage() {
                     <Icon className="size-4 text-blue" />
                   </span>
                   <div>
-                    <p className="text-[13px] font-semibold text-heading">{title}</p>
-                    <p className="text-[12px] leading-5 text-sub-muted">{copy}</p>
+                    <p className="text-[13px] font-semibold text-heading">{t(`login.${key}Title`)}</p>
+                    <p className="text-[12px] leading-5 text-sub-muted">{t(`login.${key}Copy`)}</p>
                   </div>
                 </li>
               ))}
@@ -80,7 +82,7 @@ function LoginPage() {
           </div>
 
           <p className="mono text-[10px] uppercase tracking-widest text-sub-muted">
-            © 2026 AURIA · Encrypted session
+            © 2026 AURIA · {t("login.encryptedSession")}
           </p>
         </aside>
 
@@ -98,8 +100,8 @@ function LoginPage() {
                 to="/"
                 className="mono flex cursor-pointer items-center gap-2 rounded-md border border-line px-3.5 py-2 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:border-white/25 hover:bg-white/5 hover:text-heading"
               >
-                <ArrowLeft className="size-3.5" />
-                Back to site
+                <ArrowLeft className="size-3.5 rtl:-scale-x-100" />
+                {t("cta.backToSite")}
               </Link>
               <div className="flex items-center gap-3 lg:hidden">
                 <AuriaLogo className="size-7" />
@@ -113,11 +115,11 @@ function LoginPage() {
                 style={{ color: GOLD, border: `1px solid ${GOLD}47`, background: `${GOLD}10` }}
               >
                 <Lock className="size-3" />
-                Client Space
+                {t("login.badge")}
               </span>
-              <h2 className="mt-4 text-2xl font-bold tracking-tight text-heading">Sign in</h2>
+              <h2 className="mt-4 text-2xl font-bold tracking-tight text-heading">{t("login.signIn")}</h2>
               <p className="mt-1.5 text-[13px] text-muted-foreground">
-                Welcome back. Enter your credentials to continue.
+                {t("login.welcome")}
               </p>
 
               <form
@@ -134,32 +136,32 @@ function LoginPage() {
                 }}
               >
                 <label className="block space-y-2">
-                  <span className="label-mono">Email</span>
+                  <span className="label-mono">{t("login.email")}</span>
                   <span className="relative block">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sub-muted" />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sub-muted rtl:left-auto rtl:right-3" />
                     <input
                       type="email"
                       required
                       autoComplete="email"
                       placeholder="name@company.com"
-                      className="field-input pl-10"
+                      className="field-input pl-10 rtl:pl-3 rtl:pr-10"
                     />
                   </span>
                 </label>
 
                 <label className="block space-y-2">
                   <span className="flex items-center justify-between">
-                    <span className="label-mono">Password</span>
+                    <span className="label-mono">{t("login.password")}</span>
                     <button
                       type="button"
                       onClick={() => setForgotOpen(true)}
                       className="mono cursor-pointer text-[10px] uppercase tracking-widest text-blue transition-colors hover:text-heading"
                     >
-                      Forgot?
+                      {t("login.forgot")}
                     </button>
                   </span>
                   <span className="relative block">
-                    <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sub-muted" />
+                    <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sub-muted rtl:left-auto rtl:right-3" />
                     <input
                       type={showPw ? "text" : "password"}
                       required
@@ -170,8 +172,8 @@ function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPw((v) => !v)}
-                      aria-label={showPw ? "Hide password" : "Show password"}
-                      className="absolute right-2.5 top-1/2 grid size-7 -translate-y-1/2 cursor-pointer place-items-center rounded text-sub-muted transition-colors hover:text-heading"
+                      aria-label={showPw ? t("login.hidePassword") : t("login.showPassword")}
+                      className="absolute right-2.5 top-1/2 grid size-7 -translate-y-1/2 cursor-pointer place-items-center rounded text-sub-muted transition-colors hover:text-heading rtl:right-auto rtl:left-2.5"
                     >
                       {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>
@@ -180,7 +182,7 @@ function LoginPage() {
 
                 <label className="flex cursor-pointer items-center gap-2.5 pt-1 text-[13px] text-muted-foreground">
                   <input type="checkbox" className="size-4 cursor-pointer accent-blue" />
-                  Keep me signed in for 30 days
+                  {t("login.keepSignedIn")}
                 </label>
 
                 {error && (
@@ -192,19 +194,19 @@ function LoginPage() {
                     style={{ color: "#EF4444", borderColor: "rgba(239,68,68,0.28)", background: "rgba(239,68,68,0.08)" }}
                   >
                     <AlertCircle className="size-4 flex-none" />
-                    Invalid email or password.
+                    {t("login.invalidCredentials")}
                   </motion.p>
                 )}
 
                 <button type="submit" disabled={submitting} className="btn-primary w-full cursor-pointer justify-center disabled:cursor-not-allowed">
-                  {submitting ? "Signing in…" : "Sign in"}
-                  {!submitting && <ArrowRight className="size-3.5" />}
+                  {submitting ? t("login.signingIn") : t("login.signIn")}
+                  {!submitting && <ArrowRight className="size-3.5 rtl:-scale-x-100" />}
                 </button>
               </form>
 
               <div className="my-6 flex items-center gap-3">
                 <span className="h-px flex-1 bg-line" />
-                <span className="mono text-[9px] uppercase tracking-widest text-sub-muted">New to AURIA</span>
+                <span className="mono text-[9px] uppercase tracking-widest text-sub-muted">{t("login.newToAuria")}</span>
                 <span className="h-px flex-1 bg-line" />
               </div>
 
@@ -212,8 +214,8 @@ function LoginPage() {
                 to="/contact"
                 className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-line px-4 py-2.5 text-[13px] font-medium text-heading transition-colors hover:bg-white/5"
               >
-                Request access
-                <ArrowRight className="size-3.5" />
+                {t("cta.requestAccess")}
+                <ArrowRight className="size-3.5 rtl:-scale-x-100" />
               </Link>
             </div>
 
@@ -227,6 +229,7 @@ function LoginPage() {
 }
 
 function ForgotPasswordModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
@@ -274,8 +277,8 @@ function ForgotPasswordModal({ open, onClose }: { open: boolean; onClose: () => 
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close"
-              className="absolute right-4 top-4 grid size-8 cursor-pointer place-items-center rounded-md text-sub-muted transition-colors hover:bg-white/5 hover:text-heading"
+              aria-label={t("login.close")}
+              className="absolute right-4 top-4 grid size-8 cursor-pointer place-items-center rounded-md text-sub-muted transition-colors hover:bg-white/5 hover:text-heading rtl:right-auto rtl:left-4"
             >
               <X className="size-4" />
             </button>
@@ -286,9 +289,9 @@ function ForgotPasswordModal({ open, onClose }: { open: boolean; onClose: () => 
             >
               <KeyRound className="size-4 text-blue" />
             </span>
-            <h3 className="mt-4 text-xl font-bold tracking-tight text-heading">Reset your password</h3>
+            <h3 className="mt-4 text-xl font-bold tracking-tight text-heading">{t("login.resetTitle")}</h3>
             <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">
-              Enter the email linked to your Client Space and we'll send a reset link.
+              {t("login.resetCopy")}
             </p>
 
             <form
@@ -305,16 +308,16 @@ function ForgotPasswordModal({ open, onClose }: { open: boolean; onClose: () => 
               }}
             >
               <label className="block space-y-2">
-                <span className="label-mono">Email</span>
+                <span className="label-mono">{t("login.email")}</span>
                 <span className="relative block">
-                  <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sub-muted" />
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sub-muted rtl:left-auto rtl:right-3" />
                   <input
                     type="email"
                     required
                     autoFocus
                     autoComplete="email"
                     placeholder="name@company.com"
-                    className="field-input pl-10"
+                    className="field-input pl-10 rtl:pl-3 rtl:pr-10"
                   />
                 </span>
               </label>
@@ -328,13 +331,13 @@ function ForgotPasswordModal({ open, onClose }: { open: boolean; onClose: () => 
                   style={{ color: "#EF4444", borderColor: "rgba(239,68,68,0.28)", background: "rgba(239,68,68,0.08)" }}
                 >
                   <AlertCircle className="size-4 flex-none" />
-                  There is no account linked to this email.
+                  {t("login.noAccount")}
                 </motion.p>
               )}
 
               <button type="submit" disabled={submitting} className="btn-primary w-full cursor-pointer justify-center disabled:cursor-not-allowed">
-                {submitting ? "Checking…" : "Send reset link"}
-                {!submitting && <ArrowRight className="size-3.5" />}
+                {submitting ? t("login.checking") : t("login.sendResetLink")}
+                {!submitting && <ArrowRight className="size-3.5 rtl:-scale-x-100" />}
               </button>
             </form>
           </motion.div>

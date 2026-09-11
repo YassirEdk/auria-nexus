@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { GlobeMethods } from "react-globe.gl";
 // Self-hosted textures. Served from our own origin (hashed + cacheable by
 // Vite) instead of streaming from unpkg at runtime, which was the main cause
@@ -11,23 +12,23 @@ import bumpTexture from "@/assets/globe/earth-topology.png";
 // only ever imported in the browser (guarded by the `mounted` flag below).
 const Globe = lazy(() => import("react-globe.gl"));
 
-type Node = { name: string; country: string; lat: number; lng: number; hub?: boolean };
+type Node = { key: string; name: string; country: string; lat: number; lng: number; hub?: boolean };
 
 const CN: Node[] = [
-  { name: "Shanghai", country: "China", lat: 31.23, lng: 121.47, hub: true },
+  { key: "shanghai", name: "Shanghai", country: "China", lat: 31.23, lng: 121.47, hub: true },
 ];
 
 const DEST: Node[] = [
-  { name: "Barcelona",   country: "Spain",        lat: 41.38, lng: 2.17 },
-  { name: "Hamburg",     country: "Germany",      lat: 53.55, lng: 9.99 },
-  { name: "Los Angeles", country: "USA",          lat: 33.74, lng: -118.27 },
-  { name: "New York",    country: "USA",          lat: 40.71, lng: -74.0 },
-  { name: "Dubai",       country: "UAE",          lat: 25.20, lng: 55.27 },
-  { name: "Singapore",   country: "Singapore",    lat: 1.35,  lng: 103.82 },
-  { name: "Casablanca",  country: "Morocco",      lat: 33.57, lng: -7.59 },
-  { name: "Santos",      country: "Brazil",       lat: -23.96, lng: -46.33 },
-  { name: "Durban",      country: "South Africa", lat: -29.87, lng: 31.02 },
-  { name: "Sydney",      country: "Australia",    lat: -33.87, lng: 151.21 },
+  { key: "barcelona",  name: "Barcelona",   country: "Spain",        lat: 41.38, lng: 2.17 },
+  { key: "hamburg",    name: "Hamburg",     country: "Germany",      lat: 53.55, lng: 9.99 },
+  { key: "losAngeles", name: "Los Angeles", country: "USA",          lat: 33.74, lng: -118.27 },
+  { key: "newYork",    name: "New York",    country: "USA",          lat: 40.71, lng: -74.0 },
+  { key: "dubai",      name: "Dubai",       country: "UAE",          lat: 25.20, lng: 55.27 },
+  { key: "singapore",  name: "Singapore",   country: "Singapore",    lat: 1.35,  lng: 103.82 },
+  { key: "casablanca", name: "Casablanca",  country: "Morocco",      lat: 33.57, lng: -7.59 },
+  { key: "santos",     name: "Santos",      country: "Brazil",       lat: -23.96, lng: -46.33 },
+  { key: "durban",     name: "Durban",      country: "South Africa", lat: -29.87, lng: 31.02 },
+  { key: "sydney",     name: "Sydney",      country: "Australia",    lat: -33.87, lng: 151.21 },
 ];
 
 const EARTH = earthTexture;
@@ -46,46 +47,48 @@ function centralAngle(aLat: number, aLng: number, bLat: number, bLng: number) {
  *  visible text is offset upward via an absolutely-positioned child. */
 function makeLabel(
   d: { name: string; country: string; lat: number; lng: number; hub?: boolean },
-  isNarrow: boolean
+  isNarrow: boolean,
+  text: string,
+  isAr: boolean
 ) {
   const isCN = d.country === "China" || d.country === "Hong Kong";
   const color = isCN ? "rgba(248,208,128,1)" : "rgba(225,238,255,0.98)";
   const glow = isCN ? "rgba(248,208,128,0.55)" : "rgba(125,205,255,0.5)";
-  const text =
-    isNarrow && !d.hub
-      ? d.name
-      : d.name === d.country
-        ? d.name
-        : `${d.name} · ${d.country}`;
 
   const root = document.createElement("div");
   // Stash coords so the visibility modifier can compute facing-to-camera.
   root.dataset["lat"] = String(d.lat);
   root.dataset["lng"] = String(d.lng);
-  // Starts hidden; the visibility modifier fades it in as the city rotates to
-  // the near face and out as it passes behind. NOTE: the globe owns this
-  // element's `transform` (for positioning), so we must never set transform or
-  // transition transform here — only opacity.
+  root.dataset["globeLabel"] = "1";
+  // Starts visible so labels appear immediately even if the raf tick hasn't
+  // fired yet or the label lives in an overlay container outside wrapRef; the
+  // tick still fades labels out as they rotate behind the globe. NOTE: the
+  // globe owns this element's `transform` (for positioning), so we must never
+  // set transform or transition transform here — only opacity.
   root.style.cssText = [
     "position:relative",
     "pointer-events:none",
     "user-select:none",
-    "opacity:0",
+    "opacity:1",
     "transition:opacity 0.5s ease",
   ].join(";");
 
   const chip = document.createElement("div");
-  chip.textContent = text.toUpperCase();
+  // Arabic is cursive: mono fonts, uppercasing and letter-spacing all break the
+  // letter joins, so use a normal UI font and no tracking for Arabic.
+  chip.textContent = isAr ? text : text.toUpperCase();
   chip.style.cssText = [
     "position:absolute",
     "left:50%",
     "bottom:0",
     "transform:translate(-50%,-8px)",
     "white-space:nowrap",
-    "font-family:ui-monospace,SFMono-Regular,Menlo,monospace",
-    `font-size:${d.hub ? 12 : isNarrow ? 9.5 : 11}px`,
+    isAr
+      ? "font-family:'Noto Sans Arabic','Segoe UI',Tahoma,system-ui,sans-serif"
+      : "font-family:ui-monospace,SFMono-Regular,Menlo,monospace",
+    `font-size:${d.hub ? (isAr ? 14 : 12) : isNarrow ? (isAr ? 11 : 9.5) : (isAr ? 13 : 11)}px`,
     "font-weight:600",
-    "letter-spacing:0.12em",
+    isAr ? "letter-spacing:0" : "letter-spacing:0.12em",
     `color:${color}`,
     `text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 10px rgba(0,0,0,0.7),0 0 16px ${glow}`,
   ].join(";");
@@ -94,6 +97,9 @@ function makeLabel(
 }
 
 export function TradeGlobe() {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  const isAr = lang === "ar";
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 600, h: 600 });
@@ -106,12 +112,14 @@ export function TradeGlobe() {
   const cleanupRef = useRef<(() => void) | null>(null);
 
   const hub = CN[0]!;
+  // Rebuilds when the language changes so react-globe.gl re-renders every label
+  // element with the new localized text.
   const points = useMemo(
     () => [
-      ...CN.map((c) => ({ ...c, color: "#F5C36B", size: c.hub ? 1.15 : 0.85 })),
-      ...DEST.map((c) => ({ ...c, color: "#7DCDFF", size: 0.75 })),
+      ...CN.map((c) => ({ ...c, color: "#F5C36B", size: c.hub ? 1.15 : 0.85, lang })),
+      ...DEST.map((c) => ({ ...c, color: "#7DCDFF", size: 0.75, lang })),
     ],
-    []
+    [lang]
   );
   // Two arcs per lane sharing identical endpoints + altitude (so they ride the
   // same curve): a steady solid line, plus a short bright segment that sweeps
@@ -164,6 +172,41 @@ export function TradeGlobe() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [inView]);
+
+  // Drive label opacity ourselves, every frame, from the camera facing. The
+  // lib's built-in visibility modifier only runs on point-of-view events (not
+  // on autorotate frames), so freshly-rebuilt labels — e.g. after a language
+  // switch — would stay stuck at their initial opacity:0. Querying the DOM each
+  // frame also means new label elements are picked up automatically.
+  useEffect(() => {
+    if (!ready) return;
+    let raf = 0;
+    const tick = () => {
+      const g = globeRef.current;
+      if (g) {
+        const cam = g.camera().position;
+        const camLen = Math.hypot(cam.x, cam.y, cam.z) || 1;
+        // Query the whole document — react-globe.gl's CSS2D overlay may live
+        // outside wrapRef, in which case scoping to wrapRef would find nothing
+        // and labels would never update.
+        document.querySelectorAll<HTMLElement>("[data-globe-label]").forEach((el) => {
+          const lat = Number(el.dataset["lat"]);
+          const lng = Number(el.dataset["lng"]);
+          if (Number.isNaN(lat) || Number.isNaN(lng)) { el.style.opacity = "1"; return; }
+          const phi = (90 - lat) * Math.PI / 180;
+          const theta = (90 - lng) * Math.PI / 180;
+          const px = Math.sin(phi) * Math.cos(theta);
+          const py = Math.cos(phi);
+          const pz = Math.sin(phi) * Math.sin(theta);
+          const facing = (px * cam.x + py * cam.y + pz * cam.z) / camLen;
+          el.style.opacity = facing > 0.34 ? "1" : "0";
+        });
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [ready]);
 
   // Detach control listeners on unmount.
   useEffect(() => () => cleanupRef.current?.(), []);
@@ -274,7 +317,17 @@ export function TradeGlobe() {
             htmlLat={(d: any) => d.lat}
             htmlLng={(d: any) => d.lng}
             htmlAltitude={0.012}
-            htmlElement={(d: any) => makeLabel(d, isNarrow)}
+            htmlElement={(d: any) => {
+              const city = t(`globe.${d.key}`);
+              const country = t(`globe.${d.key}Country`);
+              const text =
+                isNarrow && !d.hub
+                  ? city
+                  : city === country
+                    ? city
+                    : `${city} · ${country}`;
+              return makeLabel(d, isNarrow, text, isAr);
+            }}
             htmlElementVisibilityModifier={(el: HTMLElement, isVisible: boolean) => {
               // Only opacity — the globe controls this element's transform for
               // positioning, so touching transform here detaches the label.

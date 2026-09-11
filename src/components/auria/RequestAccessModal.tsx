@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowUpRight, X, ShieldCheck, MapPin, Clock } from "lucide-react";
 
@@ -11,6 +12,8 @@ export function openRequestAccess() {
 }
 
 export function RequestAccessModal() {
+  const { t, i18n } = useTranslation();
+  const rtl = i18n.language === "ar";
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -59,11 +62,13 @@ export function RequestAccessModal() {
           />
           <motion.aside
             key="ra-drawer"
-            initial={{ x: "100%" }}
+            initial={{ x: rtl ? "-100%" : "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: "100%" }}
+            exit={{ x: rtl ? "-100%" : "100%" }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="scan-line-container panel fixed right-0 top-0 z-[101] flex h-full w-full max-w-[560px] flex-col overflow-hidden border-l border-line shadow-2xl"
+            className={`scan-line-container panel fixed top-0 z-[101] flex h-full w-full max-w-[560px] flex-col overflow-hidden border-line shadow-2xl ${
+              rtl ? "left-0 border-r" : "right-0 border-l"
+            }`}
             role="dialog"
             aria-modal="true"
           >
@@ -82,18 +87,18 @@ export function RequestAccessModal() {
               <div>
                 <span className="status-badge tone-blue">
                   <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
-                  Application · Intake
+                  {t("requestAccess.badge")}
                 </span>
                 <h2 className="mt-4 text-2xl font-bold leading-tight text-heading md:text-3xl">
-                  Apply to work<br />
-                  <span className="text-muted-foreground">with an AURIA operator.</span>
+                  {t("requestAccess.title1")}<br />
+                  <span className="text-muted-foreground">{t("requestAccess.title2")}</span>
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 className="grid size-9 shrink-0 place-items-center border border-line bg-black/60 text-muted-foreground transition-colors hover:border-blue/60 hover:text-heading"
-                aria-label="Close"
+                aria-label={t("requestAccess.close")}
               >
                 <X className="size-4" />
               </button>
@@ -105,21 +110,21 @@ export function RequestAccessModal() {
               style={{ WebkitOverflowScrolling: "touch" }}
             >
               <p className="text-[13px] leading-6 text-muted-foreground">
-                We take on a limited number of new mandates each quarter. Submit your brief to be reviewed by an operator — response within one working day.
+                {t("requestAccess.intro")}
               </p>
 
               <ul className="mt-6 grid gap-3 border-y border-line py-5 sm:grid-cols-3">
                 {[
-                  { icon: ShieldCheck, t: "Corroborated", s: "no disclosure" },
-                  { icon: MapPin, t: "4 CN offices", s: "on-site" },
-                  { icon: Clock, t: "≤ 48h reply", s: "scoping call" },
-                ].map(({ icon: Icon, t, s }) => (
-                  <li key={t} className="flex items-start gap-3">
+                  { icon: ShieldCheck, t: t("requestAccess.feat1t"), s: t("requestAccess.feat1s") },
+                  { icon: MapPin, t: t("requestAccess.feat2t"), s: t("requestAccess.feat2s") },
+                  { icon: Clock, t: t("requestAccess.feat3t"), s: t("requestAccess.feat3s") },
+                ].map(({ icon: Icon, t: title, s }) => (
+                  <li key={title} className="flex items-start gap-3">
                     <span className="grid size-8 shrink-0 place-items-center border border-line bg-black/40">
                       <Icon className="size-4 text-blue" />
                     </span>
                     <div>
-                      <p className="text-[12px] font-semibold text-heading">{t}</p>
+                      <p className="text-[12px] font-semibold text-heading">{title}</p>
                       <p className="mono text-[9px] uppercase tracking-widest text-sub-muted">{s}</p>
                     </div>
                   </li>
@@ -134,28 +139,28 @@ export function RequestAccessModal() {
                 }}
               >
                 {[
-                  ["Full Name", "text", "Your name", false],
-                  ["Company", "text", "Company name", false],
-                  ["Business Email", "email", "name@company.com", true],
-                  ["Country", "text", "Country", false],
-                  ["Estimated Volume", "text", "Qty or budget", false],
-                  ["What are you sourcing?", "text", "Product or category", true],
-                ].map(([label, type, placeholder, wide]) => (
-                  <label key={String(label)} className={`space-y-2 ${wide ? "sm:col-span-2" : ""}`}>
-                    <span className="label-mono">{label}</span>
-                    <input type={type as string} placeholder={placeholder as string} className="field-input" />
+                  ["fullName", "text", false],
+                  ["company", "text", false],
+                  ["email", "email", true],
+                  ["country", "text", false],
+                  ["volume", "text", false],
+                  ["sourcing", "text", true],
+                ].map(([field, type, wide]) => (
+                  <label key={String(field)} className={`space-y-2 ${wide ? "sm:col-span-2" : ""}`}>
+                    <span className="label-mono">{t(`requestAccess.${field}`)}</span>
+                    <input type={type as string} placeholder={t(`requestAccess.${field}Ph`)} className="field-input" />
                   </label>
                 ))}
                 <label className="space-y-2 sm:col-span-2">
-                  <span className="label-mono">Message</span>
-                  <textarea rows={4} placeholder="Specifications, timeline and destination" className="field-input resize-none" />
+                  <span className="label-mono">{t("requestAccess.message")}</span>
+                  <textarea rows={4} placeholder={t("requestAccess.messagePh")} className="field-input resize-none" />
                 </label>
                 <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
                   <span className="status-badge tone-green">
-                    <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} /> Encrypted
+                    <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} /> {t("requestAccess.encrypted")}
                   </span>
                   <button type="submit" className="btn-primary">
-                    Submit Application <ArrowUpRight className="size-3.5" />
+                    {t("requestAccess.submit")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
                   </button>
                 </div>
               </form>
@@ -165,7 +170,7 @@ export function RequestAccessModal() {
             <div className="relative mono flex items-center justify-between border-t border-line px-6 py-3 text-[10px] uppercase tracking-widest text-sub-muted md:px-8">
               <span className="inline-flex items-center gap-2">
                 <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
-                channel · encrypted
+                {t("requestAccess.channelEncrypted")}
               </span>
               <span>hello@auria.trade</span>
             </div>

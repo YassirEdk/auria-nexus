@@ -2,22 +2,24 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { Menu, X, ArrowUpRight, Lock } from "lucide-react";
 import { useEffect, useState, type ReactNode, type MouseEvent } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
+import { useTranslation } from "react-i18next";
 import { RequestAccessModal, openRequestAccess } from "./RequestAccessModal";
 import { ScrollProgress } from "./ScrollProgress";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 type NavLink = {
-  label: string;
+  key: "home" | "about" | "howWeWork" | "services" | "industries" | "contact";
   to: "/" | "/services" | "/industries" | "/how-we-work" | "/about" | "/contact";
   hash?: string;
 };
 
 const links: readonly NavLink[] = [
-  { label: "Home",        to: "/" },
-  { label: "About",       to: "/about" },
-  { label: "How We Work", to: "/how-we-work" },
-  { label: "Services",    to: "/services" },
-  { label: "Industries",  to: "/industries" },
-  { label: "Contact",     to: "/contact" },
+  { key: "home",       to: "/" },
+  { key: "about",      to: "/about" },
+  { key: "howWeWork",  to: "/how-we-work" },
+  { key: "services",   to: "/services" },
+  { key: "industries", to: "/industries" },
+  { key: "contact",    to: "/contact" },
 ];
 
 export function AuriaLogo({ className = "size-7", animate = true }: { className?: string; animate?: boolean }) {
@@ -173,6 +175,7 @@ function useHideOnScroll(threshold = 12) {
 let headerIntroPlayed = false;
 
 export function SiteHeader() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
@@ -250,7 +253,7 @@ export function SiteHeader() {
             const active = isActive(link);
             return (
               <motion.div
-                key={link.label}
+                key={link.key}
                 variants={{
                   hidden: { opacity: 0, y: -8 },
                   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
@@ -266,7 +269,7 @@ export function SiteHeader() {
                   ].join(" ")}
                 >
                   {active && <span aria-hidden className="island-nav-link__dot" />}
-                  <span>{link.label}</span>
+                  <span>{t(`nav.${link.key}`)}</span>
                 </Link>
               </motion.div>
             );
@@ -287,23 +290,24 @@ export function SiteHeader() {
             show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
           }}
         >
+          <span className="hidden lg:inline-flex">
+            <LanguageSwitcher compact />
+          </span>
           <Link
             to="/login"
             className="island-cta island-cta--ghost island-cta--compact hidden lg:inline-flex"
-            aria-label="Client Space"
+            aria-label={t("cta.clientSpace")}
           >
             <Lock className="size-3.5" />
-            <span>Client<span className="hidden xl:inline">&nbsp;Space</span></span>
+            <span>{t("cta.clientSpace")}</span>
           </Link>
           <button
             type="button"
             onClick={openRequestAccess}
             className="island-cta island-cta--compact"
-            aria-label="Apply now"
+            aria-label={t("cta.applyNow")}
           >
-            <span>
-              Apply<span className="hidden sm:inline">&nbsp;Now</span>
-            </span>
+            <span>{t("cta.applyNow")}</span>
             <ArrowUpRight className="size-3.5" />
           </button>
         </motion.div>
@@ -328,26 +332,29 @@ export function SiteHeader() {
         >
           <ul className="divide-y divide-line">
             {links.map((link) => (
-              <li key={link.label}>
+              <li key={link.key}>
                 <Link
                   to={link.to}
                   hash={link.hash}
                   onClick={goToSection(link)}
                   className="flex min-h-[52px] items-center justify-between px-5 py-4 text-base font-medium text-foreground active:bg-white/5 sm:px-6 sm:py-5"
                 >
-                  <span>{link.label}</span>
+                  <span>{t(`nav.${link.key}`)}</span>
                   <ArrowUpRight className="size-4 text-muted-foreground" />
                 </Link>
               </li>
             ))}
           </ul>
           <div className="grid gap-3 border-t border-line p-5 sm:p-6">
+            <div className="flex justify-center pb-1">
+              <LanguageSwitcher />
+            </div>
             <Link
               to="/login"
               onClick={() => setOpen(false)}
               className="flex w-full items-center justify-center gap-2 rounded-md border border-line px-4 py-2.5 text-sm font-medium text-heading transition-colors active:bg-white/5"
             >
-              <Lock className="size-3.5" /> Client Space
+              <Lock className="size-3.5" /> {t("cta.clientSpace")}
             </Link>
             <button
               type="button"
@@ -357,7 +364,7 @@ export function SiteHeader() {
               }}
               className="btn-primary w-full justify-center"
             >
-              Apply Now <ArrowUpRight className="size-3.5" />
+              {t("cta.applyNow")} <ArrowUpRight className="size-3.5" />
             </button>
           </div>
         </nav>

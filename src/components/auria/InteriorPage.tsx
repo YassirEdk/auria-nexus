@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { SiteLayout } from "./SiteShell";
@@ -19,6 +20,7 @@ export function InteriorPage({
   intro: string;
   children?: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <SiteLayout>
       <section className="scan-line-container relative border-b border-line pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32">
@@ -61,10 +63,10 @@ export function InteriorPage({
             className="mt-8 flex flex-wrap items-center gap-3 sm:mt-10"
           >
             <button type="button" onClick={openRequestAccess} className="btn-primary">
-              Apply Now <ArrowUpRight className="size-3.5" />
+              {t("cta.applyNow")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
             </button>
             <Link to="/" className="btn-ghost-line">
-              Back to Home <ArrowRight className="size-3.5" />
+              {t("cta.backToHome")} <ArrowRight className="size-3.5 rtl:-scale-x-100" />
             </Link>
           </motion.div>
         </div>

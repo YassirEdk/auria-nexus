@@ -41,10 +41,10 @@
   --color-red: var(--sig-red);
   --color-green: var(--sig-green);
 
-  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Instrument Serif", "Cormorant Garamond", ui-serif, Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  --font-display: "Inter", "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Cormorant Garamond", "Noto Sans Arabic", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", "Noto Sans Arabic", ui-monospace, "SF Mono", Consolas, monospace;
 
   --ease-tactical: cubic-bezier(0.22, 1, 0.36, 1);
 

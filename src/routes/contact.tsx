@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import { ScanLine } from "lucide-react";
 import { SiteLayout } from "@/components/auria/SiteShell";
@@ -85,6 +86,7 @@ function QrCard({
   tone: "green" | "blue";
   recolorDark?: [number, number, number];
 }) {
+  const { t } = useTranslation();
   const color = tone === "green" ? "#10B981" : "#3B82F6";
   return (
     <motion.div
@@ -101,7 +103,7 @@ function QrCard({
         </div>
         <span className="mono text-[10px] uppercase tracking-widest text-sub-muted">
           <ScanLine className="mr-1 inline size-3" />
-          scan
+          {t("contact.scan")}
         </span>
       </div>
 
@@ -133,7 +135,7 @@ function QrCard({
         <span>{handle}</span>
         <span className="inline-flex items-center gap-1.5">
           <span className="status-dot" style={{ background: color, color }} />
-          channel · live
+          {t("contact.channelLive")}
         </span>
       </div>
     </motion.div>
@@ -141,6 +143,7 @@ function QrCard({
 }
 
 function QrSection() {
+  const { t } = useTranslation();
   return (
     <section className="border-b border-line py-14 sm:py-20 lg:py-32">
       <div className="site-container">
@@ -151,12 +154,12 @@ function QrSection() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-3xl text-center"
         >
-          <span className="label-mono">/ Direct channels</span>
+          <span className="label-mono">{t("contact.directEyebrow")}</span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
-            Talk to the desk. Scan to connect.
+            {t("contact.directTitle")}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-            Point your phone camera at either code to reach an AURIA operator on WeChat or WhatsApp — no forms, no wait.
+            {t("contact.directCopy")}
           </p>
         </motion.div>
 
@@ -164,13 +167,13 @@ function QrSection() {
           <QrCard
             src={qrWechat}
             label="WeChat · 微信"
-            handle="AURIA · Shanghai desk"
+            handle={t("contact.wechatHandle")}
             tone="blue"
           />
           <QrCard
             src={qrWhatsapp}
             label="WhatsApp"
-            handle="AURIA · Global desk"
+            handle={t("contact.whatsappHandle")}
             tone="green"
             recolorDark={QR_LIGHT}
           />
@@ -181,6 +184,7 @@ function QrSection() {
 }
 
 function ContactPage() {
+  const { t } = useTranslation();
   return (
     <SiteLayout>
       <section className="scan-line-container relative border-b border-line pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32">
@@ -192,7 +196,7 @@ function ContactPage() {
             className="status-badge tone-blue"
           >
             <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
-            Contact
+            {t("contact.headerEyebrow")}
           </motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 18 }}
@@ -200,8 +204,8 @@ function ContactPage() {
             transition={{ duration: 0.75, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
             className="mt-6 max-w-5xl text-[30px] font-bold leading-[1.08] tracking-tight text-heading sm:text-4xl sm:leading-[1.05] md:text-6xl"
           >
-            Open a secure channel<br />
-            <span className="text-muted-foreground">with an AURIA operator.</span>
+            {t("contact.headerTitle1")}<br />
+            <span className="text-muted-foreground">{t("contact.headerTitle2")}</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 18 }}
@@ -209,7 +213,7 @@ function ContactPage() {
             transition={{ duration: 0.75, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
             className="mt-5 max-w-2xl text-[15px] leading-6 text-muted-foreground sm:mt-6 sm:text-base sm:leading-7 md:text-lg"
           >
-            Share your product, quantity and destination. Confirmation and a first response within one working day.
+            {t("contact.headerIntro")}
           </motion.p>
         </div>
       </section>

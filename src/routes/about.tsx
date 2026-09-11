@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import { ArrowUpRight, MapPin, Users, Languages, Shield, Compass, Handshake } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
@@ -17,52 +18,55 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 const offices = [
-  { city: "Shanghai", role: "Headquarters · consolidation node", detail: "Yangshan bonded warehouse, export ops, freight desk" },
-  { city: "Shenzhen", role: "Electronics & hardware office", detail: "Huaqiangbei sourcing, PCBA audits, sample lab" },
-  { city: "Guangzhou", role: "Consumer goods office", detail: "Fashion, beauty and home showrooms + factory pool" },
-  { city: "Yiwu", role: "Small commodities office", detail: "International Trade City sourcing, multi-supplier POs" },
-];
+  { city: "Shanghai", key: "Shanghai" },
+  { city: "Shenzhen", key: "Shenzhen" },
+  { city: "Guangzhou", key: "Guangzhou" },
+  { city: "Yiwu", key: "Yiwu" },
+] as const;
 
 const values = [
-  { icon: Shield, title: "Corroboration first", copy: "No single-source claims. Every event needs two independent signals before it enters your dossier." },
-  { icon: Handshake, title: "One accountable operator", copy: "You get one contact and one contract — we handle every Chinese counterpart on your behalf." },
-  { icon: Compass, title: "Neutral on the factory", copy: "We take no commission from suppliers. Our alignment is with your landed cost and quality, not their margin." },
-  { icon: Languages, title: "Documents in your language", copy: "Specs, POs, evidence packs and inspection reports in English or French — not just Mandarin." },
-];
+  { icon: Shield, key: "value1" },
+  { icon: Handshake, key: "value2" },
+  { icon: Compass, key: "value3" },
+  { icon: Languages, key: "value4" },
+] as const;
+
+const teamRoles = ["team1", "team2", "team3"] as const;
 
 function AboutContent() {
+  const { t } = useTranslation();
   return (
     <>
       <section className="border-b border-line py-14 sm:py-20 lg:py-32">
         <div className="site-container">
           <div className="grid gap-8 sm:gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
             <Reveal>
-              <span className="section-eyebrow">Studio</span>
+              <span className="section-eyebrow">{t("about.studioEyebrow")}</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
-                Your China-based operator, not a broker.
+                {t("about.studioTitle")}
               </h2>
               <p className="mt-6 text-[15px] leading-7 text-muted-foreground md:text-base">
-                AURIA is an on-the-ground sourcing, quality and logistics team based in China, serving importers, brands and distributors in Europe, North Africa and the Gulf. We coordinate every relationship, every detail and every shipment from product brief to global delivery — under one contract, in your language.
+                {t("about.studioP1")}
               </p>
               <p className="mt-4 text-[15px] leading-7 text-muted-foreground md:text-base">
-                Commerce des entreprises en Chine — nous ne sommes ni un intermédiaire ni une plateforme. Nous sommes votre équipe opérationnelle, présente physiquement dans les usines chinoises que vous ne pouvez pas visiter.
+                {t("about.studioP2")}
               </p>
             </Reveal>
 
             <Reveal delay={0.1}>
               <div className="panel p-6 md:p-8">
                 <div className="flex items-center justify-between border-b border-line pb-3">
-                  <span className="label-mono text-heading">AURIA · at a glance</span>
+                  <span className="label-mono text-heading">{t("about.glanceTitle")}</span>
                   <span className="mono text-[10px] text-sub-muted">ORG-01</span>
                 </div>
                 <div className="mt-6 grid grid-cols-2 gap-5 sm:gap-6">
                   {[
-                    { l: "Founded", v: "2019" },
-                    { l: "Team", v: "24 ops" },
-                    { l: "Offices", v: "4 · CN" },
-                    { l: "Clients served", v: "180+" },
-                    { l: "Categories", v: "10 sectors" },
-                    { l: "Languages", v: "EN · FR · ZH" },
+                    { l: t("about.glanceFounded"), v: "2019" },
+                    { l: t("about.glanceTeam"), v: t("about.glanceTeamV") },
+                    { l: t("about.glanceOffices"), v: t("about.glanceOfficesV") },
+                    { l: t("about.glanceClients"), v: "180+" },
+                    { l: t("about.glanceCategories"), v: t("about.glanceCategoriesV") },
+                    { l: t("about.glanceLanguages"), v: "EN · FR · ZH" },
                   ].map((k) => (
                     <div key={k.l}>
                       <p className="label-mono">{k.l}</p>
@@ -73,7 +77,7 @@ function AboutContent() {
                 <div className="mono mt-8 flex items-center justify-between border-t border-line pt-3 text-[10px] uppercase tracking-widest text-sub-muted">
                   <span className="inline-flex items-center gap-2">
                     <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
-                    hq · Shanghai
+                    {t("about.glanceHq")}
                   </span>
                   <span>lat 31.23 · lng 121.47</span>
                 </div>
@@ -88,13 +92,13 @@ function AboutContent() {
           <Reveal>
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
-                <span className="section-eyebrow">Presence</span>
+                <span className="section-eyebrow">{t("about.presenceEyebrow")}</span>
                 <h2 className="mt-4 max-w-2xl text-3xl font-bold tracking-tight text-heading md:text-5xl">
-                  Four offices across the Chinese manufacturing belts.
+                  {t("about.presenceTitle")}
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-6 text-muted-foreground md:text-base">
-                We choose the office by product category, not by convenience. The person quoting your PO is the person walking the factory floor.
+                {t("about.presenceCopy")}
               </p>
             </div>
           </Reveal>
@@ -107,8 +111,10 @@ function AboutContent() {
                     <MapPin className="size-4 text-blue" />
                     <span className="mono text-[11px] uppercase tracking-widest text-blue">{o.city}</span>
                   </div>
-                  <p className="mt-4 text-[14px] font-semibold text-heading">{o.role}</p>
-                  <p className="mt-2 border-t border-line pt-3 text-[13px] leading-6 text-muted-foreground">{o.detail}</p>
+                  <p className="mt-4 text-[14px] font-semibold text-heading">{t(`about.office${o.key}Role`)}</p>
+                  <p className="mt-2 border-t border-line pt-3 text-[13px] leading-6 text-muted-foreground">
+                    {t(`about.office${o.key}Detail`)}
+                  </p>
                 </div>
               </Reveal>
             ))}
@@ -120,25 +126,25 @@ function AboutContent() {
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
-              <span className="section-eyebrow">Principles</span>
+              <span className="section-eyebrow">{t("about.principlesEyebrow")}</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
-                How we operate, differently.
+                {t("about.principlesTitle")}
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-                Four principles keep us honest. They are also why our clients stay for more than one PO.
+                {t("about.principlesCopy")}
               </p>
             </div>
           </Reveal>
 
           <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2">
-            {values.map(({ icon: Icon, title, copy }) => (
-              <Reveal key={title}>
+            {values.map(({ icon: Icon, key }) => (
+              <Reveal key={key}>
                 <div className="panel h-full p-6 md:p-7">
                   <span className="grid size-10 place-items-center border border-line bg-black/40">
                     <Icon className="size-5 text-blue" />
                   </span>
-                  <p className="mt-6 text-[15px] font-semibold text-heading">{title}</p>
-                  <p className="mt-3 text-[13px] leading-6 text-muted-foreground">{copy}</p>
+                  <p className="mt-6 text-[15px] font-semibold text-heading">{t(`about.${key}Title`)}</p>
+                  <p className="mt-3 text-[13px] leading-6 text-muted-foreground">{t(`about.${key}Copy`)}</p>
                 </div>
               </Reveal>
             ))}
@@ -150,27 +156,25 @@ function AboutContent() {
         <div className="site-container">
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
-              <span className="section-eyebrow">Team</span>
+              <span className="section-eyebrow">{t("about.teamEyebrow")}</span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-heading md:text-5xl">
-                Sourcing engineers, not sales reps.
+                {t("about.teamTitle")}
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-                Our team blends Chinese industrial experience with European retail and compliance standards. We speak the factory floor and the buyer's office equally well.
+                {t("about.teamCopy")}
               </p>
             </div>
           </Reveal>
 
           <div className="mt-10 grid gap-6 sm:mt-14 md:grid-cols-3">
-            {[
-              { role: "Sourcing engineers", detail: "Product-first, category specialists. They read technical drawings and BOMs before they read RFQs." },
-              { role: "Quality inspectors", detail: "Trained on AQL, IPC-A-610, EN and ASTM standards. In-house team + partnerships with SGS and Bureau Veritas." },
-              { role: "Logistics desk", detail: "Freight forwarders and customs specialists holding both Chinese export and EU import filings under one roof." },
-            ].map((t) => (
-              <Reveal key={t.role}>
+            {teamRoles.map((r) => (
+              <Reveal key={r}>
                 <div className="panel p-6 md:p-7">
                   <Users className="size-5 text-blue" />
-                  <p className="mt-6 text-[15px] font-semibold text-heading">{t.role}</p>
-                  <p className="mt-3 border-t border-line pt-3 text-[13px] leading-6 text-muted-foreground">{t.detail}</p>
+                  <p className="mt-6 text-[15px] font-semibold text-heading">{t(`about.${r}Role`)}</p>
+                  <p className="mt-3 border-t border-line pt-3 text-[13px] leading-6 text-muted-foreground">
+                    {t(`about.${r}Detail`)}
+                  </p>
                 </div>
               </Reveal>
             ))}
@@ -179,16 +183,31 @@ function AboutContent() {
           <Reveal delay={0.2}>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3 sm:mt-14">
               <Link to="/contact" className="btn-primary">
-                Talk to the team <ArrowUpRight className="size-3.5" />
+                {t("about.ctaTalk")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
               </Link>
               <Link to="/how-we-work" className="btn-ghost-line">
-                See how we work
+                {t("about.ctaSee")}
               </Link>
             </div>
           </Reveal>
         </div>
       </section>
     </>
+  );
+}
+
+function AboutHeader() {
+  const { t } = useTranslation();
+  return (
+    <InteriorPage
+      code=""
+      eyebrow={t("about.headerEyebrow")}
+      title={t("about.headerTitle")}
+      subtitle={t("about.headerSubtitle")}
+      intro={t("about.headerIntro")}
+    >
+      <AboutContent />
+    </InteriorPage>
   );
 }
 
@@ -199,15 +218,5 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "AURIA is your China-based operating partner for global sourcing, production, quality control and logistics — offices in Shanghai, Shenzhen, Guangzhou and Yiwu." },
     ],
   }),
-  component: () => (
-    <InteriorPage
-      code=""
-      eyebrow="About"
-      title="One accountable operator."
-      subtitle="Zero blind spots in China."
-      intro="Commerce des entreprises en Chine — AURIA works as an extension of your business, coordinating relationships, detail and execution from product brief to global delivery, backed by a corroborated signal graph."
-    >
-      <AboutContent />
-    </InteriorPage>
-  ),
+  component: AboutHeader,
 });
