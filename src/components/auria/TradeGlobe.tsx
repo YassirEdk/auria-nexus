@@ -242,7 +242,7 @@ export function TradeGlobe() {
     c.maxPolarAngle = Math.PI * 0.82;
     let resumeT: ReturnType<typeof setTimeout> | null = null;
     const onStart = () => { c.autoRotate = false; if (resumeT) { clearTimeout(resumeT); resumeT = null; } };
-    const onEnd = () => { if (resumeT) clearTimeout(resumeT); resumeT = setTimeout(() => { c.autoRotate = true; }, 30000); };
+    const onEnd = () => { if (resumeT) clearTimeout(resumeT); resumeT = setTimeout(() => { c.autoRotate = true; }, 2000); };
     c.addEventListener("start", onStart);
     c.addEventListener("end", onEnd);
     // bumpScale isn't on the typed GlobeMethods; set it defensively if present.
@@ -263,7 +263,7 @@ export function TradeGlobe() {
     <div
       ref={wrapRef}
       dir="ltr"
-      className="relative h-[min(72vh,600px)] min-h-[380px] w-full"
+      className="relative h-[min(62vh,420px)] min-h-[300px] w-full sm:h-[min(72vh,600px)] sm:min-h-[380px]"
     >
       {/* Force LTR: react-globe.gl positions its HTML label overlay assuming an
           LTR coordinate system. Under the page's RTL direction (Arabic) the

@@ -1454,10 +1454,10 @@ function AboutHome() {
     [t("about.glanceOffices"), t("about.glanceOfficesV"), GOLD],
   ];
   const cities: [string, string][] = [
-    ["Shanghai", t("home.cityShanghai")],
-    ["Shenzhen", t("home.cityShenzhen")],
-    ["Guangzhou", t("home.cityGuangzhou")],
-    ["Yiwu", t("home.cityYiwu")],
+    [t("home.cityShanghaiName"), t("home.cityShanghai")],
+    [t("home.cityShenzhenName"), t("home.cityShenzhen")],
+    [t("home.cityGuangzhouName"), t("home.cityGuangzhou")],
+    [t("home.cityYiwuName"), t("home.cityYiwu")],
   ];
   return (
     <section id="about" className="scroll-mt-20 border-b border-line py-16 sm:py-24 lg:py-32">
@@ -1500,7 +1500,12 @@ function AboutHome() {
             <div className="mt-5 grid gap-2.5 border-t border-line pt-4">
               {cities.map(([city, note]) => (
                 <div key={city} className="flex items-center gap-2.5 text-[13px] text-muted-foreground">
-                  <span className="mono w-[82px] flex-none text-[10px] uppercase tracking-widest" style={{ color: GOLD }}>{city}</span>
+                  <span
+                    className="w-[82px] flex-none text-[14px] font-semibold"
+                    style={{ color: GOLD }}
+                  >
+                    {city}
+                  </span>
                   {note}
                 </div>
               ))}
