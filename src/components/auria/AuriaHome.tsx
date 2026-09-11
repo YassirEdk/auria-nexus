@@ -907,9 +907,9 @@ function Hero() {
               <button type="button" onClick={openRequestAccess} className="btn-primary">
                 {t("home.ctaStart")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
               </button>
-              <a href="#network" className="btn-ghost-line">
+              <Link to="/about" className="btn-ghost-line">
                 {t("home.ctaExplore")} <ArrowRight className="size-3.5 rtl:-scale-x-100" />
-              </a>
+              </Link>
             </div>
 
             {/* Micro KPI row — animated count-ups */}
@@ -2082,8 +2082,84 @@ function FinalCTA() {
   );
 }
 
+function WhatsAppLogo({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <path
+        fill="#25D366"
+        d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.004c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2z"
+      />
+      <path
+        fill="#fff"
+        d="M9.53 7.33c-.18-.4-.36-.41-.53-.42l-.45-.01c-.16 0-.41.06-.63.29-.22.23-.83.81-.83 1.98s.85 2.3.97 2.46c.12.16 1.65 2.64 4.07 3.6 2.01.79 2.42.63 2.86.59.44-.04 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28-.24-.12-1.42-.7-1.64-.78-.22-.08-.38-.12-.54.12-.16.24-.62.78-.76.94-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.93-1.19-.71-.63-1.19-1.42-1.33-1.66-.14-.24-.01-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.53-1.32-.74-1.8z"
+      />
+    </svg>
+  );
+}
+
+function GmailLogo({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <path fill="#4caf50" d="M45 16.2l-5 2.75-5 4.75V40h7a3 3 0 0 0 3-3V16.2z" />
+      <path fill="#1e88e5" d="M3 16.2l3.61 1.71L13 23.7V40H6a3 3 0 0 1-3-3V16.2z" />
+      <polygon fill="#e53935" points="35,11.2 24,19.45 13,11.2 12,17 13,23.7 24,31.95 35,23.7 36,17" />
+      <path fill="#c62828" d="M3 12.3v3.9l10 7.5V11.2L9.88 8.86C6.24 6.13 3 8.85 3 12.3z" />
+      <path fill="#fbc02d" d="M45 12.3v3.9l-10 7.5V11.2l3.12-2.34C41.76 6.13 45 8.85 45 12.3z" />
+    </svg>
+  );
+}
+
 function ContactSection() {
   const { t } = useTranslation();
+  const [form, setForm] = useState<Record<string, string>>({});
+  const [error, setError] = useState(false);
+  const [showChannels, setShowChannels] = useState(false);
+  const setField = (key: string, value: string) => {
+    setForm((f) => ({ ...f, [key]: value }));
+    if (error) setError(false);
+    // Editing after the channel picker is shown re-hides it so the send is re-confirmed.
+    if (showChannels) setShowChannels(false);
+  };
+
+  // Step 1: validate all fields, then reveal the WhatsApp / Gmail choices.
+  const onTransmit = () => {
+    const required = ["fullName", "company", "email", "country", "sourcing", "message"];
+    if (!required.every((k) => (form[k] || "").trim() !== "")) {
+      setError(true);
+      setShowChannels(false);
+      return;
+    }
+    setError(false);
+    setShowChannels(true);
+  };
+
+  // Step 2: build the message and open the chosen channel.
+  const sendVia = (channel: "whatsapp" | "gmail") => {
+    const name = (form["fullName"] || "").trim();
+    const val = (k: string) => (form[k] || "").trim() || "—";
+    const label = (k: string) => t(`requestAccess.${k}`);
+    const body = [
+      t("home.waInquiry", { name }),
+      "",
+      `${label("company")}: ${val("company")}`,
+      `${label("email")}: ${val("email")}`,
+      `${label("country")}: ${val("country")}`,
+      `${label("sourcing")}: ${val("sourcing")}`,
+      `${label("message")}: ${val("message")}`,
+    ].join("\n");
+
+    if (channel === "whatsapp") {
+      window.open(`https://wa.me/212625461733?text=${encodeURIComponent(body)}`, "_blank", "noopener");
+    } else {
+      const url =
+        "https://mail.google.com/mail/?view=cm&fs=1" +
+        `&to=${encodeURIComponent("aureacompany907@gmail.com")}` +
+        `&su=${encodeURIComponent(t("channel.subjectInquiry", { name }))}` +
+        `&body=${encodeURIComponent(body)}`;
+      window.open(url, "_blank", "noopener");
+    }
+  };
+
   return (
     <section className="border-b border-line py-14 sm:py-20 lg:py-32" id="inquiry">
       <div className="site-container grid gap-8 sm:gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-12">
@@ -2095,38 +2171,97 @@ function ContactSection() {
           <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
             {t("home.contactCopy")}
           </p>
-          <div className="mono mt-8 space-y-2 text-[11px] uppercase tracking-widest text-sub-muted">
-            <p><span className="text-blue">OPS ·</span> China</p>
-            <p><span className="text-blue">CH ·</span> secure / signal</p>
-            <p><span className="text-blue">PING ·</span> hello@auria.trade</p>
-          </div>
         </Reveal>
         <Reveal delay={0.1}>
-          <form className="panel grid gap-4 p-5 sm:grid-cols-2 sm:gap-5 sm:p-6 md:p-8" onSubmit={(e) => e.preventDefault()}>
-            {[
+          <form
+            className="panel grid gap-4 p-5 sm:grid-cols-2 sm:gap-5 sm:p-6 md:p-8"
+            onSubmit={(e) => {
+              e.preventDefault();
+              onTransmit();
+            }}
+          >
+            {([
               ["fullName", "text", false],
               ["company", "text", false],
               ["email", "email", false],
               ["country", "text", false],
               ["sourcing", "text", true],
-              ["volume", "text", true],
-            ].map(([field, type, wide]) => (
-              <label key={String(field)} className={`space-y-2 ${wide ? "sm:col-span-2" : ""}`}>
-                <span className="label-mono">{t(`requestAccess.${field}`)}</span>
-                <input type={type as string} placeholder={t(`requestAccess.${field}Ph`)} className="field-input" />
+            ] as const).map(([field, type, wide]) => (
+              <label key={field} className={`space-y-2 ${wide ? "sm:col-span-2" : ""}`}>
+                <span className="label-mono">
+                  {t(`requestAccess.${field}`)} <span className="text-red">*</span>
+                </span>
+                <input
+                  type={type}
+                  value={form[field] ?? ""}
+                  onChange={(e) => setField(field, e.target.value)}
+                  placeholder={t(`requestAccess.${field}Ph`)}
+                  className="field-input"
+                />
               </label>
             ))}
             <label className="space-y-2 sm:col-span-2">
-              <span className="label-mono">{t("requestAccess.message")}</span>
-              <textarea rows={4} placeholder={t("requestAccess.messagePh")} className="field-input resize-none" />
+              <span className="label-mono">
+                {t("requestAccess.message")} <span className="text-red">*</span>
+              </span>
+              <textarea
+                rows={4}
+                value={form["message"] ?? ""}
+                onChange={(e) => setField("message", e.target.value)}
+                placeholder={t("requestAccess.messagePh")}
+                className="field-input resize-none"
+              />
             </label>
+            {error && (
+              <p role="alert" className="sm:col-span-2 text-[13px] font-medium text-red">
+                {t("home.contactError")}
+              </p>
+            )}
             <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
               <span className="status-badge tone-green">
                 <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} /> {t("home.contactEncrypted")}
               </span>
-              <button type="submit" className="btn-primary">
-                {t("home.contactTransmit")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
-              </button>
+              <div className="relative">
+                {showChannels && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.85, x: "-50%" }}
+                    animate={{ opacity: 1, y: 0, scale: 1, x: "-50%" }}
+                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute bottom-full left-1/2 z-20 mb-3 origin-bottom rounded-xl border border-line bg-[#0d1017]/95 p-3 shadow-[0_24px_60px_-16px_rgba(0,0,0,0.75)] ring-1 ring-white/5 backdrop-blur-md"
+                  >
+                    <p className="mb-2.5 text-center mono text-[9px] uppercase tracking-[0.18em] text-sub-muted">
+                      {t("channel.sendVia")}
+                    </p>
+                    <div className="flex items-stretch gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => sendVia("whatsapp")}
+                        aria-label={t("channel.whatsapp")}
+                        className="group flex w-[84px] flex-col items-center gap-1.5 rounded-lg border border-line bg-white/[0.02] px-3 py-3 transition-all hover:-translate-y-0.5 hover:border-green/60 hover:bg-green/10"
+                      >
+                        <WhatsAppLogo className="size-7 transition-transform group-hover:scale-110" />
+                        <span className="text-[11px] font-semibold text-heading">WhatsApp</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => sendVia("gmail")}
+                        aria-label="Gmail"
+                        className="group flex w-[84px] flex-col items-center gap-1.5 rounded-lg border border-line bg-white/[0.02] px-3 py-3 transition-all hover:-translate-y-0.5 hover:border-blue/60 hover:bg-blue/10"
+                      >
+                        <GmailLogo className="size-7 transition-transform group-hover:scale-110" />
+                        <span className="text-[11px] font-semibold text-heading">Gmail</span>
+                      </button>
+                    </div>
+                    <span
+                      aria-hidden
+                      className="absolute left-1/2 top-full -ml-1.5 -mt-1.5 size-3 rotate-45 rounded-[2px] border-b border-r border-line bg-[#0d1017]"
+                    />
+                  </motion.div>
+                )}
+                <button type="submit" className="btn-primary">
+                  {t("home.contactTransmit")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
+                </button>
+              </div>
             </div>
           </form>
         </Reveal>

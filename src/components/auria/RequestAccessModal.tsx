@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowUpRight, X, ShieldCheck, MapPin, Clock } from "lucide-react";
+import { ContactChannelDialog, type ChannelPayload } from "./ContactChannelDialog";
 
 const EVENT = "auria:request-access";
 
@@ -16,17 +17,16 @@ export function RequestAccessModal() {
   const rtl = i18n.language === "ar";
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
+  const [payload, setPayload] = useState<ChannelPayload | null>(null);
   const setField = (key: string, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  // WhatsApp desk that receives applications.
-  const WA_NUMBER = "212625461733";
-
-  const sendToWhatsApp = () => {
+  const buildPayload = () => {
+    const name = (form["fullName"] || "").trim() || "—";
     const val = (k: string) => (form[k] || "").trim() || "—";
     const label = (k: string) => t(`requestAccess.${k}`);
-    const lines = [
-      t("requestAccess.waGreeting", { name: (form["fullName"] || "").trim() || "—" }),
+    const body = [
+      t("requestAccess.waGreeting", { name }),
       "",
       `${label("company")}: ${val("company")}`,
       `${label("email")}: ${val("email")}`,
@@ -34,9 +34,8 @@ export function RequestAccessModal() {
       `${label("volume")}: ${val("volume")}`,
       `${label("sourcing")}: ${val("sourcing")}`,
       `${label("message")}: ${val("message")}`,
-    ];
-    const text = encodeURIComponent(lines.join("\n"));
-    window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, "_blank", "noopener");
+    ].join("\n");
+    setPayload({ subject: t("channel.subjectApplication", { name }), body });
   };
 
   useEffect(() => {
@@ -71,6 +70,7 @@ export function RequestAccessModal() {
   }, [open]);
 
   return (
+    <>
     <AnimatePresence>
       {open && (
         <>
@@ -158,8 +158,7 @@ export function RequestAccessModal() {
                 className="mt-6 grid gap-4 sm:grid-cols-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  sendToWhatsApp();
-                  setOpen(false);
+                  buildPayload();
                 }}
               >
                 {([
@@ -214,5 +213,7 @@ export function RequestAccessModal() {
         </>
       )}
     </AnimatePresence>
+    <ContactChannelDialog payload={payload} onClose={() => setPayload(null)} />
+    </>
   );
 }
