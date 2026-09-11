@@ -138,6 +138,7 @@ const fr: typeof import("./en").default = {
     submit: "Envoyer la candidature",
     channelEncrypted: "canal · chiffré",
     close: "Fermer",
+    waGreeting: "Bonjour, je suis {{name}}. Je souhaite poser ma candidature pour travailler avec un opérateur AURIA. Voici mes informations :",
   },
   services: {
     headerEyebrow: "Services",

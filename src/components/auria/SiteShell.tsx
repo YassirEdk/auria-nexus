@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Menu, X, ArrowUpRight, Lock } from "lucide-react";
+import { Menu, X, ArrowUpRight, Lock, Phone, Mail, Clock } from "lucide-react";
 import { useEffect, useState, type ReactNode, type MouseEvent } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
 import { useTranslation } from "react-i18next";
@@ -308,7 +308,7 @@ export function SiteHeader() {
             aria-label={t("cta.applyNow")}
           >
             <span>{t("cta.applyNow")}</span>
-            <ArrowUpRight className="size-3.5" />
+            <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
           </button>
         </motion.div>
         <motion.button
@@ -364,7 +364,7 @@ export function SiteHeader() {
               }}
               className="btn-primary w-full justify-center"
             >
-              {t("cta.applyNow")} <ArrowUpRight className="size-3.5" />
+              {t("cta.applyNow")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
             </button>
           </div>
         </nav>
@@ -414,19 +414,23 @@ function FooterClocks() {
   const isSameAsChina = localTz === "Asia/Shanghai";
 
   return (
-    <div className="hidden md:flex items-center gap-5 mono text-[10px] uppercase tracking-widest text-muted-foreground">
+    <div
+      dir="ltr"
+      className="hidden md:flex items-center gap-4 rounded-full border border-line/70 bg-white/[0.02] px-4 py-1.5 mono text-[10px] uppercase tracking-widest text-muted-foreground"
+    >
+      <Clock className="size-3.5 flex-none text-sub-muted" />
       <span className="inline-flex items-center gap-2">
         <span className="status-dot" style={{ background: "#EF4444", color: "#EF4444" }} />
         <span>Shanghai</span>
-        <span className="text-foreground">{fmt("Asia/Shanghai")}</span>
+        <span className="tabular-nums text-foreground">{fmt("Asia/Shanghai")}</span>
       </span>
       {!isSameAsChina && (
         <>
-          <span className="text-sub-muted/60">·</span>
+          <span aria-hidden className="h-3 w-px bg-line" />
           <span className="inline-flex items-center gap-2">
             <span className="status-dot" style={{ background: "#10B981", color: "#10B981" }} />
             <span>{cityLabel(localTz)}</span>
-            <span className="text-foreground">{fmt(localTz)}</span>
+            <span className="tabular-nums text-foreground">{fmt(localTz)}</span>
           </span>
         </>
       )}
@@ -438,37 +442,42 @@ export function SiteFooter() {
   return (
     <footer className="fixed inset-x-0 bottom-0 z-40 h-11 border-t border-line bg-background/90 backdrop-blur-md sm:h-12">
       <span aria-hidden className="site-footer__beam" />
-      <div className="site-container flex h-full items-center justify-between gap-2 sm:gap-4">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <AuriaLogo className="size-5" />
-          <span className="text-[11px] font-semibold tracking-widest uppercase text-foreground">AURIA</span>
-          <span className="hidden mono text-[10px] uppercase tracking-widest text-sub-muted sm:inline">© 2026 · v1.0</span>
+      <div className="site-container flex h-full items-center gap-4">
+        {/* Brand */}
+        <div className="flex flex-none items-center gap-2 sm:gap-2.5">
+          <AuriaLogo className="size-5 flex-none" />
+          <span className="hidden text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground sm:inline">
+            AURIA
+          </span>
+          <span className="hidden lg:inline mono text-[9px] uppercase tracking-widest text-sub-muted">
+            v1.0 · © 2026
+          </span>
         </div>
 
-        <FooterClocks />
+        {/* Local times */}
+        <div className="flex min-w-0 flex-1 justify-center">
+          <FooterClocks />
+        </div>
 
-        <div className="flex items-center gap-3 sm:gap-4">
-          <Link to="/contact" className="mono hidden text-[10px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground sm:inline">
-            aureacompany907@gmail.com
+        {/* Contact */}
+        <div dir="ltr" className="flex flex-none items-center gap-2 sm:gap-3.5">
+          <a
+            href="tel:+8619730315177"
+            aria-label="Call China +86 19730315177"
+            className="group mono inline-flex items-center gap-1 text-[9px] tracking-wider text-muted-foreground transition-colors hover:text-heading sm:gap-1.5 sm:text-[10px]"
+          >
+            <Phone className="size-3.5 flex-none text-blue transition-transform group-hover:-translate-y-px" />
+            <span className="whitespace-nowrap">+86 197 3031 5177</span>
+          </a>
+          <span aria-hidden className="hidden h-4 w-px flex-none bg-line sm:block" />
+          <Link
+            to="/contact"
+            aria-label="Email aureacompany907@gmail.com"
+            className="group mono hidden items-center gap-1.5 text-[10px] tracking-wider text-muted-foreground transition-colors hover:text-heading sm:inline-flex"
+          >
+            <Mail className="size-3.5 flex-none text-blue transition-transform group-hover:-translate-y-px" />
+            <span className="hidden lg:inline">aureacompany907@gmail.com</span>
           </Link>
-          <span aria-hidden className="site-header__rule hidden h-5 w-px sm:block" />
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <a href="#" aria-label="LinkedIn" className="text-muted-foreground transition-colors hover:text-foreground">
-              <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
-                <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001A2.5 2.5 0 0 1 4.98 3.5zM3 9.75h4v11H3v-11zM10 9.75h3.8v1.5h.05c.53-1 1.83-2.05 3.76-2.05 4.02 0 4.76 2.65 4.76 6.09v5.46h-4v-4.85c0-1.16-.02-2.66-1.62-2.66-1.62 0-1.87 1.26-1.87 2.57v4.94H10v-11z"/>
-              </svg>
-            </a>
-            <a href="#" aria-label="X / Twitter" className="text-muted-foreground transition-colors hover:text-foreground">
-              <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
-                <path d="M18.244 2H21l-6.53 7.46L22 22h-6.79l-4.72-6.18L4.9 22H2.14l6.98-7.98L2 2h6.91l4.27 5.65L18.24 2zm-2.38 18h1.83L7.24 4H5.28l10.58 16z"/>
-              </svg>
-            </a>
-            <a href="#" aria-label="GitHub" className="text-muted-foreground transition-colors hover:text-foreground">
-              <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
-                <path d="M12 .5C5.73.5.75 5.48.75 11.75c0 4.94 3.2 9.13 7.64 10.61.56.1.77-.24.77-.54v-1.9c-3.11.68-3.77-1.5-3.77-1.5-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.94.1-.73.39-1.22.71-1.5-2.48-.28-5.09-1.24-5.09-5.53 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.09 1.14a10.7 10.7 0 0 1 5.62 0c2.15-1.44 3.09-1.14 3.09-1.14.61 1.54.23 2.68.11 2.96.71.78 1.15 1.78 1.15 3 0 4.3-2.62 5.24-5.11 5.52.4.34.76 1.02.76 2.06v3.06c0 .3.2.65.78.54A11.26 11.26 0 0 0 23.25 11.75C23.25 5.48 18.27.5 12 .5z"/>
-              </svg>
-            </a>
-          </div>
         </div>
       </div>
     </footer>

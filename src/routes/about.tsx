@@ -61,7 +61,7 @@ function AboutContent() {
                 </div>
                 <div className="mt-6 grid grid-cols-2 gap-5 sm:gap-6">
                   {[
-                    { l: t("about.glanceFounded"), v: "2019" },
+                    { l: t("about.glanceFounded"), v: "2025" },
                     { l: t("about.glanceTeam"), v: t("about.glanceTeamV") },
                     { l: t("about.glanceOffices"), v: t("about.glanceOfficesV") },
                     { l: t("about.glanceClients"), v: "180+" },

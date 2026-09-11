@@ -15,6 +15,29 @@ export function RequestAccessModal() {
   const { t, i18n } = useTranslation();
   const rtl = i18n.language === "ar";
   const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<Record<string, string>>({});
+  const setField = (key: string, value: string) =>
+    setForm((f) => ({ ...f, [key]: value }));
+
+  // WhatsApp desk that receives applications.
+  const WA_NUMBER = "212625461733";
+
+  const sendToWhatsApp = () => {
+    const val = (k: string) => (form[k] || "").trim() || "—";
+    const label = (k: string) => t(`requestAccess.${k}`);
+    const lines = [
+      t("requestAccess.waGreeting", { name: (form["fullName"] || "").trim() || "—" }),
+      "",
+      `${label("company")}: ${val("company")}`,
+      `${label("email")}: ${val("email")}`,
+      `${label("country")}: ${val("country")}`,
+      `${label("volume")}: ${val("volume")}`,
+      `${label("sourcing")}: ${val("sourcing")}`,
+      `${label("message")}: ${val("message")}`,
+    ];
+    const text = encodeURIComponent(lines.join("\n"));
+    window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, "_blank", "noopener");
+  };
 
   useEffect(() => {
     const onOpen = () => setOpen(true);
@@ -135,25 +158,38 @@ export function RequestAccessModal() {
                 className="mt-6 grid gap-4 sm:grid-cols-2"
                 onSubmit={(e) => {
                   e.preventDefault();
+                  sendToWhatsApp();
                   setOpen(false);
                 }}
               >
-                {[
+                {([
                   ["fullName", "text", false],
                   ["company", "text", false],
                   ["email", "email", true],
                   ["country", "text", false],
                   ["volume", "text", false],
                   ["sourcing", "text", true],
-                ].map(([field, type, wide]) => (
-                  <label key={String(field)} className={`space-y-2 ${wide ? "sm:col-span-2" : ""}`}>
+                ] as const).map(([field, type, wide]) => (
+                  <label key={field} className={`space-y-2 ${wide ? "sm:col-span-2" : ""}`}>
                     <span className="label-mono">{t(`requestAccess.${field}`)}</span>
-                    <input type={type as string} placeholder={t(`requestAccess.${field}Ph`)} className="field-input" />
+                    <input
+                      type={type}
+                      value={form[field] ?? ""}
+                      onChange={(e) => setField(field, e.target.value)}
+                      placeholder={t(`requestAccess.${field}Ph`)}
+                      className="field-input"
+                    />
                   </label>
                 ))}
                 <label className="space-y-2 sm:col-span-2">
                   <span className="label-mono">{t("requestAccess.message")}</span>
-                  <textarea rows={4} placeholder={t("requestAccess.messagePh")} className="field-input resize-none" />
+                  <textarea
+                    rows={4}
+                    value={form["message"] ?? ""}
+                    onChange={(e) => setField("message", e.target.value)}
+                    placeholder={t("requestAccess.messagePh")}
+                    className="field-input resize-none"
+                  />
                 </label>
                 <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2">
                   <span className="status-badge tone-green">

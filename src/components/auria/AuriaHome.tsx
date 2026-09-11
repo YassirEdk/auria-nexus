@@ -1449,7 +1449,7 @@ function ServicesGrid() {
 function AboutHome() {
   const { t } = useTranslation();
   const glance: [string, string, string][] = [
-    [t("about.glanceFounded"), "2019", "#3B82F6"],
+    [t("about.glanceFounded"), "2025", "#3B82F6"],
     [t("about.glanceTeam"), t("about.glanceTeamV"), "#3B82F6"],
     [t("about.glanceOffices"), t("about.glanceOfficesV"), GOLD],
   ];
