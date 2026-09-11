@@ -1,6 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { Menu, X, ArrowUpRight, Lock, Phone, Mail, Clock } from "lucide-react";
-import { useEffect, useState, type ReactNode, type MouseEvent } from "react";
+import { useEffect, useState, type ReactNode, type MouseEvent, type CSSProperties } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { RequestAccessModal, openRequestAccess } from "./RequestAccessModal";
@@ -21,6 +21,20 @@ const links: readonly NavLink[] = [
   { key: "industries", to: "/industries" },
   { key: "contact",    to: "/contact" },
 ];
+
+// Per-route accent for the active nav pill. Values are drawn from the site's
+// existing palette (--sig-* + gold) so every glow harmonizes with buttons,
+// badges and status dots elsewhere on the page. `light` is the highlight/text,
+// `dark` is the deeper gradient stop. Exported so page-level components
+// (interior page eyebrow badge, panel accents) can inherit the same color.
+export const NAV_ACCENTS: Record<NavLink["key"], { light: string; dark: string }> = {
+  home:       { light: "#F5C36B", dark: "#D9A24B" }, // gold — matches logo & CTAs
+  about:      { light: "#B79BFF", dark: "#7C5FE0" }, // violet — new tonal accent
+  howWeWork:  { light: "#34D399", dark: "#0EA372" }, // green — --sig-green family
+  services:   { light: "#60A5FA", dark: "#2F6ED0" }, // blue — --sig-blue family
+  industries: { light: "#FBBF77", dark: "#D9791F" }, // amber — --sig-amber family
+  contact:    { light: "#E8B4A0", dark: "#B47454" }, // rose gold — luxe on black, harmonizes with the site gold
+};
 
 export function AuriaLogo({ className = "size-7", animate = true }: { className?: string; animate?: boolean }) {
   const draw: Variants = {
@@ -267,6 +281,14 @@ export function SiteHeader() {
                     "island-nav-link",
                     active ? "island-nav-link--active" : "",
                   ].join(" ")}
+                  style={
+                    active
+                      ? ({
+                          "--nav-accent": NAV_ACCENTS[link.key].light,
+                          "--nav-accent-dark": NAV_ACCENTS[link.key].dark,
+                        } as CSSProperties)
+                      : undefined
+                  }
                 >
                   <span>{t(`nav.${link.key}`)}</span>
                 </Link>
@@ -504,8 +526,8 @@ function PageTransition({ children }: { children: ReactNode }) {
   return (
     <motion.main
       key={pathname}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 12, filter: "blur(5px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="pb-16 sm:pb-14"
     >
@@ -514,9 +536,48 @@ function PageTransition({ children }: { children: ReactNode }) {
   );
 }
 
+// Map a pathname to its nav accent so the ambient background blobs shift with
+// the current page. Uses `startsWith` so nested routes still inherit the base
+// section's accent. Falls back to the home (gold) palette.
+export function accentForPath(pathname: string): { light: string; dark: string } {
+  if (pathname.startsWith("/about")) return NAV_ACCENTS.about;
+  if (pathname.startsWith("/how-we-work")) return NAV_ACCENTS.howWeWork;
+  if (pathname.startsWith("/services")) return NAV_ACCENTS.services;
+  if (pathname.startsWith("/industries")) return NAV_ACCENTS.industries;
+  if (pathname.startsWith("/contact")) return NAV_ACCENTS.contact;
+  return NAV_ACCENTS.home;
+}
+
 function SiteBackgroundFX() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const accent = accentForPath(pathname);
+  // Publish the accent on the document root so it cascades to every element
+  // (scan-lines, panel accents, etc.) that reads --route-accent. Keeps the
+  // ambient blob variables local to this component.
+  useEffect(() => {
+    const root = document.documentElement;
+    const prevA = root.style.getPropertyValue("--route-accent");
+    const prevB = root.style.getPropertyValue("--route-accent-dark");
+    root.style.setProperty("--route-accent", accent.light);
+    root.style.setProperty("--route-accent-dark", accent.dark);
+    return () => {
+      if (prevA) root.style.setProperty("--route-accent", prevA);
+      else root.style.removeProperty("--route-accent");
+      if (prevB) root.style.setProperty("--route-accent-dark", prevB);
+      else root.style.removeProperty("--route-accent-dark");
+    };
+  }, [accent.light, accent.dark]);
   return (
-    <div aria-hidden className="site-bg-fx">
+    <div
+      aria-hidden
+      className="site-bg-fx"
+      style={
+        {
+          "--bg-fx-a": accent.light,
+          "--bg-fx-b": accent.dark,
+        } as CSSProperties
+      }
+    >
       <span className="site-bg-fx__grid" />
       <span className="site-bg-fx__blob site-bg-fx__blob--a" />
       <span className="site-bg-fx__blob site-bg-fx__blob--b" />

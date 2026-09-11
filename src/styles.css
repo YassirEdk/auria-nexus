@@ -288,19 +288,27 @@
   background: rgba(255,255,255,0.04);
 }
 .island-nav-link--active {
-  color: #F5C36B;
+  /* Per-route accent supplied inline via --nav-accent / --nav-accent-dark;
+     fall back to the site's gold so unstyled active links still look right. */
+  --nav-accent: #F5C36B;
+  --nav-accent-dark: #D9A24B;
+  color: var(--nav-accent);
   background:
-    linear-gradient(180deg, rgba(245,195,107,0.18), rgba(217,162,75,0.10));
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--nav-accent) 18%, transparent),
+      color-mix(in srgb, var(--nav-accent-dark) 10%, transparent));
   box-shadow:
-    0 0 0 1px rgba(217,162,75,0.35) inset,
-    0 1px 0 rgba(245,195,107,0.20) inset,
-    0 4px 14px -8px rgba(217,162,75,0.55);
-  text-shadow: 0 0 12px rgba(245,195,107,0.25);
+    0 0 0 1px color-mix(in srgb, var(--nav-accent-dark) 35%, transparent) inset,
+    0 1px 0 color-mix(in srgb, var(--nav-accent) 20%, transparent) inset,
+    0 4px 14px -8px color-mix(in srgb, var(--nav-accent-dark) 55%, transparent);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--nav-accent) 25%, transparent);
 }
 .island-nav-link--active:hover {
-  color: #F7CE7C;
+  color: color-mix(in srgb, var(--nav-accent) 92%, #fff);
   background:
-    linear-gradient(180deg, rgba(245,195,107,0.24), rgba(217,162,75,0.14));
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--nav-accent) 24%, transparent),
+      color-mix(in srgb, var(--nav-accent-dark) 14%, transparent));
 }
 .island-nav-link__dot {
   display: inline-block;
@@ -655,8 +663,14 @@
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #F5C36B;
-  background: linear-gradient(90deg, #F5C36B 0%, #D9A24B 55%, #8C5E1F 100%);
+  /* Route-aware; falls back to the site gold on home / when unset. */
+  color: var(--route-accent, #F5C36B);
+  background: linear-gradient(
+    90deg,
+    var(--route-accent, #F5C36B) 0%,
+    var(--route-accent-dark, #D9A24B) 55%,
+    color-mix(in srgb, var(--route-accent-dark, #D9A24B) 55%, #000) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -666,7 +680,7 @@
   display: inline-block;
   width: 32px;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, #D9A24B 50%, #F5C36B 100%);
+  background: linear-gradient(90deg, transparent 0%, var(--route-accent-dark, #D9A24B) 50%, var(--route-accent, #F5C36B) 100%);
   -webkit-text-fill-color: initial;
 }
 .section-eyebrow::after {
@@ -675,8 +689,8 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #D9A24B;
-  box-shadow: 0 0 8px rgba(217,162,75,0.6);
+  background: var(--route-accent-dark, #D9A24B);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--route-accent-dark, #D9A24B) 60%, transparent);
   -webkit-text-fill-color: initial;
 }
 
@@ -713,15 +727,20 @@
   gap: 0.5rem;
   padding: 0.65rem 1rem;
   border-radius: var(--radius-sm);
-  background: var(--sig-blue);
+  /* Route-aware accent (published on :root by SiteBackgroundFX). Uses the
+     deeper accent stop as the fill so white text stays legible on the lighter
+     warm accents (gold/amber/rose) as well as the cool ones. */
+  background: var(--route-accent-dark, var(--sig-blue));
   color: #fff;
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  transition: background 0.25s ease, box-shadow 0.25s ease;
-  box-shadow: 0 8px 32px -8px rgba(59,130,246,0.4);
+  transition: background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+  box-shadow: 0 8px 32px -8px color-mix(in srgb, var(--route-accent, var(--sig-blue)) 40%, transparent);
 }
-.btn-primary:hover { background: #2f6ee0; }
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--route-accent-dark, #2f6ee0) 85%, #000);
+}
 
 @utility btn-ghost-line {
   display: inline-flex;
@@ -736,7 +755,10 @@
   border: 1px solid var(--border-strong);
   transition: border-color 0.25s ease, background 0.25s ease;
 }
-.btn-ghost-line:hover { border-color: var(--sig-blue); background: rgba(59,130,246,0.06); }
+.btn-ghost-line:hover {
+  border-color: var(--route-accent, var(--sig-blue));
+  background: color-mix(in srgb, var(--route-accent, var(--sig-blue)) 6%, transparent);
+}
 
 @utility btn-white {
   display: inline-flex;
@@ -771,7 +793,7 @@
   inset-inline: 0;
   top: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--sig-blue), transparent);
+  background: linear-gradient(90deg, transparent, var(--route-accent, var(--sig-blue)), transparent);
   pointer-events: none;
   animation: var(--animate-scan-line);
   will-change: transform;
@@ -818,7 +840,7 @@
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 .field-input::placeholder { color: var(--text-sub); }
-.field-input:focus { outline: none; border-color: var(--sig-blue); background: rgba(11,14,18,0.9); }
+.field-input:focus { outline: none; border-color: var(--route-accent, var(--sig-blue)); background: rgba(11,14,18,0.9); }
 
 @media (prefers-reduced-motion: reduce) {
   .marquee-track, .scan-line-container::after, .status-dot { animation: none !important; }
@@ -923,6 +945,21 @@ html.is-touch .tilt-card { transform: none !important; }
 html:has(.site-bg-fx) { background: var(--base); }
 html:has(.site-bg-fx) body { background: transparent; }
 
+/* Registering the accent custom properties as <color> makes their value
+   interpolatable, so when the route changes the transitions below actually
+   tween the color instead of snapping. Without @property a var() swap is
+   instant regardless of any `transition` rule. */
+@property --bg-fx-a { syntax: "<color>"; inherits: true; initial-value: #F5C36B; }
+@property --bg-fx-b { syntax: "<color>"; inherits: true; initial-value: #D9A24B; }
+@property --route-accent { syntax: "<color>"; inherits: true; initial-value: #F5C36B; }
+@property --route-accent-dark { syntax: "<color>"; inherits: true; initial-value: #D9A24B; }
+
+/* Cross-fade the page-wide accent (buttons, eyebrows, scan-lines) on route
+   change. The vars are set on :root by SiteBackgroundFX. */
+html {
+  transition: --route-accent 0.6s ease, --route-accent-dark 0.6s ease;
+}
+
 .site-bg-fx {
   position: fixed;
   inset: 0;
@@ -930,6 +967,8 @@ html:has(.site-bg-fx) body { background: transparent; }
   overflow: hidden;
   pointer-events: none;
   background: radial-gradient(ellipse at 50% -10%, rgba(59,130,246,0.05), transparent 60%);
+  /* Tween the ambient blob colors when the route (and thus --bg-fx-*) changes. */
+  transition: --bg-fx-a 0.6s ease, --bg-fx-b 0.6s ease;
 }
 
 .site-bg-fx__grid {
@@ -947,11 +986,11 @@ html:has(.site-bg-fx) body { background: transparent; }
 
 .site-bg-fx__blob {
   position: absolute;
-  width: 46vmax;
-  height: 46vmax;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.55;
+  width: 40vmax;
+  height: 50vmax;
+  border-radius: 90%;
+  filter: blur(160px);
+  opacity: 0.2;
   mix-blend-mode: screen;
   will-change: transform;
 }
@@ -959,15 +998,27 @@ html:has(.site-bg-fx) body { background: transparent; }
 .site-bg-fx__blob--a {
   left: -14vmax;
   top: -16vmax;
-  background: radial-gradient(circle at 35% 35%, rgba(59,130,246,0.55), rgba(59,130,246,0) 65%);
+  /* Per-route ambient glow — --bg-fx-a is set inline by SiteBackgroundFX to
+     match the active page's nav accent. Fallback keeps the original blue. */
+  background: radial-gradient(
+    circle at 35% 35%,
+    color-mix(in srgb, var(--bg-fx-a, #3B82F6) 55%, transparent),
+    color-mix(in srgb, var(--bg-fx-a, #3B82F6) 0%, transparent) 65%
+  );
   animation: bgBlobA 24s ease-in-out infinite alternate;
+  transition: background 0.6s ease;
 }
 
 .site-bg-fx__blob--b {
   right: -16vmax;
   bottom: -14vmax;
-  background: radial-gradient(circle at 55% 45%, rgba(217,162,75,0.45), rgba(217,162,75,0) 65%);
+  background: radial-gradient(
+    circle at 55% 45%,
+    color-mix(in srgb, var(--bg-fx-b, #D9A24B) 45%, transparent),
+    color-mix(in srgb, var(--bg-fx-b, #D9A24B) 0%, transparent) 65%
+  );
   animation: bgBlobB 28s ease-in-out infinite alternate;
+  transition: background 0.6s ease;
 }
 
 .site-bg-fx__noise {

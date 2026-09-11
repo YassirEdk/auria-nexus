@@ -1,8 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
-import { SiteLayout } from "./SiteShell";
+import { SiteLayout, accentForPath } from "./SiteShell";
 import { openRequestAccess } from "./RequestAccessModal";
 
 export function InteriorPage({
@@ -21,6 +21,8 @@ export function InteriorPage({
   children?: React.ReactNode;
 }) {
   const { t } = useTranslation();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const accent = accentForPath(pathname);
   return (
     <SiteLayout>
       <section className="scan-line-container relative border-b border-line pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32">
@@ -29,9 +31,14 @@ export function InteriorPage({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="status-badge tone-blue"
+            className="status-badge"
+            style={{
+              color: accent.light,
+              borderColor: `color-mix(in srgb, ${accent.dark} 55%, transparent)`,
+              background: `color-mix(in srgb, ${accent.light} 8%, transparent)`,
+            }}
           >
-            <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
+            <span className="status-dot" style={{ background: accent.light, color: accent.light }} />
             {code ? `/ ${code} · ${eyebrow}` : eyebrow}
           </motion.span>
           <motion.h1
