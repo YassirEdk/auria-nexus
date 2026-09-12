@@ -97,10 +97,8 @@ export function buildMeta({ path, title, description, keywords = [], image }: Bu
     { property: "og:locale:alternate", content: "zh_CN" },
     { property: "og:locale:alternate", content: "es_ES" },
     { property: "og:locale:alternate", content: "de_DE" },
-    // Twitter
+    // Twitter (twitter:site/twitter:creator omitted until a verified @handle exists)
     { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:site", content: "@auria" },
-    { name: "twitter:creator", content: "@auria" },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
     { name: "twitter:image", content: ogImage },
@@ -124,19 +122,53 @@ export function buildLinks(path: string): LinkTag[] {
 }
 
 // JSON-LD structured data
+// NOTE: `sameAs` is the single strongest entity-disambiguation signal for
+// Google Knowledge Graph and LLM entity resolution (ChatGPT, Perplexity,
+// Google AI Overview). Every URL here must be a real, live profile that
+// mentions "AURIA" / "Auria Trading" back — a fake profile hurts more than
+// it helps. Priority order to create if missing:
+//   1. LinkedIn Company Page (highest impact)
+//   2. Crunchbase organization page
+//   3. Wikidata entry (free at wikidata.org — LLMs read this heavily)
+//   4. Google Business Profile
+//   5. Alibaba / Made-in-China supplier page
+//   6. GitHub org with README that links back here
 export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": ["Organization", "Corporation"],
+    "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
-    alternateName: ["AURIA Trading", "AURIA Nexus", "AURIA Sourcing"],
+    legalName: "AURIA Trading",
+    alternateName: ["AURIA Trading", "Auria Trading", "AURIA Nexus", "AURIA Sourcing", "AURIA China"],
     url: SITE_URL,
-    logo: `${SITE_URL}/favicon.svg`,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/android-chrome-512x512.png`,
+      width: 512,
+      height: 512,
+    },
     image: DEFAULT_OG_IMAGE,
     description:
-      "AURIA is a global sourcing, trading and logistics company connecting international buyers with trusted Chinese manufacturers.",
+      "AURIA (Auria Trading) is a global sourcing, trading and logistics company headquartered in China. AURIA sources products from Chinese factories, verifies suppliers, handles quality control, private label, OEM/ODM and end-to-end international shipping for buyers worldwide.",
+    disambiguatingDescription:
+      "AURIA is a China-based B2B sourcing and trading company (auria-trading.com), distinct from other similarly-named brands. AURIA specializes in China sourcing, factory verification, quality control and international logistics.",
     foundingDate: "2025",
     slogan: "Your Global Gateway to China",
+    knowsAbout: [
+      "China sourcing",
+      "China trading",
+      "Factory verification",
+      "Quality control",
+      "Private label manufacturing",
+      "OEM/ODM",
+      "International logistics",
+      "Freight forwarding from China",
+      "Import from China",
+      "Alibaba sourcing",
+      "1688 sourcing",
+      "Canton Fair",
+    ],
     knowsLanguage: ["en", "fr", "ar", "zh", "es", "de", "ru", "pt", "it", "tr", "ja"],
     areaServed: "Worldwide",
     address: [
@@ -145,17 +177,68 @@ export function organizationJsonLd() {
       { "@type": "PostalAddress", addressLocality: "Guangzhou", addressCountry: "CN" },
       { "@type": "PostalAddress", addressLocality: "Yiwu", addressCountry: "CN" },
     ],
-    sameAs: [
-      "https://www.linkedin.com/company/auria",
-      "https://twitter.com/auria",
-      "https://www.instagram.com/auria",
-    ],
+    // sameAs intentionally omitted until real, verified profiles exist.
+    // Fake or unverified profile URLs actively hurt SEO. Add each one here
+    // ONLY once the profile is live and links back to auria-trading.com.
+    // Priority: LinkedIn Company Page → Crunchbase → Wikidata → Google Business.
     contactPoint: [
       {
         "@type": "ContactPoint",
         contactType: "sales",
         availableLanguage: ["English", "French", "Arabic", "Chinese", "Spanish"],
         areaServed: "Worldwide",
+        url: SITE_URL,
+      },
+      {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        availableLanguage: ["English", "French", "Arabic", "Chinese"],
+        areaServed: "Worldwide",
+        url: SITE_URL,
+      },
+    ],
+  };
+}
+
+// FAQ schema helps Google and AI Overview pull direct answers when someone
+// searches "What is Auria Trading?". Place the questions users actually ask
+// about your brand identity here.
+export function brandFaqJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What is AURIA (Auria Trading)?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "AURIA, also known as Auria Trading, is a global sourcing, trading and logistics company based in China. AURIA connects international buyers with verified Chinese manufacturers and manages sourcing, quality control, private label, OEM/ODM and international shipping.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Where is AURIA located?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "AURIA operates from Shanghai, Shenzhen, Guangzhou and Yiwu in China, serving buyers worldwide.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "What services does Auria Trading offer?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Auria Trading offers China product sourcing, factory verification, quality control, private label and OEM/ODM manufacturing, cargo consolidation, and international freight forwarding.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How is AURIA different from other 'Auria' brands?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "AURIA (auria-trading.com) is a China-focused B2B sourcing and trading company. It is unrelated to other companies or platforms that share the name 'Auria'.",
+        },
       },
     ],
   };

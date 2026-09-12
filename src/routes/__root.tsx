@@ -22,6 +22,7 @@ import {
   organizationJsonLd,
   websiteJsonLd,
   serviceJsonLd,
+  brandFaqJsonLd,
   jsonLdScript,
 } from "@/lib/seo";
 
@@ -238,7 +239,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:locale:alternate", content: "es_ES" },
       { property: "og:locale:alternate", content: "de_DE" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@auria" },
       { name: "twitter:title", content: "AURIA — Global Sourcing, Trading & Logistics from China" },
       { name: "twitter:description", content: "Your global gateway to China: sourcing, manufacturing, quality control and logistics." },
       { name: "twitter:image", content: DEFAULT_OG_IMAGE },
@@ -271,6 +271,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       jsonLdScript(organizationJsonLd()),
       jsonLdScript(websiteJsonLd()),
       jsonLdScript(serviceJsonLd()),
+      jsonLdScript(brandFaqJsonLd()),
     ],
   }),
   shellComponent: RootShell,
