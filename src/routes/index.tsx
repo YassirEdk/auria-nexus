@@ -1,15 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AuriaHome } from "@/components/auria/AuriaHome";
+import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    meta: [
-      { title: "AURIA — Global Sourcing & Trading from China" },
-      { name: "description", content: "AURIA connects global businesses with trusted Chinese manufacturers, sourcing, quality control and international logistics." },
-      { property: "og:title", content: "AURIA — Your Global Gateway to China" },
-      { property: "og:description", content: "End-to-end sourcing, manufacturing and logistics from China to the world." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+    meta: buildMeta({
+      path: "/",
+      title: "AURIA — Global Sourcing, Trading & Logistics from China",
+      description:
+        "AURIA is a global trading company in China. We source China products, verify factories, handle quality control, private label and international logistics from Shanghai, Shenzhen, Guangzhou and Yiwu.",
+      keywords: [
+        "auria",
+        "auria trading",
+        "trading in china",
+        "china products",
+        "china logistics",
+        "sourcing china",
+        "import from china",
+        "china trading company",
+      ],
+    }),
+    links: buildLinks("/"),
+    scripts: [
+      jsonLdScript(
+        breadcrumbJsonLd([{ name: "Home", path: "/" }])
+      ),
     ],
   }),
   component: AuriaHome,

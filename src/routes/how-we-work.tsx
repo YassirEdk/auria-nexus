@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import { ArrowUpRight, FileSearch, ClipboardCheck, Factory, Ship, PackageCheck } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
+import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 
 const steps = [
   { icon: FileSearch, step: "01", key: "step1" },
@@ -148,9 +149,27 @@ function HowWeWorkHeader() {
 
 export const Route = createFileRoute("/how-we-work")({
   head: () => ({
-    meta: [
-      { title: "How we work — AURIA" },
-      { name: "description", content: "A transparent five-step workflow from product brief to international delivery — with SLAs, evidence packs and on-site factory visits in China." },
+    meta: buildMeta({
+      path: "/how-we-work",
+      title: "How AURIA Works — China Sourcing & Import Process",
+      description:
+        "AURIA's transparent five-step process: brief, supplier scouting, factory verification, quality control and international logistics — with SLAs and evidence packs.",
+      keywords: [
+        "how to import from china",
+        "china sourcing process",
+        "china factory audit",
+        "china quality inspection",
+        "china order management",
+      ],
+    }),
+    links: buildLinks("/how-we-work"),
+    scripts: [
+      jsonLdScript(
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "How we work", path: "/how-we-work" },
+        ])
+      ),
     ],
   }),
   component: HowWeWorkHeader,

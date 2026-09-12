@@ -774,6 +774,62 @@
 }
 .btn-white:hover { background: #fff; }
 
+/* Gold brand CTAs — tie directly to the AURIA logo gradient. Used on the 404
+   and anywhere a page sits outside the route-accent system. */
+@utility btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: 0.7rem;
+  background: linear-gradient(180deg, #F7CC7C 0%, #D9A24B 52%, #B9822F 100%);
+  color: #1A1206;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border: 1px solid rgba(245, 195, 107, 0.55);
+  box-shadow:
+    0 12px 34px -12px rgba(217, 162, 75, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+.btn-gold:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 18px 44px -12px rgba(217, 162, 75, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.btn-gold:active { transform: translateY(0); }
+
+@utility btn-gold-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, #D9A24B 6%, transparent);
+  color: #E7C892;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: 1px solid rgba(217, 162, 75, 0.35);
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+.btn-gold-line:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 195, 107, 0.7);
+  background: color-mix(in srgb, #D9A24B 12%, transparent);
+  color: #F5D9A6;
+}
+.btn-gold-line:active { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-gold:hover, .btn-gold-line:hover { transform: none; }
+}
+
 @utility marquee-track {
   display: flex;
   flex-wrap: nowrap;

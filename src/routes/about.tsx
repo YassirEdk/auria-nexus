@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import { ArrowUpRight, MapPin, Users, Languages, Shield, Compass, Handshake } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
+import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   return (
@@ -212,9 +213,27 @@ function AboutHeader() {
 
 export const Route = createFileRoute("/about")({
   head: () => ({
-    meta: [
-      { title: "About — AURIA" },
-      { name: "description", content: "AURIA is your China-based operating partner for global sourcing, production, quality control and logistics — offices in Shanghai, Shenzhen, Guangzhou and Yiwu." },
+    meta: buildMeta({
+      path: "/about",
+      title: "About AURIA — China Trading & Sourcing Company",
+      description:
+        "AURIA is a China-based trading and sourcing company with offices in Shanghai, Shenzhen, Guangzhou and Yiwu — helping global buyers import China products with confidence.",
+      keywords: [
+        "about auria",
+        "auria trading company",
+        "china sourcing company",
+        "trading company in china",
+        "china office sourcing agent",
+      ],
+    }),
+    links: buildLinks("/about"),
+    scripts: [
+      jsonLdScript(
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "About", path: "/about" },
+        ])
+      ),
     ],
   }),
   component: AboutHeader,

@@ -6,6 +6,7 @@ import {
   Baby, Utensils, ArrowUpRight,
 } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
+import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 
 const sectors = [
   { icon: Cpu, code: "IND-01", key: "ind01", hubs: "Shenzhen · Dongguan · Huizhou" },
@@ -140,9 +141,29 @@ function IndustriesHeader() {
 
 export const Route = createFileRoute("/industries")({
   head: () => ({
-    meta: [
-      { title: "Industries — AURIA" },
-      { name: "description", content: "Cross-sector sourcing expertise in China: electronics, automotive, fashion, furniture, beauty, industrial, retail, sports and more." },
+    meta: buildMeta({
+      path: "/industries",
+      title: "Industries — China Product Sourcing by Sector · AURIA",
+      description:
+        "Cross-sector China sourcing: electronics, automotive parts, fashion & textiles, furniture, beauty, industrial hardware, retail, sports and baby products.",
+      keywords: [
+        "china electronics sourcing",
+        "china automotive parts",
+        "china fashion manufacturer",
+        "china furniture supplier",
+        "china beauty products",
+        "china industrial sourcing",
+        "china retail sourcing",
+      ],
+    }),
+    links: buildLinks("/industries"),
+    scripts: [
+      jsonLdScript(
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Industries", path: "/industries" },
+        ])
+      ),
     ],
   }),
   component: IndustriesHeader,

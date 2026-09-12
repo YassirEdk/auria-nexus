@@ -7,6 +7,7 @@ import { SiteLayout, accentForPath } from "@/components/auria/SiteShell";
 import { ContactSection } from "@/components/auria/AuriaHome";
 import qrWechat from "@/assets/WhatsApp Image 2026-09-05 at 20.40.35.jpeg";
 import qrWhatsapp from "@/assets/WhatsApp Image 2026-09-05 at 20.40.34.jpeg";
+import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 
 /** Renders a QR image with its white background knocked out to transparent, so
  *  the (coloured) modules sit directly on the dark card instead of a white box.
@@ -232,9 +233,27 @@ function ContactPage() {
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
-    meta: [
-      { title: "Contact AURIA — Apply Now" },
-      { name: "description", content: "Open a secure channel with an AURIA operator for sourcing, manufacturing and logistics from China. WeChat and WhatsApp available." },
+    meta: buildMeta({
+      path: "/contact",
+      title: "Contact AURIA — Talk to a China Sourcing Operator",
+      description:
+        "Open a secure channel with an AURIA operator for China sourcing, trading and logistics. Reply within one business day. WeChat and WhatsApp available.",
+      keywords: [
+        "contact china sourcing",
+        "china sourcing agent contact",
+        "wechat china sourcing",
+        "whatsapp china supplier",
+        "auria contact",
+      ],
+    }),
+    links: buildLinks("/contact"),
+    scripts: [
+      jsonLdScript(
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Contact", path: "/contact" },
+        ])
+      ),
     ],
   }),
   component: ContactPage,

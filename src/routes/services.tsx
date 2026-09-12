@@ -6,6 +6,7 @@ import {
   Ship, FileText, Tags, Wrench, ArrowUpRight,
 } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
+import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
 
 const services = [
   { icon: Search, code: "SVC-01", key: "svc01" },
@@ -157,9 +158,30 @@ function ServicesHeader() {
 
 export const Route = createFileRoute("/services")({
   head: () => ({
-    meta: [
-      { title: "Services — AURIA" },
-      { name: "description", content: "End-to-end sourcing, verification, quality control, private label, consolidation and logistics services from China." },
+    meta: buildMeta({
+      path: "/services",
+      title: "China Sourcing, Trading & Logistics Services — AURIA",
+      description:
+        "AURIA offers end-to-end China services: sourcing agents, factory verification, quality control, private label / OEM, warehousing, consolidation and international logistics.",
+      keywords: [
+        "china sourcing services",
+        "china quality control",
+        "china private label",
+        "oem china",
+        "china consolidation",
+        "freight forwarder china",
+        "china warehousing",
+        "china logistics services",
+      ],
+    }),
+    links: buildLinks("/services"),
+    scripts: [
+      jsonLdScript(
+        breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Services", path: "/services" },
+        ])
+      ),
     ],
   }),
   component: ServicesHeader,
