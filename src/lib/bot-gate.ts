@@ -80,8 +80,6 @@ export function isAnyBot(ua: string | null): boolean {
   return !!ua && uaMatches(ua, ALL_BOTS);
 }
 
-const TODAY = "2026-09-12";
-
 function robotsTxt(): string {
   return `# ${SITE_NAME} — robots.txt
 # ${SITE_URL}
@@ -92,41 +90,6 @@ Disallow: /login
 
 Sitemap: ${SITE_URL}/sitemap.xml
 Host: ${SITE_URL}
-`;
-}
-
-function sitemapXml(): string {
-  const pages: Array<{ path: string; priority: string; freq: string; image?: boolean }> = [
-    { path: "/", priority: "1.0", freq: "weekly", image: true },
-    { path: "/services", priority: "0.9", freq: "monthly" },
-    { path: "/industries", priority: "0.8", freq: "monthly" },
-    { path: "/how-we-work", priority: "0.8", freq: "monthly" },
-    { path: "/about", priority: "0.7", freq: "monthly" },
-    { path: "/contact", priority: "0.9", freq: "monthly" },
-  ];
-  const urls = pages
-    .map((p) => {
-      const loc = `${SITE_URL}${p.path === "/" ? "/" : p.path}`;
-      const image = p.image
-        ? `
-    <image:image>
-      <image:loc>${SITE_URL}/og-image.jpg</image:loc>
-      <image:title>${SITE_NAME} — Global Sourcing, Trading and Logistics from China</image:title>
-    </image:image>`
-        : "";
-      return `  <url>
-    <loc>${loc}</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>${p.freq}</changefreq>
-    <priority>${p.priority}</priority>${image}
-  </url>`;
-    })
-    .join("\n");
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${urls}
-</urlset>
 `;
 }
 
@@ -188,8 +151,6 @@ export function handleBotAsset(request: Request): Response | null {
   switch (path) {
     case "/robots.txt":
       return textAsset(robotsTxt(), "text/plain; charset=utf-8", isSearchBot);
-    case "/sitemap.xml":
-      return textAsset(sitemapXml(), "application/xml; charset=utf-8", isSearchBot);
     case "/site.webmanifest":
     case "/manifest.webmanifest":
       return textAsset(webmanifest(), "application/manifest+json; charset=utf-8", isAnyBot);
