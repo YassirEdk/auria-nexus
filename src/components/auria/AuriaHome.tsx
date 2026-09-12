@@ -836,8 +836,23 @@ function Hero() {
         fetchPriority="high"
         className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.28] saturate-[0.55]"
         style={{
-          filter: "contrast(1.05) brightness(0.75) hue-rotate(190deg)",
+          filter: isMobile
+            ? "contrast(1.05) brightness(0.9) hue-rotate(190deg)"
+            : "contrast(1.05) brightness(0.75) hue-rotate(190deg)",
           animation: isMobile ? undefined : "ken-burns 32s ease-in-out infinite",
+          // On phones, make the backdrop clearly visible and fade it out just
+          // below the CTA row so the stats/contact area sits on the dark base.
+          // Zoom + top-bias so the container photo fills the whole visible band.
+          opacity: isMobile ? 0.25 : undefined,
+          objectPosition: isMobile ? "50% 25%" : undefined,
+          transform: isMobile ? "scale(2.35)" : undefined,
+          transformOrigin: isMobile ? "50% 0%" : undefined,
+          maskImage: isMobile
+            ? "linear-gradient(to bottom, #000 0%, #000 68%, transparent 92%)"
+            : undefined,
+          WebkitMaskImage: isMobile
+            ? "linear-gradient(to bottom, #000 0%, #000 68%, transparent 92%)"
+            : undefined,
         }}
       />
       {/* Vignette — deep so the backdrop reads as ambient texture, not content */}
@@ -845,8 +860,9 @@ function Hero() {
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
-          background:
-            "radial-gradient(ellipse at 50% 40%, rgba(8,10,13,0.25) 0%, rgba(8,10,13,0.75) 55%, rgba(8,10,13,0.98) 100%)",
+          background: isMobile
+            ? "linear-gradient(to bottom, rgba(8,10,13,0.15) 0%, rgba(8,10,13,0.15) 55%, rgba(8,10,13,0.6) 70%, rgba(8,10,13,0.98) 80%)"
+            : "radial-gradient(ellipse at 50% 40%, rgba(8,10,13,0.25) 0%, rgba(8,10,13,0.75) 55%, rgba(8,10,13,0.98) 100%)",
         }}
       />
 
