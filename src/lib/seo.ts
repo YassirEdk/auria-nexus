@@ -1,7 +1,7 @@
 // Central SEO helpers for AURIA. Change SITE_URL to your production domain.
 export const SITE_URL = "https://www.auria-trading.com";
 export const SITE_NAME = "AURIA";
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 export const LOCALES = ["en", "fr", "ar", "zh", "es", "de", "ru", "pt", "it", "tr", "ja"] as const;
 
 // High-intent keywords in every language we can rank for. Search engines read

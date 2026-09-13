@@ -13,7 +13,7 @@ Allow: /favicon-96x96.png
 Allow: /apple-touch-icon.png
 Allow: /android-chrome-192x192.png
 Allow: /android-chrome-512x512.png
-Allow: /og-image.jpg
+Allow: /og-image.png
 Allow: /site.webmanifest
 
 Sitemap: https://www.auria-trading.com/sitemap.xml

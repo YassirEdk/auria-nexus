@@ -156,14 +156,11 @@ export function handleBotAsset(request: Request): Response | null {
       return textAsset(webmanifest(), "application/manifest+json; charset=utf-8", isAnyBot);
     case "/og-image.jpg":
     case "/og-image.jpeg": {
-      if (!isAnyBot(ua)) return notFound();
-      const bytes = Uint8Array.from(atob(OG_IMAGE_BASE64), (c) => c.charCodeAt(0));
-      return new Response(bytes, {
-        status: 200,
-        headers: {
-          "content-type": "image/jpeg",
-          "cache-control": "public, max-age=86400",
-        },
+      // Old URL kept alive for crawlers that cached it previously —
+      // 301 to the current PNG so search engines refresh the reference.
+      return new Response(null, {
+        status: 301,
+        headers: { location: "/og-image.png" },
       });
     }
     default:
