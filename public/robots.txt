@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Explicitly allow every crawler to fetch favicons and the OG image so
+# Google search results, social embeds, and browser tabs can display
+# the AURIA logo instead of falling back to a cached one.
+Allow: /favicon.ico
+Allow: /favicon.svg
+Allow: /favicon-16x16.png
+Allow: /favicon-32x32.png
+Allow: /favicon-48x48.png
+Allow: /favicon-96x96.png
+Allow: /apple-touch-icon.png
+Allow: /android-chrome-192x192.png
+Allow: /android-chrome-512x512.png
+Allow: /og-image.jpg
+Allow: /site.webmanifest
+
+Sitemap: https://www.auria-trading.com/sitemap.xml
