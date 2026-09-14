@@ -31,6 +31,10 @@ export default defineConfig({
     cssTarget: "chrome90",
     cssMinify: "lightningcss",
     reportCompressedSize: false,
-    chunkSizeWarningLimit: 900,
+    // The only chunk over the default 500 kB is react-globe.gl (three.js),
+    // which is already lazy-loaded (see TradeGlobe.tsx) so it never touches
+    // the initial page load and can't be split smaller. Set the ceiling just
+    // above it (~1.85 MB) so the warning still fires if our own code bloats.
+    chunkSizeWarningLimit: 2000,
   },
 });
