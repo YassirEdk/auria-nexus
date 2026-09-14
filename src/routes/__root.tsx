@@ -10,6 +10,7 @@ import {
 import { type ReactNode } from "react";
 import { Home, ArrowUpRight } from "lucide-react";
 import { motion, type Variants } from "motion/react";
+import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
 import "@/i18n";
@@ -320,6 +321,7 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <Analytics />
         <Scripts />
       </body>
     </html>
