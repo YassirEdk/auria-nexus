@@ -32,22 +32,5 @@ export default defineConfig({
     cssMinify: "lightningcss",
     reportCompressedSize: false,
     chunkSizeWarningLimit: 900,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (!id.includes("node_modules")) return;
-          if (id.includes("react-dom") || id.includes("scheduler")) return "react-dom";
-          if (id.match(/[\\/]react[\\/]/)) return "react";
-          if (id.includes("@tanstack")) return "tanstack";
-          if (id.includes("framer-motion") || id.includes("/motion/")) return "motion";
-          if (id.includes("lucide-react")) return "icons";
-          if (id.includes("@radix-ui")) return "radix";
-          if (id.includes("recharts") || id.includes("d3-")) return "charts";
-          if (id.includes("three") || id.includes("@react-three")) return "three";
-          if (id.includes("embla-carousel")) return "carousel";
-          return "vendor";
-        },
-      },
-    },
   },
 });
