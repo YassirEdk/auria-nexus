@@ -1,7 +1,12 @@
 // Central SEO helpers for AURIA. Change SITE_URL to your production domain.
+import { LOCALES as ROUTABLE_LOCALES, OG_LOCALE, DEFAULT_LOCALE, type Locale } from "./locale";
+
 export const SITE_URL = "https://www.auria-trading.com";
 export const SITE_NAME = "AURIA";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+// Superset of language codes used only for the multilingual keyword list
+// below. The routable set (locales the site actually serves under /$lang) is
+// imported from lib/locale.ts.
 export const LOCALES = ["en", "fr", "ar", "zh", "es", "de", "ru", "pt", "it", "tr", "ja"] as const;
 
 // High-intent keywords in every language we can rank for. Search engines read
@@ -223,22 +228,35 @@ export type MetaTag = Record<string, string>;
 export type LinkTag = Record<string, string>;
 
 type BuildMetaInput = {
-  path: string; // e.g. "/", "/about"
+  // Path WITHOUT the /$lang prefix, e.g. "/", "/about", "/services". The
+  // helper prepends the current locale to build the canonical, OG, and
+  // hreflang URLs.
+  path: string;
   title: string;
   description: string;
   keywords?: string[]; // extra page-specific keywords
   image?: string;
+  locale?: Locale;
 };
 
-export function absoluteUrl(path: string): string {
+function joinLocalePath(locale: Locale, path: string): string {
   if (!path.startsWith("/")) path = `/${path}`;
-  return `${SITE_URL}${path === "/" ? "" : path}`;
+  return path === "/" ? `/${locale}` : `/${locale}${path}`;
 }
 
-export function buildMeta({ path, title, description, keywords = [], image }: BuildMetaInput): MetaTag[] {
-  const url = absoluteUrl(path);
+export function absoluteUrl(path: string, locale?: Locale): string {
+  if (!path.startsWith("/")) path = `/${path}`;
+  const withLocale = locale ? joinLocalePath(locale, path) : path;
+  return `${SITE_URL}${withLocale === "/" ? "" : withLocale}`;
+}
+
+export function buildMeta({ path, title, description, keywords = [], image, locale = DEFAULT_LOCALE }: BuildMetaInput): MetaTag[] {
+  const url = absoluteUrl(path, locale);
   const ogImage = image ?? DEFAULT_OG_IMAGE;
   const allKeywords = Array.from(new Set([...keywords, ...GLOBAL_KEYWORDS])).join(", ");
+  const alternates = ROUTABLE_LOCALES
+    .filter((l) => l !== locale)
+    .map((l) => ({ property: "og:locale:alternate", content: OG_LOCALE[l] }));
   return [
     { title },
     { name: "description", content: description },
@@ -263,12 +281,8 @@ export function buildMeta({ path, title, description, keywords = [], image }: Bu
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:image:alt", content: title },
-    { property: "og:locale", content: "en_US" },
-    { property: "og:locale:alternate", content: "fr_FR" },
-    { property: "og:locale:alternate", content: "ar_AE" },
-    { property: "og:locale:alternate", content: "zh_CN" },
-    { property: "og:locale:alternate", content: "es_ES" },
-    { property: "og:locale:alternate", content: "de_DE" },
+    { property: "og:locale", content: OG_LOCALE[locale] },
+    ...alternates,
     // Twitter (twitter:site/twitter:creator omitted until a verified @handle exists)
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: title },
@@ -283,14 +297,21 @@ export function buildMeta({ path, title, description, keywords = [], image }: Bu
   ];
 }
 
-export function buildLinks(path: string): LinkTag[] {
-  const canonical = absoluteUrl(path);
-  // NOTE: hreflang alternates are intentionally NOT emitted until each locale
-  // has its own real URL that serves localized HTML. Fake alternates that
-  // return the same content are treated by Google as duplicate content and
-  // hurt rankings. Multilingual keywords in the meta + JSON-LD still let the
-  // site rank across languages.
-  return [{ rel: "canonical", href: canonical }];
+export function buildLinks(path: string, locale: Locale = DEFAULT_LOCALE): LinkTag[] {
+  const canonical = absoluteUrl(path, locale);
+  const alternates: LinkTag[] = ROUTABLE_LOCALES.map((l) => ({
+    rel: "alternate",
+    hreflang: l,
+    href: absoluteUrl(path, l),
+  }));
+  // x-default points to the English URL so Google knows what to serve when it
+  // can't match any listed locale to the user's browser preference.
+  alternates.push({
+    rel: "alternate",
+    hreflang: "x-default",
+    href: absoluteUrl(path, DEFAULT_LOCALE),
+  });
+  return [{ rel: "canonical", href: canonical }, ...alternates];
 }
 
 // JSON-LD structured data
@@ -420,9 +441,11 @@ export function websiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
     name: SITE_NAME,
     url: SITE_URL,
-    inLanguage: ["en", "fr", "ar", "zh", "es", "de"],
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    inLanguage: [...ROUTABLE_LOCALES],
     potentialAction: {
       "@type": "SearchAction",
       target: `${SITE_URL}/?q={search_term_string}`,
@@ -448,7 +471,10 @@ export function serviceJsonLd() {
   };
 }
 
-export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>) {
+export function breadcrumbJsonLd(
+  items: Array<{ name: string; path: string }>,
+  locale: Locale = DEFAULT_LOCALE,
+) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -456,7 +482,7 @@ export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>) {
       "@type": "ListItem",
       position: i + 1,
       name: item.name,
-      item: absoluteUrl(item.path),
+      item: absoluteUrl(item.path, locale),
     })),
   };
 }
@@ -466,5 +492,211 @@ export function jsonLdScript(data: unknown) {
   return {
     type: "application/ld+json",
     children: JSON.stringify(data),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Per-page keyword presets
+//
+// Every term below is drawn from GLOBAL_KEYWORDS above. `buildMeta` already
+// unions each page's keywords with GLOBAL_KEYWORDS, so what these lists
+// really do is: (1) put the most topically-relevant terms FIRST in the
+// emitted <meta name="keywords"> tag, and (2) feed the page-scoped WebPage
+// JSON-LD's `keywords` field, which Google Search Central lists as an
+// accepted signal on CreativeWork subtypes. Cross-language coverage stays
+// broad so the same page can be surfaced by a French, Arabic or Chinese
+// query without needing dedicated localized landing pages yet.
+// ---------------------------------------------------------------------------
+
+export const KEYWORDS_HOME = [
+  // Brand
+  "auria", "auria trading", "auria nexus", "auria china", "auria sourcing",
+  "auria logistics", "auria group", "auria trading company", "auria-trading",
+  "auria-trading.com", "auria b2b", "auria import export",
+  // Core intent
+  "trading in china", "china trading company", "trading company china",
+  "china sourcing agent", "china sourcing company", "china sourcing service",
+  "china buying agent", "china procurement", "china logistics",
+  "china freight forwarder", "shipping from china", "import from china",
+  "buy from china", "china manufacturer", "china suppliers",
+  "one stop sourcing china", "end to end sourcing china", "b2b sourcing china",
+  "wholesale from china", "reliable china supplier",
+  // Multilingual entry points
+  "commerce chine", "importer de chine", "sourcing chine", "fournisseur chine",
+  "تجارة الصين", "الاستيراد من الصين", "منتجات صينية", "وكيل شراء من الصين",
+  "中国采购", "中国采购代理", "中国贸易", "从中国进口",
+  "comercio china", "importar de china", "proveedor china",
+  "handel china", "import aus china", "china lieferant",
+  "comércio china", "importar da china", "fornecedor china",
+  "commercio cina", "importare dalla cina", "fornitore cina",
+  "торговля с китаем", "импорт из китая", "поставщик китай",
+  "çin ticaret", "çin'den ithalat", "çin tedarikçi",
+  "中国貿易", "中国輸入", "中国サプライヤー",
+];
+
+export const KEYWORDS_ABOUT = [
+  "about auria", "auria trading company", "auria company",
+  "china trading company", "trading company in china",
+  "china sourcing company", "china office sourcing agent",
+  "shanghai sourcing", "shanghai trading company",
+  "shenzhen sourcing", "guangzhou sourcing", "yiwu agent",
+  "china sourcing team", "auria team", "auria offices",
+  "auria contact", "auria company profile",
+  "société de sourcing chine", "entreprise commerce chine",
+  "شركة تجارة الصين", "شركة استيراد من الصين",
+  "中国贸易公司", "中国采购公司",
+  "empresa de sourcing china", "empresa comercial china",
+  "china handelsunternehmen", "chinesische handelsfirma",
+  "empresa comercial china",
+  "компания в китае", "торговая компания китай",
+  "çin ticaret şirketi",
+  "中国貿易会社",
+];
+
+export const KEYWORDS_SERVICES = [
+  // Core service phrases
+  "china sourcing services", "china sourcing agent", "sourcing agent china",
+  "china buying agent", "buying agent china",
+  "china procurement", "procurement services china",
+  "china purchasing agent",
+  "china quality control", "qc china", "china qc service",
+  "quality inspection china", "third party inspection china",
+  "pre shipment inspection china", "china factory audit",
+  "factory inspection china", "china supplier verification",
+  "private label china", "white label china",
+  "oem china", "odm china", "oem manufacturing china",
+  "product development china", "prototype china",
+  "custom products china", "custom packaging china",
+  "china consolidation", "cargo consolidation china",
+  "china warehousing", "warehouse china",
+  "fulfillment china", "3pl china", "china fulfillment center",
+  "china freight forwarder", "freight forwarder china",
+  "shipping from china", "sea freight from china", "air freight from china",
+  "rail freight china europe", "ddp shipping from china",
+  "fob china", "cif china", "lcl shipping china", "fcl shipping china",
+  "container shipping china", "door to door china",
+  "amazon fba shipping china", "fba prep china",
+  "amazon fba sourcing china",
+  "dropshipping agent china", "china dropshipping supplier",
+  // Multilingual services
+  "services de sourcing chine", "contrôle qualité chine",
+  "inspection qualité chine", "audit usine chine", "marque blanche chine",
+  "transitaire chine", "logistique chine", "fret maritime chine",
+  "خدمات سورسنغ الصين", "فحص جودة الصين", "تدقيق مصنع الصين",
+  "شحن من الصين", "شحن بحري من الصين", "شحن جوي من الصين",
+  "中国采购服务", "中国验厂", "中国质量控制",
+  "中国货代", "中国物流服务",
+  "servicios de sourcing china", "control de calidad china",
+  "auditoría de fábrica china", "logística china",
+  "china beschaffungsdienste", "qualitätskontrolle china",
+  "fabrikaudit china", "spedition china",
+  "controllo qualità cina", "ispezione cina", "spedizioni dalla cina",
+  "услуги закупок в китае", "контроль качества китай",
+  "инспекция товара китай", "логистика китай",
+  "çin kalite kontrol", "çin fabrika denetimi", "çin lojistik",
+  "中国品質管理", "中国工場監査", "中国物流",
+];
+
+export const KEYWORDS_INDUSTRIES = [
+  "china electronics sourcing", "china consumer electronics",
+  "china smart devices sourcing", "china led lighting sourcing",
+  "china solar panels sourcing",
+  "china auto parts sourcing", "china machinery sourcing",
+  "china apparel sourcing", "china textile sourcing",
+  "china furniture sourcing", "china home goods sourcing",
+  "china cosmetics sourcing", "china beauty products sourcing",
+  "china toys sourcing", "china baby products sourcing",
+  "china sports equipment sourcing", "china pet products sourcing",
+  "china packaging sourcing", "china stationery sourcing",
+  "china kitchenware sourcing", "china jewelry sourcing",
+  "china bags sourcing", "china shoes sourcing",
+  "china hardware sourcing", "china tools sourcing",
+  "china medical supplies sourcing", "china ppe sourcing",
+  // Marketplaces / events
+  "1688 sourcing", "1688 agent", "alibaba sourcing agent",
+  "alibaba agent", "made in china sourcing", "taobao sourcing agent",
+  "canton fair sourcing", "canton fair agent",
+  // Multilingual industries
+  "sourcing électronique chine", "sourcing textile chine",
+  "sourcing mobilier chine", "sourcing cosmétiques chine",
+  "استيراد إلكترونيات من الصين", "استيراد ملابس من الصين",
+  "استيراد أثاث من الصين",
+  "中国电子采购", "中国服装采购", "中国家具采购",
+  "sourcing electrónica china", "sourcing textil china",
+  "china elektronik beschaffung", "china textil beschaffung",
+  "sourcing elettronica cina", "sourcing tessile cina",
+  "закупка электроники в китае", "закупка одежды в китае",
+  "çin elektronik tedarik", "çin tekstil tedarik",
+  "中国電子部品調達", "中国アパレル調達",
+];
+
+export const KEYWORDS_HOW_WE_WORK = [
+  "how to import from china", "china sourcing process",
+  "china factory audit", "china quality inspection",
+  "china order management", "verify china supplier",
+  "china supplier scam protection", "china sourcing service near me",
+  "sample sourcing china",
+  // Multilingual
+  "comment importer de chine", "processus sourcing chine",
+  "audit fournisseur chine",
+  "كيفية الاستيراد من الصين", "خطوات الاستيراد من الصين",
+  "如何从中国进口", "中国采购流程", "中国验厂流程",
+  "cómo importar de china", "proceso de sourcing china",
+  "wie aus china importieren", "china beschaffungsprozess",
+  "come importare dalla cina", "processo di sourcing cina",
+  "как импортировать из китая", "процесс закупки в китае",
+  "çin'den nasıl ithalat", "çin tedarik süreci",
+  "中国輸入方法", "中国仕入れ手順",
+];
+
+export const KEYWORDS_CONTACT = [
+  "contact china sourcing", "china sourcing agent contact",
+  "wechat china sourcing", "whatsapp china supplier",
+  "auria contact", "contact auria trading",
+  "china sourcing quote", "china sourcing rfq",
+  // Multilingual
+  "contact sourcing chine", "contacter agent chine",
+  "تواصل مع وكيل الصين", "استفسار استيراد من الصين",
+  "联系中国采购代理", "中国采购报价",
+  "contactar agente china", "cotización sourcing china",
+  "kontakt sourcing china", "china angebot einholen",
+  "contatto sourcing cina", "preventivo sourcing cina",
+  "связаться с агентом в китае", "запрос цены китай",
+  "çin acentesi iletişim", "çin tedarik teklifi",
+  "中国調達 問い合わせ", "中国仕入れ 見積もり",
+];
+
+// ---------------------------------------------------------------------------
+// Per-page WebPage JSON-LD
+//
+// Emits a schema.org WebPage node with `keywords`, `inLanguage`, `about` and
+// a link back to the Organization/WebSite entities defined at root. Search
+// engines treat this as a page-level topic declaration — stronger than the
+// legacy <meta name="keywords"> tag alone.
+// ---------------------------------------------------------------------------
+export function webPageJsonLd(input: {
+  path: string;
+  title: string;
+  description: string;
+  keywords: string[];
+  locale?: Locale;
+}) {
+  const locale = input.locale ?? DEFAULT_LOCALE;
+  const url = absoluteUrl(input.path, locale);
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${url}#webpage`,
+    url,
+    name: input.title,
+    description: input.description,
+    inLanguage: locale,
+    keywords: input.keywords.join(", "),
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    about: { "@id": `${SITE_URL}/#organization` },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: DEFAULT_OG_IMAGE,
+    },
   };
 }

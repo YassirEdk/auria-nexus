@@ -1,9 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@/lib/link";
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import { ArrowUpRight, MapPin, Users, Languages, Shield, Compass, Handshake } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
-import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
+import {
+  buildMeta,
+  buildLinks,
+  breadcrumbJsonLd,
+  jsonLdScript,
+  webPageJsonLd,
+  KEYWORDS_ABOUT,
+} from "@/lib/seo";
+import { DEFAULT_LOCALE, isLocale } from "@/lib/locale";
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   return (
@@ -70,7 +79,15 @@ function AboutContent() {
                   ].map((k) => (
                     <div key={k.l}>
                       <p className="label-mono">{k.l}</p>
-                      <p className="mono mt-2 text-xl font-semibold text-blue sm:text-2xl">{k.v}</p>
+                      {/* Matches the About route accent (violet) declared in
+                          NAV_ACCENTS.about — same shade the header pill and
+                          background FX use on this page. */}
+                      <p
+                        className="mono mt-2 text-xl font-semibold sm:text-2xl"
+                        style={{ color: "#B79BFF" }}
+                      >
+                        {k.v}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -108,8 +125,13 @@ function AboutContent() {
               <Reveal key={o.city}>
                 <div className="panel h-full p-6">
                   <div className="flex items-center gap-2">
-                    <MapPin className="size-4 text-blue" />
-                    <span className="mono text-[11px] uppercase tracking-widest text-blue">{o.city}</span>
+                    <MapPin className="size-4" style={{ color: "#B79BFF" }} />
+                    <span
+                      className="mono text-[11px] uppercase tracking-widest"
+                      style={{ color: "#B79BFF" }}
+                    >
+                      {o.city}
+                    </span>
                   </div>
                   <p className="mt-4 text-[14px] font-semibold text-heading">{t(`about.office${o.key}Role`)}</p>
                   <p className="mt-2 border-t border-line pt-3 text-[13px] leading-6 text-muted-foreground">
@@ -141,7 +163,7 @@ function AboutContent() {
               <Reveal key={key}>
                 <div className="panel h-full p-6 md:p-7">
                   <span className="grid size-10 place-items-center border border-line bg-black/40">
-                    <Icon className="size-5 text-blue" />
+                    <Icon className="size-5" style={{ color: "#B79BFF" }} />
                   </span>
                   <p className="mt-6 text-[15px] font-semibold text-heading">{t(`about.${key}Title`)}</p>
                   <p className="mt-3 text-[13px] leading-6 text-muted-foreground">{t(`about.${key}Copy`)}</p>
@@ -170,7 +192,7 @@ function AboutContent() {
             {teamRoles.map((r) => (
               <Reveal key={r}>
                 <div className="panel p-6 md:p-7">
-                  <Users className="size-5 text-blue" />
+                  <Users className="size-5" style={{ color: "#B79BFF" }} />
                   <p className="mt-6 text-[15px] font-semibold text-heading">{t(`about.${r}Role`)}</p>
                   <p className="mt-3 border-t border-line pt-3 text-[13px] leading-6 text-muted-foreground">
                     {t(`about.${r}Detail`)}
@@ -211,30 +233,42 @@ function AboutHeader() {
   );
 }
 
-export const Route = createFileRoute("/about")({
-  head: () => ({
-    meta: buildMeta({
-      path: "/about",
-      title: "About AURIA — China Trading & Sourcing Company",
-      description:
-        "AURIA is a China-based trading and sourcing company with offices in Shanghai, Shenzhen, Guangzhou and Yiwu — helping global buyers import China products with confidence.",
-      keywords: [
-        "about auria",
-        "auria trading company",
-        "china sourcing company",
-        "trading company in china",
-        "china office sourcing agent",
+export const Route = createFileRoute("/$lang/about")({
+  head: (ctx) => {
+    const p = ctx.params as { lang?: string } | undefined;
+    const locale = isLocale(p?.lang) ? p.lang : DEFAULT_LOCALE;
+    return {
+      meta: buildMeta({
+        path: "/about",
+        locale,
+        title: "About AURIA — China Trading & Sourcing Company",
+        description:
+          "AURIA is a China-based trading and sourcing company with offices in Shanghai, Shenzhen, Guangzhou and Yiwu — helping global buyers import China products with confidence.",
+        keywords: KEYWORDS_ABOUT,
+      }),
+      links: buildLinks("/about", locale),
+      scripts: [
+        jsonLdScript(
+          breadcrumbJsonLd(
+            [
+              { name: "Home", path: "/" },
+              { name: "About", path: "/about" },
+            ],
+            locale,
+          ),
+        ),
+        jsonLdScript(
+          webPageJsonLd({
+            path: "/about",
+            title: "About AURIA — China Trading & Sourcing Company",
+            description:
+              "AURIA is a China-based trading and sourcing company with offices in Shanghai, Shenzhen, Guangzhou and Yiwu — helping global buyers import China products with confidence.",
+            keywords: KEYWORDS_ABOUT,
+            locale,
+          }),
+        ),
       ],
-    }),
-    links: buildLinks("/about"),
-    scripts: [
-      jsonLdScript(
-        breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "About", path: "/about" },
-        ])
-      ),
-    ],
-  }),
+    };
+  },
   component: AboutHeader,
 });

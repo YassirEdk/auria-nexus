@@ -10,115 +10,132 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as HowWeWorkRouteImport } from './routes/how-we-work'
-import { Route as IndustriesRouteImport } from './routes/industries'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ServicesRouteImport } from './routes/services'
+import { Route as LangRouteImport } from './routes/$lang'
+import { Route as LangIndexRouteImport } from './routes/$lang/index'
+import { Route as LangAboutRouteImport } from './routes/$lang/about'
+import { Route as LangContactRouteImport } from './routes/$lang/contact'
+import { Route as LangHowWeWorkRouteImport } from './routes/$lang/how-we-work'
+import { Route as LangIndustriesRouteImport } from './routes/$lang/industries'
+import { Route as LangLoginRouteImport } from './routes/$lang/login'
+import { Route as LangServicesRouteImport } from './routes/$lang/services'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AboutRoute = AboutRouteImport.update({
+const LangRoute = LangRouteImport.update({
+  id: '/$lang',
+  path: '/$lang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LangIndexRoute = LangIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangAboutRoute = LangAboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LangRoute,
 } as any)
-const ContactRoute = ContactRouteImport.update({
+const LangContactRoute = LangContactRouteImport.update({
   id: '/contact',
   path: '/contact',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LangRoute,
 } as any)
-const HowWeWorkRoute = HowWeWorkRouteImport.update({
+const LangHowWeWorkRoute = LangHowWeWorkRouteImport.update({
   id: '/how-we-work',
   path: '/how-we-work',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LangRoute,
 } as any)
-const IndustriesRoute = IndustriesRouteImport.update({
+const LangIndustriesRoute = LangIndustriesRouteImport.update({
   id: '/industries',
   path: '/industries',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LangRoute,
 } as any)
-const LoginRoute = LoginRouteImport.update({
+const LangLoginRoute = LangLoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LangRoute,
 } as any)
-const ServicesRoute = ServicesRouteImport.update({
+const LangServicesRoute = LangServicesRouteImport.update({
   id: '/services',
   path: '/services',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LangRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/contact': typeof ContactRoute
-  '/how-we-work': typeof HowWeWorkRoute
-  '/industries': typeof IndustriesRoute
-  '/login': typeof LoginRoute
-  '/services': typeof ServicesRoute
+  '/$lang': typeof LangRouteWithChildren
+  '/$lang/about': typeof LangAboutRoute
+  '/$lang/contact': typeof LangContactRoute
+  '/$lang/how-we-work': typeof LangHowWeWorkRoute
+  '/$lang/industries': typeof LangIndustriesRoute
+  '/$lang/login': typeof LangLoginRoute
+  '/$lang/services': typeof LangServicesRoute
+  '/$lang/': typeof LangIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/contact': typeof ContactRoute
-  '/how-we-work': typeof HowWeWorkRoute
-  '/industries': typeof IndustriesRoute
-  '/login': typeof LoginRoute
-  '/services': typeof ServicesRoute
+  '/$lang/about': typeof LangAboutRoute
+  '/$lang/contact': typeof LangContactRoute
+  '/$lang/how-we-work': typeof LangHowWeWorkRoute
+  '/$lang/industries': typeof LangIndustriesRoute
+  '/$lang/login': typeof LangLoginRoute
+  '/$lang/services': typeof LangServicesRoute
+  '/$lang': typeof LangIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/contact': typeof ContactRoute
-  '/how-we-work': typeof HowWeWorkRoute
-  '/industries': typeof IndustriesRoute
-  '/login': typeof LoginRoute
-  '/services': typeof ServicesRoute
+  '/$lang': typeof LangRouteWithChildren
+  '/$lang/about': typeof LangAboutRoute
+  '/$lang/contact': typeof LangContactRoute
+  '/$lang/how-we-work': typeof LangHowWeWorkRoute
+  '/$lang/industries': typeof LangIndustriesRoute
+  '/$lang/login': typeof LangLoginRoute
+  '/$lang/services': typeof LangServicesRoute
+  '/$lang/': typeof LangIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
-    | '/contact'
-    | '/how-we-work'
-    | '/industries'
-    | '/login'
-    | '/services'
+    | '/$lang'
+    | '/$lang/about'
+    | '/$lang/contact'
+    | '/$lang/how-we-work'
+    | '/$lang/industries'
+    | '/$lang/login'
+    | '/$lang/services'
+    | '/$lang/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
-    | '/contact'
-    | '/how-we-work'
-    | '/industries'
-    | '/login'
-    | '/services'
+    | '/$lang/about'
+    | '/$lang/contact'
+    | '/$lang/how-we-work'
+    | '/$lang/industries'
+    | '/$lang/login'
+    | '/$lang/services'
+    | '/$lang'
   id:
     | '__root__'
     | '/'
-    | '/about'
-    | '/contact'
-    | '/how-we-work'
-    | '/industries'
-    | '/login'
-    | '/services'
+    | '/$lang'
+    | '/$lang/about'
+    | '/$lang/contact'
+    | '/$lang/how-we-work'
+    | '/$lang/industries'
+    | '/$lang/login'
+    | '/$lang/services'
+    | '/$lang/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
-  ContactRoute: typeof ContactRoute
-  HowWeWorkRoute: typeof HowWeWorkRoute
-  IndustriesRoute: typeof IndustriesRoute
-  LoginRoute: typeof LoginRoute
-  ServicesRoute: typeof ServicesRoute
+  LangRoute: typeof LangRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -130,59 +147,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/about': {
-      id: '/about'
+    '/$lang': {
+      id: '/$lang'
+      path: '/$lang'
+      fullPath: '/$lang'
+      preLoaderRoute: typeof LangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$lang/': {
+      id: '/$lang/'
+      path: '/'
+      fullPath: '/$lang/'
+      preLoaderRoute: typeof LangIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/about': {
+      id: '/$lang/about'
       path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/$lang/about'
+      preLoaderRoute: typeof LangAboutRouteImport
+      parentRoute: typeof LangRoute
     }
-    '/contact': {
-      id: '/contact'
+    '/$lang/contact': {
+      id: '/$lang/contact'
       path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/$lang/contact'
+      preLoaderRoute: typeof LangContactRouteImport
+      parentRoute: typeof LangRoute
     }
-    '/how-we-work': {
-      id: '/how-we-work'
+    '/$lang/how-we-work': {
+      id: '/$lang/how-we-work'
       path: '/how-we-work'
-      fullPath: '/how-we-work'
-      preLoaderRoute: typeof HowWeWorkRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/$lang/how-we-work'
+      preLoaderRoute: typeof LangHowWeWorkRouteImport
+      parentRoute: typeof LangRoute
     }
-    '/industries': {
-      id: '/industries'
+    '/$lang/industries': {
+      id: '/$lang/industries'
       path: '/industries'
-      fullPath: '/industries'
-      preLoaderRoute: typeof IndustriesRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/$lang/industries'
+      preLoaderRoute: typeof LangIndustriesRouteImport
+      parentRoute: typeof LangRoute
     }
-    '/login': {
-      id: '/login'
+    '/$lang/login': {
+      id: '/$lang/login'
       path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/$lang/login'
+      preLoaderRoute: typeof LangLoginRouteImport
+      parentRoute: typeof LangRoute
     }
-    '/services': {
-      id: '/services'
+    '/$lang/services': {
+      id: '/$lang/services'
       path: '/services'
-      fullPath: '/services'
-      preLoaderRoute: typeof ServicesRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/$lang/services'
+      preLoaderRoute: typeof LangServicesRouteImport
+      parentRoute: typeof LangRoute
     }
   }
 }
 
+interface LangRouteChildren {
+  LangAboutRoute: typeof LangAboutRoute
+  LangContactRoute: typeof LangContactRoute
+  LangHowWeWorkRoute: typeof LangHowWeWorkRoute
+  LangIndustriesRoute: typeof LangIndustriesRoute
+  LangLoginRoute: typeof LangLoginRoute
+  LangServicesRoute: typeof LangServicesRoute
+  LangIndexRoute: typeof LangIndexRoute
+}
+
+const LangRouteChildren: LangRouteChildren = {
+  LangAboutRoute: LangAboutRoute,
+  LangContactRoute: LangContactRoute,
+  LangHowWeWorkRoute: LangHowWeWorkRoute,
+  LangIndustriesRoute: LangIndustriesRoute,
+  LangLoginRoute: LangLoginRoute,
+  LangServicesRoute: LangServicesRoute,
+  LangIndexRoute: LangIndexRoute,
+}
+
+const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
-  ContactRoute: ContactRoute,
-  HowWeWorkRoute: HowWeWorkRoute,
-  IndustriesRoute: IndustriesRoute,
-  LoginRoute: LoginRoute,
-  ServicesRoute: ServicesRoute,
+  LangRoute: LangRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

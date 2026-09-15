@@ -1121,3 +1121,41 @@ html.perf-lite .site-bg-fx__blob {
   .site-bg-fx__grid { background-size: 44px 44px; opacity: 0.35; }
   .site-bg-fx__blob { filter: blur(60px); opacity: 0.4; }
 }
+
+/* ------------------------------------------------------------------ *
+ * Language / route text-swap animation
+ * ------------------------------------------------------------------ *
+ * When the URL changes (including a language switch that flips /en →
+ * /fr → /ar), .lang-swap remounts and its text-carrying descendants
+ * play a soft fade + blur-in. Images, canvases, videos, SVG artwork
+ * and the elements that own hero background-images are explicitly
+ * excluded so photos, the trade globe and panel textures stay put
+ * while only translated copy visibly re-enters.
+ */
+@keyframes langSwapTextIn {
+  from { opacity: 0; filter: blur(8px); transform: translateY(4px); }
+  to   { opacity: 1; filter: blur(0);   transform: none;            }
+}
+
+.lang-swap :where(
+  h1, h2, h3, h4, h5, h6,
+  p, li, blockquote, em, strong,
+  a, button, label,
+  input::placeholder, textarea::placeholder,
+  .mono, .label-mono, .section-eyebrow, .status-badge,
+  span:not(.status-dot):not(.auria-letter)
+) {
+  animation: langSwapTextIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Media that must NEVER fade during the swap. We ONLY cancel the
+ * animation here — never touch opacity or filter, so intentional hero
+ * treatments (photo darkening, saturation, hue-rotate, mask fades) all
+ * survive. */
+.lang-swap :is(img, picture, video, canvas, svg, .auria-logo) {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-swap :where(*) { animation: none !important; }
+}

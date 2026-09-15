@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@/lib/link";
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import {
@@ -6,7 +7,15 @@ import {
   Ship, FileText, Tags, Wrench, ArrowUpRight,
 } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
-import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
+import {
+  buildMeta,
+  buildLinks,
+  breadcrumbJsonLd,
+  jsonLdScript,
+  webPageJsonLd,
+  KEYWORDS_SERVICES,
+} from "@/lib/seo";
+import { DEFAULT_LOCALE, isLocale } from "@/lib/locale";
 
 const services = [
   { icon: Search, code: "SVC-01", key: "svc01" },
@@ -66,12 +75,18 @@ function ServicesContent() {
                 <div className="panel h-full p-6 md:p-7">
                   <div className="flex items-center justify-between">
                     <span className="grid size-10 place-items-center border border-line bg-black/40">
-                      <Icon className="size-5 text-blue" />
+                      {/* Services route accent (NAV_ACCENTS.services.light). */}
+                      <Icon className="size-5" style={{ color: "#60A5FA" }} />
                     </span>
                     <span className="mono text-[10px] uppercase tracking-widest text-sub-muted">{code}</span>
                   </div>
                   <p className="mt-6 text-[15px] font-semibold text-heading">{t(`services.${key}Title`)}</p>
-                  <p className="mono mt-1 text-[10px] uppercase tracking-widest text-blue">{t(`services.${key}Sub`)}</p>
+                  <p
+                    className="mono mt-1 text-[10px] uppercase tracking-widest"
+                    style={{ color: "#60A5FA" }}
+                  >
+                    {t(`services.${key}Sub`)}
+                  </p>
                   <p className="mt-3 text-[13px] leading-6 text-muted-foreground">{t(`services.${key}Copy`)}</p>
                 </div>
               </Reveal>
@@ -100,13 +115,40 @@ function ServicesContent() {
               return (
                 <Reveal key={p.key}>
                   <div
-                    className={`panel h-full p-6 md:p-7 ${p.featured ? "border-blue/60" : ""}`}
-                    style={p.featured ? { boxShadow: "0 20px 60px -20px rgba(59,130,246,0.25)", borderColor: "rgba(59,130,246,0.55)" } : undefined}
+                    className="panel h-full p-6 md:p-7"
+                    style={
+                      p.featured
+                        ? {
+                            boxShadow: "0 20px 60px -20px rgba(96,165,250,0.25)",
+                            borderColor: "rgba(96,165,250,0.55)",
+                          }
+                        : undefined
+                    }
                   >
                     <div className="flex items-center justify-between">
-                      <span className={`status-badge ${p.featured ? "tone-blue" : "tone-muted"}`}>{t(`services.${p.key}Tag`)}</span>
+                      {/* Featured tag uses the services route accent (light blue)
+                          instead of the default sig-blue badge tone. */}
+                      <span
+                        className={`status-badge ${p.featured ? "" : "tone-muted"}`}
+                        style={
+                          p.featured
+                            ? {
+                                color: "#60A5FA",
+                                background: "rgba(96,165,250,0.10)",
+                                borderColor: "rgba(96,165,250,0.35)",
+                              }
+                            : undefined
+                        }
+                      >
+                        {t(`services.${p.key}Tag`)}
+                      </span>
                       {p.featured && (
-                        <span className="mono text-[10px] uppercase tracking-widest text-blue">{t("services.recommended")}</span>
+                        <span
+                          className="mono text-[10px] uppercase tracking-widest"
+                          style={{ color: "#60A5FA" }}
+                        >
+                          {t("services.recommended")}
+                        </span>
                       )}
                     </div>
                     <p className="mt-6 text-lg font-semibold text-heading">{t(`services.${p.key}Title`)}</p>
@@ -156,33 +198,42 @@ function ServicesHeader() {
   );
 }
 
-export const Route = createFileRoute("/services")({
-  head: () => ({
-    meta: buildMeta({
-      path: "/services",
-      title: "China Sourcing, Trading & Logistics Services — AURIA",
-      description:
-        "AURIA offers end-to-end China services: sourcing agents, factory verification, quality control, private label / OEM, warehousing, consolidation and international logistics.",
-      keywords: [
-        "china sourcing services",
-        "china quality control",
-        "china private label",
-        "oem china",
-        "china consolidation",
-        "freight forwarder china",
-        "china warehousing",
-        "china logistics services",
+export const Route = createFileRoute("/$lang/services")({
+  head: (ctx) => {
+    const p = ctx.params as { lang?: string } | undefined;
+    const locale = isLocale(p?.lang) ? p.lang : DEFAULT_LOCALE;
+    return {
+      meta: buildMeta({
+        path: "/services",
+        locale,
+        title: "China Sourcing, Trading & Logistics Services — AURIA",
+        description:
+          "AURIA offers end-to-end China services: sourcing agents, factory verification, quality control, private label / OEM, warehousing, consolidation and international logistics.",
+        keywords: KEYWORDS_SERVICES,
+      }),
+      links: buildLinks("/services", locale),
+      scripts: [
+        jsonLdScript(
+          breadcrumbJsonLd(
+            [
+              { name: "Home", path: "/" },
+              { name: "Services", path: "/services" },
+            ],
+            locale,
+          ),
+        ),
+        jsonLdScript(
+          webPageJsonLd({
+            path: "/services",
+            title: "China Sourcing, Trading & Logistics Services — AURIA",
+            description:
+              "AURIA offers end-to-end China services: sourcing agents, factory verification, quality control, private label / OEM, warehousing, consolidation and international logistics.",
+            keywords: KEYWORDS_SERVICES,
+            locale,
+          }),
+        ),
       ],
-    }),
-    links: buildLinks("/services"),
-    scripts: [
-      jsonLdScript(
-        breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Services", path: "/services" },
-        ])
-      ),
-    ],
-  }),
+    };
+  },
   component: ServicesHeader,
 });

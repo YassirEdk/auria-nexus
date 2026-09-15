@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@/lib/link";
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import {
@@ -6,7 +7,15 @@ import {
   Baby, Utensils, ArrowUpRight,
 } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
-import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
+import {
+  buildMeta,
+  buildLinks,
+  breadcrumbJsonLd,
+  jsonLdScript,
+  webPageJsonLd,
+  KEYWORDS_INDUSTRIES,
+} from "@/lib/seo";
+import { DEFAULT_LOCALE, isLocale } from "@/lib/locale";
 
 const sectors = [
   { icon: Cpu, code: "IND-01", key: "ind01", hubs: "Shenzhen · Dongguan · Huizhou" },
@@ -67,15 +76,21 @@ function IndustriesContent() {
                 <div className="panel h-full p-6 md:p-7">
                   <div className="flex items-center justify-between">
                     <span className="grid size-10 place-items-center border border-line bg-black/40">
-                      <Icon className="size-5 text-blue" />
+                      {/* Industries route accent (NAV_ACCENTS.industries.light). */}
+                      <Icon className="size-5" style={{ color: "#FBBF77" }} />
                     </span>
                     <span className="mono text-[10px] uppercase tracking-widest text-sub-muted">{code}</span>
                   </div>
                   <p className="mt-6 text-[15px] font-semibold text-heading">{t(`industries.${key}Title`)}</p>
-                  <p className="mono mt-1 text-[10px] uppercase tracking-widest text-blue">{t(`industries.${key}Sub`)}</p>
+                  <p
+                    className="mono mt-1 text-[10px] uppercase tracking-widest"
+                    style={{ color: "#FBBF77" }}
+                  >
+                    {t(`industries.${key}Sub`)}
+                  </p>
                   <p className="mt-3 text-[13px] leading-6 text-muted-foreground">{t(`industries.${key}Copy`)}</p>
                   <div className="mono mt-5 flex items-center gap-2 border-t border-line pt-3 text-[10px] uppercase tracking-widest text-sub-muted">
-                    <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
+                    <span className="status-dot" style={{ background: "#FBBF77", color: "#FBBF77" }} />
                     {t("industries.hubsLabel")} · {hubs}
                   </div>
                 </div>
@@ -103,7 +118,7 @@ function IndustriesContent() {
             {belts.map((r) => (
               <Reveal key={r.key}>
                 <div className="panel h-full p-6">
-                  <span className="label-mono text-blue">{t(`industries.${r.key}Region`)}</span>
+                  <span className="label-mono" style={{ color: "#FBBF77" }}>{t(`industries.${r.key}Region`)}</span>
                   <p className="mono mt-3 text-[11px] uppercase tracking-widest text-heading">{r.cities}</p>
                   <p className="mt-4 border-t border-line pt-3 text-[13px] leading-6 text-muted-foreground">{t(`industries.${r.key}Strong`)}</p>
                 </div>
@@ -139,32 +154,42 @@ function IndustriesHeader() {
   );
 }
 
-export const Route = createFileRoute("/industries")({
-  head: () => ({
-    meta: buildMeta({
-      path: "/industries",
-      title: "Industries — China Product Sourcing by Sector · AURIA",
-      description:
-        "Cross-sector China sourcing: electronics, automotive parts, fashion & textiles, furniture, beauty, industrial hardware, retail, sports and baby products.",
-      keywords: [
-        "china electronics sourcing",
-        "china automotive parts",
-        "china fashion manufacturer",
-        "china furniture supplier",
-        "china beauty products",
-        "china industrial sourcing",
-        "china retail sourcing",
+export const Route = createFileRoute("/$lang/industries")({
+  head: (ctx) => {
+    const p = ctx.params as { lang?: string } | undefined;
+    const locale = isLocale(p?.lang) ? p.lang : DEFAULT_LOCALE;
+    return {
+      meta: buildMeta({
+        path: "/industries",
+        locale,
+        title: "Industries — China Product Sourcing by Sector · AURIA",
+        description:
+          "Cross-sector China sourcing: electronics, automotive parts, fashion & textiles, furniture, beauty, industrial hardware, retail, sports and baby products.",
+        keywords: KEYWORDS_INDUSTRIES,
+      }),
+      links: buildLinks("/industries", locale),
+      scripts: [
+        jsonLdScript(
+          breadcrumbJsonLd(
+            [
+              { name: "Home", path: "/" },
+              { name: "Industries", path: "/industries" },
+            ],
+            locale,
+          ),
+        ),
+        jsonLdScript(
+          webPageJsonLd({
+            path: "/industries",
+            title: "Industries — China Product Sourcing by Sector · AURIA",
+            description:
+              "Cross-sector China sourcing: electronics, automotive parts, fashion & textiles, furniture, beauty, industrial hardware, retail, sports and baby products.",
+            keywords: KEYWORDS_INDUSTRIES,
+            locale,
+          }),
+        ),
       ],
-    }),
-    links: buildLinks("/industries"),
-    scripts: [
-      jsonLdScript(
-        breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Industries", path: "/industries" },
-        ])
-      ),
-    ],
-  }),
+    };
+  },
   component: IndustriesHeader,
 });

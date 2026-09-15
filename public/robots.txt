@@ -1,6 +1,13 @@
 User-agent: *
 Allow: /
 
+# The sign-in surface has no marketing value in the SERPs — keep crawlers on
+# the pages that should actually rank. The page also emits robots=noindex, so
+# this is defense in depth.
+Disallow: /en/login
+Disallow: /fr/login
+Disallow: /ar/login
+
 # Explicitly allow every crawler to fetch favicons and the OG image so
 # Google search results, social embeds, and browser tabs can display
 # the AURIA logo instead of falling back to a cached one.

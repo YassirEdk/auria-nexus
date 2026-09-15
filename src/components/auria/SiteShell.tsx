@@ -1,4 +1,6 @@
-import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { useRouterState, useNavigate } from "@tanstack/react-router";
+import { Link } from "@/lib/link";
+import { useLang, localizePath } from "@/lib/link";
 import { Menu, X, ArrowUpRight, Lock, Phone, Mail, Clock } from "lucide-react";
 import { useEffect, useState, type ReactNode, type MouseEvent, type CSSProperties } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
@@ -192,6 +194,7 @@ export function SiteHeader() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const lang = useLang();
   const navigate = useNavigate();
   const hidden = useHideOnScroll();
   // Play the entrance animation on the very first SiteHeader mount of this
@@ -212,18 +215,21 @@ export function SiteHeader() {
   const goToSection = (link: NavLink) => (e: MouseEvent) => {
     if (!link.hash) return;
     e.preventDefault();
-    if (pathname === link.to) {
+    const target = localizePath(link.to, lang);
+    if (pathname === target) {
       document.getElementById(link.hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
-      navigate({ to: link.to, hash: link.hash });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      navigate({ to: target as any, hash: link.hash });
     }
     setOpen(false);
   };
 
   const isActive = (link: NavLink) => {
     if (link.hash) return false;
-    if (link.to === "/") return pathname === "/";
-    return pathname === link.to || pathname.startsWith(link.to + "/");
+    const target = localizePath(link.to, lang);
+    if (link.to === "/") return pathname === target;
+    return pathname === target || pathname.startsWith(target + "/");
   };
 
   return (
@@ -523,16 +529,19 @@ function PageTransition({ children }: { children: ReactNode }) {
     return <main className="pb-16 sm:pb-14" aria-hidden />;
   }
 
+  // Route changes (including language swaps) trigger a targeted text swap:
+  // <main> itself stays fully opaque, so hero photos, panels and the
+  // background never blink out. Only text-carrying elements fade — the
+  // .lang-swap CSS class in styles.css runs a keyframe on headings,
+  // paragraphs, buttons and mono labels that ramps opacity + blur on entry.
+  // Keying the wrapper on `pathname` restarts the animation whenever the URL
+  // (and therefore the locale segment) changes.
   return (
-    <motion.main
-      key={pathname}
-      initial={{ opacity: 0, y: 12, filter: "blur(5px)" }}
-      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="pb-16 sm:pb-14"
-    >
-      {children}
-    </motion.main>
+    <main className="pb-16 sm:pb-14">
+      <div key={pathname} className="lang-swap">
+        {children}
+      </div>
+    </main>
   );
 }
 
@@ -540,11 +549,14 @@ function PageTransition({ children }: { children: ReactNode }) {
 // the current page. Uses `startsWith` so nested routes still inherit the base
 // section's accent. Falls back to the home (gold) palette.
 export function accentForPath(pathname: string): { light: string; dark: string } {
-  if (pathname.startsWith("/about")) return NAV_ACCENTS.about;
-  if (pathname.startsWith("/how-we-work")) return NAV_ACCENTS.howWeWork;
-  if (pathname.startsWith("/services")) return NAV_ACCENTS.services;
-  if (pathname.startsWith("/industries")) return NAV_ACCENTS.industries;
-  if (pathname.startsWith("/contact")) return NAV_ACCENTS.contact;
+  // Strip the /$lang prefix (e.g. "/en/about" -> "/about") so downstream
+  // startsWith checks stay locale-agnostic.
+  const withoutLocale = pathname.replace(/^\/[a-z]{2}(?=\/|$)/i, "") || "/";
+  if (withoutLocale.startsWith("/about")) return NAV_ACCENTS.about;
+  if (withoutLocale.startsWith("/how-we-work")) return NAV_ACCENTS.howWeWork;
+  if (withoutLocale.startsWith("/services")) return NAV_ACCENTS.services;
+  if (withoutLocale.startsWith("/industries")) return NAV_ACCENTS.industries;
+  if (withoutLocale.startsWith("/contact")) return NAV_ACCENTS.contact;
   return NAV_ACCENTS.home;
 }
 

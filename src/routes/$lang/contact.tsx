@@ -7,7 +7,15 @@ import { SiteLayout, accentForPath } from "@/components/auria/SiteShell";
 import { ContactSection } from "@/components/auria/AuriaHome";
 import qrWechat from "@/assets/WhatsApp Image 2026-09-05 at 20.40.35.jpeg";
 import qrWhatsapp from "@/assets/WhatsApp Image 2026-09-05 at 20.40.34.jpeg";
-import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
+import {
+  buildMeta,
+  buildLinks,
+  breadcrumbJsonLd,
+  jsonLdScript,
+  webPageJsonLd,
+  KEYWORDS_CONTACT,
+} from "@/lib/seo";
+import { DEFAULT_LOCALE, isLocale } from "@/lib/locale";
 
 /** Renders a QR image with its white background knocked out to transparent, so
  *  the (coloured) modules sit directly on the dark card instead of a white box.
@@ -88,7 +96,10 @@ function QrCard({
   recolorDark?: [number, number, number];
 }) {
   const { t } = useTranslation();
-  const color = tone === "green" ? "#10B981" : "#3B82F6";
+  // WhatsApp keeps its native brand green; the second channel (WeChat) now
+  // uses the Contact route accent (NAV_ACCENTS.contact.light — rose gold)
+  // so both cards read as part of the page's palette instead of a stray blue.
+  const color = tone === "green" ? "#10B981" : "#E8B4A0";
   return (
     <motion.div
       initial={{ opacity: 0, y: 18 }}
@@ -231,30 +242,42 @@ function ContactPage() {
   );
 }
 
-export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: buildMeta({
-      path: "/contact",
-      title: "Contact AURIA — Talk to a China Sourcing Operator",
-      description:
-        "Open a secure channel with an AURIA operator for China sourcing, trading and logistics. Reply within one business day. WeChat and WhatsApp available.",
-      keywords: [
-        "contact china sourcing",
-        "china sourcing agent contact",
-        "wechat china sourcing",
-        "whatsapp china supplier",
-        "auria contact",
+export const Route = createFileRoute("/$lang/contact")({
+  head: (ctx) => {
+    const p = ctx.params as { lang?: string } | undefined;
+    const locale = isLocale(p?.lang) ? p.lang : DEFAULT_LOCALE;
+    return {
+      meta: buildMeta({
+        path: "/contact",
+        locale,
+        title: "Contact AURIA — Talk to a China Sourcing Operator",
+        description:
+          "Open a secure channel with an AURIA operator for China sourcing, trading and logistics. Reply within one business day. WeChat and WhatsApp available.",
+        keywords: KEYWORDS_CONTACT,
+      }),
+      links: buildLinks("/contact", locale),
+      scripts: [
+        jsonLdScript(
+          breadcrumbJsonLd(
+            [
+              { name: "Home", path: "/" },
+              { name: "Contact", path: "/contact" },
+            ],
+            locale,
+          ),
+        ),
+        jsonLdScript(
+          webPageJsonLd({
+            path: "/contact",
+            title: "Contact AURIA — Talk to a China Sourcing Operator",
+            description:
+              "Open a secure channel with an AURIA operator for China sourcing, trading and logistics. Reply within one business day. WeChat and WhatsApp available.",
+            keywords: KEYWORDS_CONTACT,
+            locale,
+          }),
+        ),
       ],
-    }),
-    links: buildLinks("/contact"),
-    scripts: [
-      jsonLdScript(
-        breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Contact", path: "/contact" },
-        ])
-      ),
-    ],
-  }),
+    };
+  },
   component: ContactPage,
 });

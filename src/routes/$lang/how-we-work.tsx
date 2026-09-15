@@ -1,9 +1,18 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@/lib/link";
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import { ArrowUpRight, FileSearch, ClipboardCheck, Factory, Ship, PackageCheck } from "lucide-react";
 import { InteriorPage } from "@/components/auria/InteriorPage";
-import { buildMeta, buildLinks, breadcrumbJsonLd, jsonLdScript } from "@/lib/seo";
+import {
+  buildMeta,
+  buildLinks,
+  breadcrumbJsonLd,
+  jsonLdScript,
+  webPageJsonLd,
+  KEYWORDS_HOW_WE_WORK,
+} from "@/lib/seo";
+import { DEFAULT_LOCALE, isLocale } from "@/lib/locale";
 
 const steps = [
   { icon: FileSearch, step: "01", key: "step1" },
@@ -55,22 +64,35 @@ function HowWeWorkContent() {
                     <li className="relative py-6 pl-6 sm:py-8 sm:pl-10 rtl:pl-0 rtl:pr-6 sm:rtl:pr-10">
                       <span
                         className="absolute -left-[7px] top-8 size-3.5 rounded-full ring-4 ring-background sm:top-10 rtl:left-auto rtl:-right-[7px]"
-                        style={{ background: "#3B82F6" }}
+                        style={{ background: "#34D399" }}
                       />
                       <div className="panel p-5 sm:p-6 md:p-8">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="flex items-center gap-3 sm:gap-4">
                             <span className="grid size-10 shrink-0 place-items-center border border-line bg-black/40">
-                              <Icon className="size-5 text-blue" />
+                              {/* How-we-work route accent (NAV_ACCENTS.howWeWork.light). */}
+                              <Icon className="size-5" style={{ color: "#34D399" }} />
                             </span>
                             <div className="min-w-0">
                               <span className="mono text-[10px] uppercase tracking-widest text-sub-muted">{t("howWeWork.stepLabel")} · {step}</span>
                               <p className="text-base font-semibold text-heading sm:text-lg md:text-xl">{t(`howWeWork.${key}Title`)}</p>
-                              <p className="mono text-[10px] uppercase tracking-widest text-blue">{t(`howWeWork.${key}Sub`)}</p>
+                              <p
+                                className="mono text-[10px] uppercase tracking-widest"
+                                style={{ color: "#34D399" }}
+                              >
+                                {t(`howWeWork.${key}Sub`)}
+                              </p>
                             </div>
                           </div>
-                          <span className="status-badge tone-blue">
-                            <span className="status-dot" style={{ background: "#3B82F6", color: "#3B82F6" }} />
+                          <span
+                            className="status-badge"
+                            style={{
+                              color: "#34D399",
+                              background: "rgba(52,211,153,0.10)",
+                              borderColor: "rgba(52,211,153,0.35)",
+                            }}
+                          >
+                            <span className="status-dot" style={{ background: "#34D399", color: "#34D399" }} />
                             {t("howWeWork.slaLabel")} · {t(`howWeWork.${key}Sla`)}
                           </span>
                         </div>
@@ -109,7 +131,7 @@ function HowWeWorkContent() {
               <Reveal key={g}>
                 <div className="panel p-6 md:p-7">
                   <span className="label-mono">{t(`howWeWork.${g}k`)}</span>
-                  <p className="mono mt-3 text-3xl font-semibold text-blue">{t(`howWeWork.${g}v`)}</p>
+                  <p className="mono mt-3 text-3xl font-semibold" style={{ color: "#34D399" }}>{t(`howWeWork.${g}v`)}</p>
                   <p className="mt-3 border-t border-line pt-3 text-[13px] leading-6 text-muted-foreground">{t(`howWeWork.${g}label`)}</p>
                 </div>
               </Reveal>
@@ -147,30 +169,42 @@ function HowWeWorkHeader() {
   );
 }
 
-export const Route = createFileRoute("/how-we-work")({
-  head: () => ({
-    meta: buildMeta({
-      path: "/how-we-work",
-      title: "How AURIA Works — China Sourcing & Import Process",
-      description:
-        "AURIA's transparent five-step process: brief, supplier scouting, factory verification, quality control and international logistics — with SLAs and evidence packs.",
-      keywords: [
-        "how to import from china",
-        "china sourcing process",
-        "china factory audit",
-        "china quality inspection",
-        "china order management",
+export const Route = createFileRoute("/$lang/how-we-work")({
+  head: (ctx) => {
+    const p = ctx.params as { lang?: string } | undefined;
+    const locale = isLocale(p?.lang) ? p.lang : DEFAULT_LOCALE;
+    return {
+      meta: buildMeta({
+        path: "/how-we-work",
+        locale,
+        title: "How AURIA Works — China Sourcing & Import Process",
+        description:
+          "AURIA's transparent five-step process: brief, supplier scouting, factory verification, quality control and international logistics — with SLAs and evidence packs.",
+        keywords: KEYWORDS_HOW_WE_WORK,
+      }),
+      links: buildLinks("/how-we-work", locale),
+      scripts: [
+        jsonLdScript(
+          breadcrumbJsonLd(
+            [
+              { name: "Home", path: "/" },
+              { name: "How we work", path: "/how-we-work" },
+            ],
+            locale,
+          ),
+        ),
+        jsonLdScript(
+          webPageJsonLd({
+            path: "/how-we-work",
+            title: "How AURIA Works — China Sourcing & Import Process",
+            description:
+              "AURIA's transparent five-step process: brief, supplier scouting, factory verification, quality control and international logistics — with SLAs and evidence packs.",
+            keywords: KEYWORDS_HOW_WE_WORK,
+            locale,
+          }),
+        ),
       ],
-    }),
-    links: buildLinks("/how-we-work"),
-    scripts: [
-      jsonLdScript(
-        breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "How we work", path: "/how-we-work" },
-        ])
-      ),
-    ],
-  }),
+    };
+  },
   component: HowWeWorkHeader,
 });

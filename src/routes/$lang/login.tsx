@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@/lib/link";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
@@ -347,11 +348,14 @@ function ForgotPasswordModal({ open, onClose }: { open: boolean; onClose: () => 
   );
 }
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/$lang/login")({
   head: () => ({
     meta: [
       { title: "Client Space — Sign in · AURIA" },
       { name: "description", content: "Sign in to the AURIA Client Space to track sourcing, production and live trade lanes from China." },
+      // Sign-in surface — do not index or follow. The public marketing pages
+      // are what should rank.
+      { name: "robots", content: "noindex,nofollow" },
     ],
   }),
   component: LoginPage,

@@ -1,4 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
+import { Link } from "@/lib/link";
 import { useTranslation } from "react-i18next";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";

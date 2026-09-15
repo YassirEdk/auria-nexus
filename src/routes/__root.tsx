@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
-  Link,
   createRootRouteWithContext,
   useRouter,
   HeadContent,
@@ -14,7 +13,7 @@ import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
 import "@/i18n";
-import { useApplyStoredLanguage } from "@/i18n/useLanguage";
+import { Link } from "@/lib/link";
 import {
   GLOBAL_KEYWORDS,
   SITE_NAME,
@@ -313,8 +312,15 @@ d.setAttribute('data-viewport', small ? (xsmall ? 'xs' : 'sm') : 'lg');
 }catch(e){}})();`;
 
 function RootShell({ children }: { children: ReactNode }) {
+  // Derive the current locale from the URL so the server-rendered <html>
+  // element ships with the correct `lang` and `dir` attributes for search
+  // engines — the client hook keeps them in sync after hydration.
+  const pathname = useRouter().state.location.pathname;
+  const seg = pathname.split("/").filter(Boolean)[0] ?? "";
+  const lang = (["en", "fr", "ar"] as const).includes(seg as never) ? seg : "en";
+  const dir = lang === "ar" ? "rtl" : "ltr";
   return (
-    <html lang="en">
+    <html lang={lang} dir={dir}>
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: perfDetectScript }} />
@@ -330,7 +336,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useApplyStoredLanguage();
+  // Language is now driven by the /$lang URL segment via useSyncLanguageWithUrl
+  // inside routes/$lang.tsx — no root-level language bootstrap needed.
 
   return (
     <QueryClientProvider client={queryClient}>

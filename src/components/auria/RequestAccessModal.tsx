@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
-import { Link } from "@tanstack/react-router";
+import { Link } from "@/lib/link";
 import { ArrowUpRight, X, ShieldCheck, MapPin, Clock, HelpCircle } from "lucide-react";
 
 const EVENT = "auria:request-access";
