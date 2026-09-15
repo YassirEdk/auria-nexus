@@ -1,13 +1,16 @@
 import { useRouterState, useNavigate } from "@tanstack/react-router";
 import { Link } from "@/lib/link";
 import { useLang, localizePath } from "@/lib/link";
-import { Menu, X, ArrowUpRight, Lock, Phone, Mail, Clock } from "lucide-react";
-import { useEffect, useState, type ReactNode, type MouseEvent, type CSSProperties } from "react";
+import { Menu, X, ArrowUpRight, Lock, Phone, Mail, Clock, Globe, Check } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode, type MouseEvent, type CSSProperties } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { RequestAccessModal, openRequestAccess } from "./RequestAccessModal";
 import { ScrollProgress } from "./ScrollProgress";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useLanguage } from "@/i18n/useLanguage";
+import type { Locale } from "@/lib/locale";
 
 type NavLink = {
   key: "home" | "about" | "howWeWork" | "services" | "industries" | "contact";
@@ -116,6 +119,7 @@ export function AuriaMark({ animate = true }: { animate?: boolean }) {
     <Link to="/" className="group flex items-center gap-3" aria-label="AURIA home">
       <AuriaLogo className="size-7" animate={animate} />
       <span
+        dir="ltr"
         className="auria-wordmark text-[13px] font-semibold tracking-widest uppercase text-foreground"
         aria-label="AURIA"
       >
@@ -189,6 +193,101 @@ function useHideOnScroll(threshold = 12) {
 // one-time-per-session intro that only fires if the first page the user lands
 // on is home.
 let headerIntroPlayed = false;
+
+// Phone-only language toggle: an island-glass pill with an earth icon and the
+// current language code. Tapping it opens a popup listing every language.
+function MobileLangToggle() {
+  const { current, setLanguage, languages } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: globalThis.MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="pointer-events-auto fixed right-3 top-[16px] z-50 lg:hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Change language"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="island-lang-toggle"
+      >
+        <Globe className="size-4" />
+      </button>
+
+      {/* Portal to <body> so the centered overlay escapes the header's
+          transform (a transformed ancestor makes position:fixed resolve to it,
+          not the viewport — which pushed the popup off-center). */}
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {open && (
+              <>
+                {/* Dimmed backdrop — tap anywhere to close. */}
+                <motion.div
+                  className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => setOpen(false)}
+                />
+                {/* Centered popup with the language list. */}
+                <motion.ul
+                  initial={{ opacity: 0, scale: 0.94, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94, y: 8 }}
+                  transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  role="listbox"
+                  className="panel fixed left-1/2 top-1/2 z-[71] w-[min(84vw,300px)] -translate-x-1/2 -translate-y-1/2 overflow-hidden p-2 shadow-2xl"
+                >
+                  {languages.map((l) => {
+                    const selected = l.code === current;
+                    return (
+                      <li key={l.code}>
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={selected}
+                          onClick={() => {
+                            setLanguage(l.code as Locale);
+                            setOpen(false);
+                          }}
+                          className={`flex w-full cursor-pointer items-center justify-between gap-3 rounded-md px-4 py-3 text-[14px] transition-colors hover:bg-white/5 ${
+                            selected ? "text-heading" : "text-muted-foreground"
+                          }`}
+                        >
+                          <span className="flex items-center gap-3">
+                            <span className="mono text-[11px] uppercase tracking-widest text-sub-muted">{l.short}</span>
+                            <span>{l.label}</span>
+                          </span>
+                          {selected && <Check className="size-4 text-blue" />}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </motion.ul>
+              </>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
+    </div>
+  );
+}
 
 export function SiteHeader() {
   const { t } = useTranslation();
@@ -352,6 +451,12 @@ export function SiteHeader() {
         </motion.button>
       </motion.div>
 
+      {/* Phone-only language toggle, aligned with the header row on the right
+          edge and styled to match the island glass. Shows only the current code
+          (EN / FR / AR) and cycles to the next language on tap. Hidden while the
+          menu is open (the menu has its own switcher). */}
+      {!open && <MobileLangToggle />}
+
       {open && (
         <nav
           className="pointer-events-auto fixed inset-x-3 top-[68px] z-40 max-h-[calc(100dvh-96px)] overflow-y-auto rounded-2xl border border-line bg-background/95 shadow-2xl backdrop-blur-xl lg:hidden"
@@ -373,9 +478,6 @@ export function SiteHeader() {
             ))}
           </ul>
           <div className="grid gap-3 border-t border-line p-5 sm:p-6">
-            <div className="flex justify-center pb-1">
-              <LanguageSwitcher />
-            </div>
             <Link
               to="/login"
               onClick={() => setOpen(false)}
@@ -383,16 +485,6 @@ export function SiteHeader() {
             >
               <Lock className="size-3.5" /> {t("cta.clientSpace")}
             </Link>
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                openRequestAccess();
-              }}
-              className="btn-primary w-full justify-center"
-            >
-              {t("cta.applyNow")} <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
-            </button>
           </div>
         </nav>
       )}
@@ -659,6 +751,7 @@ function IntroSplash() {
           >
             <AuriaLogo className="size-16" animate />
             <span
+              dir="ltr"
               className="auria-wordmark text-[22px] font-semibold uppercase tracking-[0.4em] text-foreground"
               aria-label="AURIA"
             >

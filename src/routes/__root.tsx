@@ -3,12 +3,13 @@ import {
   Outlet,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Home, ArrowUpRight } from "lucide-react";
-import { motion, type Variants } from "motion/react";
+import { motion, AnimatePresence, type Variants } from "motion/react";
 import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
@@ -334,6 +335,69 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+// Full-screen logo flash shown on every client-side navigation — a page change
+// (home -> about, about -> how-we-work, …) or a language switch (ar -> en). The
+// gold AURIA mark scales up big at the center over the page, then keeps growing
+// as it fades out, revealing the new page. Rendered here in RootComponent — the
+// one component that stays mounted for the whole app lifetime — so a single
+// persistent AnimatePresence drives the enter/exit cleanly on every route, no
+// matter which page mounts or unmounts underneath. Honors reduced-motion and
+// skips the very first paint so it never double-plays with the intro splash.
+function RouteLogoTransition() {
+  const key = useRouterState({ select: (s) => s.location.pathname });
+  const [active, setActive] = useState<string | null>(null);
+  const prevKey = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (prevKey.current === null) {
+      prevKey.current = key;
+      return;
+    }
+    if (key === prevKey.current) return;
+    prevKey.current = key;
+
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    setActive(key);
+    const id = window.setTimeout(() => setActive(null), 850);
+    return () => window.clearTimeout(id);
+  }, [key]);
+
+  return (
+    <AnimatePresence>
+      {active && (
+        <div
+          key={active}
+          className="pointer-events-none fixed inset-0 z-[95] flex items-center justify-center"
+          aria-hidden
+        >
+          <motion.svg
+            viewBox="0 0 64 64"
+            className="w-[46vw] max-w-[420px]"
+            initial={{ opacity: 0, scale: 0.55 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.6 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <defs>
+              <linearGradient id="auriaRouteGold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#F5C36B" />
+                <stop offset="55%" stopColor="#D9A24B" />
+                <stop offset="100%" stopColor="#8C5E1F" />
+              </linearGradient>
+            </defs>
+            <path d="M 6 56 L 32 10 L 58 56" fill="none" stroke="url(#auriaRouteGold)" strokeWidth="3" strokeLinejoin="miter" strokeLinecap="square" />
+            <path d="M 15 54 L 32 22 L 49 54" fill="none" stroke="url(#auriaRouteGold)" strokeWidth="3" strokeLinejoin="miter" strokeLinecap="square" />
+            <path d="M 24 52 L 32 34 L 40 52" fill="none" stroke="url(#auriaRouteGold)" strokeWidth="3" strokeLinejoin="miter" strokeLinecap="square" />
+          </motion.svg>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   // Language is now driven by the /$lang URL segment via useSyncLanguageWithUrl
@@ -341,6 +405,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <RouteLogoTransition />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
