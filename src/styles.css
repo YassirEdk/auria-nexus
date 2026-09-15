@@ -887,16 +887,29 @@
 
 @utility field-input {
   width: 100%;
-  background: rgba(11,14,18,0.6);
-  border: 1px solid var(--line);
+  /* Slightly lifted panel — brighter than the surrounding card bg so the
+     field reads as an obvious tappable target instead of blending into the
+     page. Border is a warm-toned line + soft inner glow so the outline is
+     visible on Arabic/dark backgrounds too. */
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: var(--radius-sm);
   padding: 0.75rem 0.9rem;
   color: var(--heading);
   font-size: 0.875rem;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 .field-input::placeholder { color: var(--text-sub); }
-.field-input:focus { outline: none; border-color: var(--route-accent, var(--sig-blue)); background: rgba(11,14,18,0.9); }
+.field-input:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.06); }
+.field-input:focus {
+  outline: none;
+  border-color: var(--route-accent, var(--sig-blue));
+  background: rgba(255,255,255,0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.02),
+    0 0 0 3px color-mix(in srgb, var(--route-accent, var(--sig-blue)) 22%, transparent);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .marquee-track, .scan-line-container::after, .status-dot { animation: none !important; }
